@@ -315,6 +315,10 @@
     <Compile Include="Model\GroupRequirementType.cs" />
     <Compile Include="Model\GroupScheduleExclusion.cs" />
     <Compile Include="Model\MergeTemplate.cs" />
+    <Compile Include="Model\RegistrationTemplateFormAttribute.cs" />
+    <Compile Include="Model\RegistrationTemplateForm.cs" />
+    <Compile Include="Model\RegistrationInstance.cs" />
+    <Compile Include="Model\RegistrationTemplate.cs" />
     <Compile Include="Model\PersonBadgeService.partial.cs" />
     <Compile Include="Model\PersonDuplicate.cs" />
     <Compile Include="Model\PersonPreviousName.cs" />
