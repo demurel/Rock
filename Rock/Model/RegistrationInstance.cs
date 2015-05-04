@@ -39,50 +39,134 @@ namespace Rock.Model
 
         #region Entity Properties
 
+        /// <summary>
+        /// Gets or sets the name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
         [Required]
         [MaxLength( 100 )]
         [DataMember( IsRequired = true )]
         public string Name { get; set; }
 
+        /// <summary>
+        /// Gets or sets the registration template identifier.
+        /// </summary>
+        /// <value>
+        /// The registration template identifier.
+        /// </value>
         [DataMember]
         public int? RegistrationTemplateId { get; set; }
 
+        /// <summary>
+        /// Gets or sets the start date time.
+        /// </summary>
+        /// <value>
+        /// The start date time.
+        /// </value>
         [DataMember]
         public DateTime? StartDateTime { get; set; }
 
+        /// <summary>
+        /// Gets or sets the end date time.
+        /// </summary>
+        /// <value>
+        /// The end date time.
+        /// </value>
         [DataMember]
         public DateTime? EndDateTime { get; set; }
 
+        /// <summary>
+        /// Gets or sets the details.
+        /// </summary>
+        /// <value>
+        /// The details.
+        /// </value>
         [DataMember]
         public string Details { get; set; }
 
+        /// <summary>
+        /// Gets or sets the maximum attendees.
+        /// </summary>
+        /// <value>
+        /// The maximum attendees.
+        /// </value>
         [DataMember]
         public int MaxAttendees { get; set; }
 
+        /// <summary>
+        /// Gets or sets the account code.
+        /// </summary>
+        /// <value>
+        /// The account code.
+        /// </value>
         [DataMember]
         [MaxLength( 100 )]
         public string AccountCode { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether this instance is active.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is active; otherwise, <c>false</c>.
+        /// </value>
         [DataMember]
         public bool IsActive { get; set; }
 
+        /// <summary>
+        /// Gets or sets the name of the contact.
+        /// </summary>
+        /// <value>
+        /// The name of the contact.
+        /// </value>
         [DataMember]
         [MaxLength( 200 )]
         public string ContactName { get; set; }
 
+        /// <summary>
+        /// Gets or sets the contact email.
+        /// </summary>
+        /// <value>
+        /// The contact email.
+        /// </value>
         [DataMember]
         [MaxLength( 200 )]
         public string ContactEmail { get; set; }
 
+        /// <summary>
+        /// Gets or sets the additional reminder details.
+        /// </summary>
+        /// <value>
+        /// The additional reminder details.
+        /// </value>
         [DataMember]
         public string AdditionalReminderDetails { get; set; }
 
+        /// <summary>
+        /// Gets or sets the additional confirmation details.
+        /// </summary>
+        /// <value>
+        /// The additional confirmation details.
+        /// </value>
         [DataMember]
         public string AdditionalConfirmationDetails { get; set; }
 
+        /// <summary>
+        /// Gets or sets the reminder sent date time.
+        /// </summary>
+        /// <value>
+        /// The reminder sent date time.
+        /// </value>
         [DataMember]
         public DateTime? ReminderSentDateTime { get; set; }
 
+        /// <summary>
+        /// Gets or sets the confirmation sent date time.
+        /// </summary>
+        /// <value>
+        /// The confirmation sent date time.
+        /// </value>
         [DataMember]
         public DateTime? ConfirmationSentDateTime { get; set; }
 
@@ -90,6 +174,12 @@ namespace Rock.Model
 
         #region Virtual Properties
 
+        /// <summary>
+        /// Gets or sets the registration template.
+        /// </summary>
+        /// <value>
+        /// The registration template.
+        /// </value>
         public virtual RegistrationTemplate RegistrationTemplate { get; set; }
 
         #endregion

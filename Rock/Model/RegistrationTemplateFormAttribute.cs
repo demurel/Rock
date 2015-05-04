@@ -38,35 +38,95 @@ namespace Rock.Model
 
         #region Entity Properties
 
+        /// <summary>
+        /// Gets or sets the name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
         [Required]
         [MaxLength( 100 )]
         [DataMember( IsRequired = true )]
         public string Name { get; set; }
 
+        /// <summary>
+        /// Gets or sets the registration template form identifier.
+        /// </summary>
+        /// <value>
+        /// The registration template form identifier.
+        /// </value>
         [DataMember]
         public int? RegistrationTemplateFormId { get; set; }
 
+        /// <summary>
+        /// Gets or sets the entity ( Person/GroupMember/Registrant ) that attribute applies to.
+        /// </summary>
+        /// <value>
+        /// The applies to.
+        /// </value>
         [DataMember]
         public RegistrationAttributeAppliesTo AppliesTo { get; set; }
 
+        /// <summary>
+        /// Gets or sets the attribute identifier.
+        /// </summary>
+        /// <value>
+        /// The attribute identifier.
+        /// </value>
         [DataMember]
         public int? AttributeId { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether this is a 'common value'. If so, the value entered will be auto set for each person on the registration.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [common value]; otherwise, <c>false</c>.
+        /// </value>
         [DataMember]
         public bool CommonValue { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether to use the current value of the person attribute if it already exists.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if [use current person attribute value]; otherwise, <c>false</c>.
+        /// </value>
         [DataMember]
         public bool UseCurrentPersonAttributeValue { get; set; }
 
+        /// <summary>
+        /// Gets or sets the pre text.
+        /// </summary>
+        /// <value>
+        /// The pre text.
+        /// </value>
         [DataMember]
         public string PreText { get; set; }
 
+        /// <summary>
+        /// Gets or sets the post text.
+        /// </summary>
+        /// <value>
+        /// The post text.
+        /// </value>
         [DataMember]
         public string PostText { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether to show on grid.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [show on grid]; otherwise, <c>false</c>.
+        /// </value>
         [DataMember]
         public bool ShowOnGrid { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether to require on initial entry.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if [required on initial entry]; otherwise, <c>false</c>.
+        /// </value>
         [DataMember]
         public bool RequiredOnInitialEntry { get; set; }
 
@@ -74,8 +134,20 @@ namespace Rock.Model
 
         #region Virtual Properties
 
+        /// <summary>
+        /// Gets or sets the registration template form.
+        /// </summary>
+        /// <value>
+        /// The registration template form.
+        /// </value>
         public virtual RegistrationTemplateForm RegistrationTemplateForm { get; set; }
 
+        /// <summary>
+        /// Gets or sets the attribute.
+        /// </summary>
+        /// <value>
+        /// The attribute.
+        /// </value>
         public virtual Attribute Attribute { get; set; }
 
         #endregion
@@ -119,22 +191,22 @@ namespace Rock.Model
     #region Enumerations
 
     /// <summary>
-    /// Represents how a <see cref="Rock.Model.Page"/> should be displayed in the page navigation controls.
+    /// The entity that attribute applies to
     /// </summary>
     public enum RegistrationAttributeAppliesTo
     {
         /// <summary>
-        /// Do NOT display field to user
+        /// Person attribute
         /// </summary>
         Person = 0,
 
         /// <summary>
-        /// Display the field to user
+        /// Group Member attribute
         /// </summary>
         GroupMember = 1,
 
         /// <summary>
-        /// Require user to enter the field value
+        /// Registration attribute
         /// </summary>
         Registration = 2
     }

@@ -14,6 +14,7 @@
 // limitations under the License.
 // </copyright>
 //
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
@@ -31,9 +32,9 @@ namespace Rock.Model
     /// <summary>
     /// 
     /// </summary>
-    [Table( "RegistrationTemplateForm" )]
+    [Table( "RegistrationTemplateDiscount" )]
     [DataContract]
-    public partial class RegistrationTemplateForm : Model<RegistrationTemplateForm>
+    public partial class RegistrationTemplateDiscount : Model<RegistrationTemplateDiscount>
     {
 
         #region Entity Properties
@@ -58,25 +59,47 @@ namespace Rock.Model
         [DataMember]
         public int? RegistrationTemplateId { get; set; }
 
+        /// <summary>
+        /// Gets or sets the code.
+        /// </summary>
+        /// <value>
+        /// The code.
+        /// </value>
+        [Required]
+        [MaxLength( 100 )]
+        [DataMember( IsRequired = true )]
+        public string Code { get; set; }
+
+        /// <summary>
+        /// Gets or sets the discount percentage.
+        /// </summary>
+        /// <value>
+        /// The discount percentage.
+        /// </value>
+        [DataMember]
+        public double DiscountPercentage { get; set; }
+
+        /// <summary>
+        /// Gets or sets the discount amount.
+        /// </summary>
+        /// <value>
+        /// The discount amount.
+        /// </value>
+        [DataMember]
+        public decimal DiscountAmount { get; set; }
+
         #endregion
 
         #region Virtual Properties
 
-        public virtual RegistrationTemplate RegistrationTemplate { get; set; }
-
         /// <summary>
-        /// Gets or sets the form attributes.
+        /// Gets or sets the registration template.
         /// </summary>
         /// <value>
-        /// The form attributes.
+        /// The registration template.
         /// </value>
-        [DataMember]
-        public virtual ICollection<RegistrationTemplateFormAttribute> FormAttributes
-        {
-            get { return _registrationTemplateFormAttributes ?? ( _registrationTemplateFormAttributes = new Collection<RegistrationTemplateFormAttribute>() ); }
-            set { _registrationTemplateFormAttributes = value; }
-        }
-        private ICollection<RegistrationTemplateFormAttribute> _registrationTemplateFormAttributes;
+        public virtual RegistrationTemplate RegistrationTemplate { get; set; }
+
         #endregion
 
         #region Methods
@@ -101,14 +124,14 @@ namespace Rock.Model
     /// <summary>
     /// Configuration class.
     /// </summary>
-    public partial class RegistrationTemplateFormConfiguration : EntityTypeConfiguration<RegistrationTemplateForm>
+    public partial class RegistrationTemplateDiscountConfiguration : EntityTypeConfiguration<RegistrationTemplateDiscount>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="RegistrationTemplateFormConfiguration"/> class.
+        /// Initializes a new instance of the <see cref="RegistrationTemplateDiscountConfiguration"/> class.
         /// </summary>
-        public RegistrationTemplateFormConfiguration()
+        public RegistrationTemplateDiscountConfiguration()
         {
-            this.HasRequired( i => i.RegistrationTemplate ).WithMany( t => t.Forms ).HasForeignKey( i => i.RegistrationTemplateId ).WillCascadeOnDelete( true );
+            this.HasRequired( i => i.RegistrationTemplate ).WithMany().HasForeignKey( i => i.RegistrationTemplateId ).WillCascadeOnDelete( true );
         }
     }
 
