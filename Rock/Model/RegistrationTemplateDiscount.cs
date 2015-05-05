@@ -34,7 +34,7 @@ namespace Rock.Model
     /// </summary>
     [Table( "RegistrationTemplateDiscount" )]
     [DataContract]
-    public partial class RegistrationTemplateDiscount : Model<RegistrationTemplateDiscount>
+    public partial class RegistrationTemplateDiscount : Model<RegistrationTemplateDiscount>, IOrdered
     {
 
         #region Entity Properties
@@ -88,6 +88,15 @@ namespace Rock.Model
         [DataMember]
         public decimal DiscountAmount { get; set; }
 
+        /// <summary>
+        /// Gets or sets the order.
+        /// </summary>
+        /// <value>
+        /// The order.
+        /// </value>
+        [DataMember]
+        public int Order { get; set; }
+
         #endregion
 
         #region Virtual Properties
@@ -131,7 +140,7 @@ namespace Rock.Model
         /// </summary>
         public RegistrationTemplateDiscountConfiguration()
         {
-            this.HasRequired( i => i.RegistrationTemplate ).WithMany().HasForeignKey( i => i.RegistrationTemplateId ).WillCascadeOnDelete( true );
+            this.HasRequired( d => d.RegistrationTemplate ).WithMany( t => t.Discounts ).HasForeignKey( d => d.RegistrationTemplateId ).WillCascadeOnDelete( true );
         }
     }
 

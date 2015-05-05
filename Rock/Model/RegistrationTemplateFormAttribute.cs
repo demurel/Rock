@@ -33,7 +33,7 @@ namespace Rock.Model
     /// </summary>
     [Table( "RegistrationTemplateFormAttribute" )]
     [DataContract]
-    public partial class RegistrationTemplateFormAttribute : Model<RegistrationTemplateFormAttribute>
+    public partial class RegistrationTemplateFormAttribute : Model<RegistrationTemplateFormAttribute>, IOrdered
     {
 
         #region Entity Properties
@@ -129,6 +129,15 @@ namespace Rock.Model
         /// </value>
         [DataMember]
         public bool RequiredOnInitialEntry { get; set; }
+
+        /// <summary>
+        /// Gets or sets the order.
+        /// </summary>
+        /// <value>
+        /// The order.
+        /// </value>
+        [DataMember]
+        public int Order { get; set; }
 
         #endregion
 

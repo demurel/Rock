@@ -28,15 +28,15 @@ using Rock.Data;
 namespace Rock.Model
 {
     /// <summary>
-    /// Attribute Service class
+    /// RegistrationTemplateDiscount Service class
     /// </summary>
-    public partial class AttributeService : Service<Attribute>
+    public partial class RegistrationTemplateDiscountService : Service<RegistrationTemplateDiscount>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="AttributeService"/> class
+        /// Initializes a new instance of the <see cref="RegistrationTemplateDiscountService"/> class
         /// </summary>
         /// <param name="context">The context.</param>
-        public AttributeService(RockContext context) : base(context)
+        public RegistrationTemplateDiscountService(RockContext context) : base(context)
         {
         }
 
@@ -48,15 +48,9 @@ namespace Rock.Model
         /// <returns>
         ///   <c>true</c> if this instance can delete the specified item; otherwise, <c>false</c>.
         /// </returns>
-        public bool CanDelete( Attribute item, out string errorMessage )
+        public bool CanDelete( RegistrationTemplateDiscount item, out string errorMessage )
         {
             errorMessage = string.Empty;
- 
-            if ( new Service<RegistrationTemplateFormAttribute>( Context ).Queryable().Any( a => a.AttributeId == item.Id ) )
-            {
-                errorMessage = string.Format( "This {0} is assigned to a {1}.", Attribute.FriendlyTypeName, RegistrationTemplateFormAttribute.FriendlyTypeName );
-                return false;
-            }  
             return true;
         }
     }
@@ -64,51 +58,41 @@ namespace Rock.Model
     /// <summary>
     /// Generated Extension Methods
     /// </summary>
-    public static partial class AttributeExtensionMethods
+    public static partial class RegistrationTemplateDiscountExtensionMethods
     {
         /// <summary>
-        /// Clones this Attribute object to a new Attribute object
+        /// Clones this RegistrationTemplateDiscount object to a new RegistrationTemplateDiscount object
         /// </summary>
         /// <param name="source">The source.</param>
         /// <param name="deepCopy">if set to <c>true</c> a deep copy is made. If false, only the basic entity properties are copied.</param>
         /// <returns></returns>
-        public static Attribute Clone( this Attribute source, bool deepCopy )
+        public static RegistrationTemplateDiscount Clone( this RegistrationTemplateDiscount source, bool deepCopy )
         {
             if (deepCopy)
             {
-                return source.Clone() as Attribute;
+                return source.Clone() as RegistrationTemplateDiscount;
             }
             else
             {
-                var target = new Attribute();
+                var target = new RegistrationTemplateDiscount();
                 target.CopyPropertiesFrom( source );
                 return target;
             }
         }
 
         /// <summary>
-        /// Copies the properties from another Attribute object to this Attribute object
+        /// Copies the properties from another RegistrationTemplateDiscount object to this RegistrationTemplateDiscount object
         /// </summary>
         /// <param name="target">The target.</param>
         /// <param name="source">The source.</param>
-        public static void CopyPropertiesFrom( this Attribute target, Attribute source )
+        public static void CopyPropertiesFrom( this RegistrationTemplateDiscount target, RegistrationTemplateDiscount source )
         {
             target.Id = source.Id;
-            target.AllowSearch = source.AllowSearch;
-            target.DefaultValue = source.DefaultValue;
-            target.Description = source.Description;
-            target.EntityTypeId = source.EntityTypeId;
-            target.EntityTypeQualifierColumn = source.EntityTypeQualifierColumn;
-            target.EntityTypeQualifierValue = source.EntityTypeQualifierValue;
-            target.FieldTypeId = source.FieldTypeId;
-            target.IconCssClass = source.IconCssClass;
-            target.IsGridColumn = source.IsGridColumn;
-            target.IsMultiValue = source.IsMultiValue;
-            target.IsRequired = source.IsRequired;
-            target.IsSystem = source.IsSystem;
-            target.Key = source.Key;
+            target.Code = source.Code;
+            target.DiscountAmount = source.DiscountAmount;
+            target.DiscountPercentage = source.DiscountPercentage;
             target.Name = source.Name;
-            target.Order = source.Order;
+            target.RegistrationTemplateId = source.RegistrationTemplateId;
             target.CreatedDateTime = source.CreatedDateTime;
             target.ModifiedDateTime = source.ModifiedDateTime;
             target.CreatedByPersonAliasId = source.CreatedByPersonAliasId;

@@ -28,15 +28,15 @@ using Rock.Data;
 namespace Rock.Model
 {
     /// <summary>
-    /// Attribute Service class
+    /// RegistrationTemplateFee Service class
     /// </summary>
-    public partial class AttributeService : Service<Attribute>
+    public partial class RegistrationTemplateFeeService : Service<RegistrationTemplateFee>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="AttributeService"/> class
+        /// Initializes a new instance of the <see cref="RegistrationTemplateFeeService"/> class
         /// </summary>
         /// <param name="context">The context.</param>
-        public AttributeService(RockContext context) : base(context)
+        public RegistrationTemplateFeeService(RockContext context) : base(context)
         {
         }
 
@@ -48,15 +48,9 @@ namespace Rock.Model
         /// <returns>
         ///   <c>true</c> if this instance can delete the specified item; otherwise, <c>false</c>.
         /// </returns>
-        public bool CanDelete( Attribute item, out string errorMessage )
+        public bool CanDelete( RegistrationTemplateFee item, out string errorMessage )
         {
             errorMessage = string.Empty;
- 
-            if ( new Service<RegistrationTemplateFormAttribute>( Context ).Queryable().Any( a => a.AttributeId == item.Id ) )
-            {
-                errorMessage = string.Format( "This {0} is assigned to a {1}.", Attribute.FriendlyTypeName, RegistrationTemplateFormAttribute.FriendlyTypeName );
-                return false;
-            }  
             return true;
         }
     }
@@ -64,51 +58,42 @@ namespace Rock.Model
     /// <summary>
     /// Generated Extension Methods
     /// </summary>
-    public static partial class AttributeExtensionMethods
+    public static partial class RegistrationTemplateFeeExtensionMethods
     {
         /// <summary>
-        /// Clones this Attribute object to a new Attribute object
+        /// Clones this RegistrationTemplateFee object to a new RegistrationTemplateFee object
         /// </summary>
         /// <param name="source">The source.</param>
         /// <param name="deepCopy">if set to <c>true</c> a deep copy is made. If false, only the basic entity properties are copied.</param>
         /// <returns></returns>
-        public static Attribute Clone( this Attribute source, bool deepCopy )
+        public static RegistrationTemplateFee Clone( this RegistrationTemplateFee source, bool deepCopy )
         {
             if (deepCopy)
             {
-                return source.Clone() as Attribute;
+                return source.Clone() as RegistrationTemplateFee;
             }
             else
             {
-                var target = new Attribute();
+                var target = new RegistrationTemplateFee();
                 target.CopyPropertiesFrom( source );
                 return target;
             }
         }
 
         /// <summary>
-        /// Copies the properties from another Attribute object to this Attribute object
+        /// Copies the properties from another RegistrationTemplateFee object to this RegistrationTemplateFee object
         /// </summary>
         /// <param name="target">The target.</param>
         /// <param name="source">The source.</param>
-        public static void CopyPropertiesFrom( this Attribute target, Attribute source )
+        public static void CopyPropertiesFrom( this RegistrationTemplateFee target, RegistrationTemplateFee source )
         {
             target.Id = source.Id;
-            target.AllowSearch = source.AllowSearch;
-            target.DefaultValue = source.DefaultValue;
-            target.Description = source.Description;
-            target.EntityTypeId = source.EntityTypeId;
-            target.EntityTypeQualifierColumn = source.EntityTypeQualifierColumn;
-            target.EntityTypeQualifierValue = source.EntityTypeQualifierValue;
-            target.FieldTypeId = source.FieldTypeId;
-            target.IconCssClass = source.IconCssClass;
-            target.IsGridColumn = source.IsGridColumn;
-            target.IsMultiValue = source.IsMultiValue;
-            target.IsRequired = source.IsRequired;
-            target.IsSystem = source.IsSystem;
-            target.Key = source.Key;
+            target.AllowMultiple = source.AllowMultiple;
+            target.CostValue = source.CostValue;
+            target.DiscountApplies = source.DiscountApplies;
+            target.FeeType = source.FeeType;
             target.Name = source.Name;
-            target.Order = source.Order;
+            target.RegistrationTemplateId = source.RegistrationTemplateId;
             target.CreatedDateTime = source.CreatedDateTime;
             target.ModifiedDateTime = source.ModifiedDateTime;
             target.CreatedByPersonAliasId = source.CreatedByPersonAliasId;

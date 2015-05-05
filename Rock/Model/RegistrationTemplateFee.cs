@@ -34,7 +34,7 @@ namespace Rock.Model
     /// </summary>
     [Table( "RegistrationTemplateFee" )]
     [DataContract]
-    public partial class RegistrationTemplateFee : Model<RegistrationTemplateFee>
+    public partial class RegistrationTemplateFee : Model<RegistrationTemplateFee>, IOrdered
     {
 
         #region Entity Properties
@@ -95,6 +95,14 @@ namespace Rock.Model
         [DataMember]
         public bool AllowMultiple { get; set; }
 
+        /// <summary>
+        /// Gets or sets the order.
+        /// </summary>
+        /// <value>
+        /// The order.
+        /// </value>
+        [DataMember]
+        public int Order { get; set; }
 
         #endregion
 
@@ -139,7 +147,7 @@ namespace Rock.Model
         /// </summary>
         public RegistrationTemplateFeeConfiguration()
         {
-            this.HasRequired( i => i.RegistrationTemplate ).WithMany().HasForeignKey( i => i.RegistrationTemplateId ).WillCascadeOnDelete( true );
+            this.HasRequired( f => f.RegistrationTemplate ).WithMany( t => t.Fees ).HasForeignKey( f => f.RegistrationTemplateId ).WillCascadeOnDelete( true );
         }
     }
 

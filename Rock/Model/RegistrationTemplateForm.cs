@@ -33,7 +33,7 @@ namespace Rock.Model
     /// </summary>
     [Table( "RegistrationTemplateForm" )]
     [DataContract]
-    public partial class RegistrationTemplateForm : Model<RegistrationTemplateForm>
+    public partial class RegistrationTemplateForm : Model<RegistrationTemplateForm>, IOrdered
     {
 
         #region Entity Properties
@@ -58,10 +58,25 @@ namespace Rock.Model
         [DataMember]
         public int? RegistrationTemplateId { get; set; }
 
+        /// <summary>
+        /// Gets or sets the order.
+        /// </summary>
+        /// <value>
+        /// The order.
+        /// </value>
+        [DataMember]
+        public int Order { get; set; }
+
         #endregion
 
         #region Virtual Properties
 
+        /// <summary>
+        /// Gets or sets the registration template.
+        /// </summary>
+        /// <value>
+        /// The registration template.
+        /// </value>
         public virtual RegistrationTemplate RegistrationTemplate { get; set; }
 
         /// <summary>

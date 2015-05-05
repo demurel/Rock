@@ -28,15 +28,15 @@ using Rock.Data;
 namespace Rock.Model
 {
     /// <summary>
-    /// Attribute Service class
+    /// RegistrationTemplateFormAttribute Service class
     /// </summary>
-    public partial class AttributeService : Service<Attribute>
+    public partial class RegistrationTemplateFormAttributeService : Service<RegistrationTemplateFormAttribute>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="AttributeService"/> class
+        /// Initializes a new instance of the <see cref="RegistrationTemplateFormAttributeService"/> class
         /// </summary>
         /// <param name="context">The context.</param>
-        public AttributeService(RockContext context) : base(context)
+        public RegistrationTemplateFormAttributeService(RockContext context) : base(context)
         {
         }
 
@@ -48,15 +48,9 @@ namespace Rock.Model
         /// <returns>
         ///   <c>true</c> if this instance can delete the specified item; otherwise, <c>false</c>.
         /// </returns>
-        public bool CanDelete( Attribute item, out string errorMessage )
+        public bool CanDelete( RegistrationTemplateFormAttribute item, out string errorMessage )
         {
             errorMessage = string.Empty;
- 
-            if ( new Service<RegistrationTemplateFormAttribute>( Context ).Queryable().Any( a => a.AttributeId == item.Id ) )
-            {
-                errorMessage = string.Format( "This {0} is assigned to a {1}.", Attribute.FriendlyTypeName, RegistrationTemplateFormAttribute.FriendlyTypeName );
-                return false;
-            }  
             return true;
         }
     }
@@ -64,51 +58,46 @@ namespace Rock.Model
     /// <summary>
     /// Generated Extension Methods
     /// </summary>
-    public static partial class AttributeExtensionMethods
+    public static partial class RegistrationTemplateFormAttributeExtensionMethods
     {
         /// <summary>
-        /// Clones this Attribute object to a new Attribute object
+        /// Clones this RegistrationTemplateFormAttribute object to a new RegistrationTemplateFormAttribute object
         /// </summary>
         /// <param name="source">The source.</param>
         /// <param name="deepCopy">if set to <c>true</c> a deep copy is made. If false, only the basic entity properties are copied.</param>
         /// <returns></returns>
-        public static Attribute Clone( this Attribute source, bool deepCopy )
+        public static RegistrationTemplateFormAttribute Clone( this RegistrationTemplateFormAttribute source, bool deepCopy )
         {
             if (deepCopy)
             {
-                return source.Clone() as Attribute;
+                return source.Clone() as RegistrationTemplateFormAttribute;
             }
             else
             {
-                var target = new Attribute();
+                var target = new RegistrationTemplateFormAttribute();
                 target.CopyPropertiesFrom( source );
                 return target;
             }
         }
 
         /// <summary>
-        /// Copies the properties from another Attribute object to this Attribute object
+        /// Copies the properties from another RegistrationTemplateFormAttribute object to this RegistrationTemplateFormAttribute object
         /// </summary>
         /// <param name="target">The target.</param>
         /// <param name="source">The source.</param>
-        public static void CopyPropertiesFrom( this Attribute target, Attribute source )
+        public static void CopyPropertiesFrom( this RegistrationTemplateFormAttribute target, RegistrationTemplateFormAttribute source )
         {
             target.Id = source.Id;
-            target.AllowSearch = source.AllowSearch;
-            target.DefaultValue = source.DefaultValue;
-            target.Description = source.Description;
-            target.EntityTypeId = source.EntityTypeId;
-            target.EntityTypeQualifierColumn = source.EntityTypeQualifierColumn;
-            target.EntityTypeQualifierValue = source.EntityTypeQualifierValue;
-            target.FieldTypeId = source.FieldTypeId;
-            target.IconCssClass = source.IconCssClass;
-            target.IsGridColumn = source.IsGridColumn;
-            target.IsMultiValue = source.IsMultiValue;
-            target.IsRequired = source.IsRequired;
-            target.IsSystem = source.IsSystem;
-            target.Key = source.Key;
+            target.AppliesTo = source.AppliesTo;
+            target.AttributeId = source.AttributeId;
+            target.CommonValue = source.CommonValue;
             target.Name = source.Name;
-            target.Order = source.Order;
+            target.PostText = source.PostText;
+            target.PreText = source.PreText;
+            target.RegistrationTemplateFormId = source.RegistrationTemplateFormId;
+            target.RequiredOnInitialEntry = source.RequiredOnInitialEntry;
+            target.ShowOnGrid = source.ShowOnGrid;
+            target.UseCurrentPersonAttributeValue = source.UseCurrentPersonAttributeValue;
             target.CreatedDateTime = source.CreatedDateTime;
             target.ModifiedDateTime = source.ModifiedDateTime;
             target.CreatedByPersonAliasId = source.CreatedByPersonAliasId;

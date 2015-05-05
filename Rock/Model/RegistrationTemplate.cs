@@ -80,10 +80,10 @@ namespace Rock.Model
         /// Gets or sets the group member status that registrants will be added to group with.
         /// </summary>
         /// <value>
-        /// The group member status identifier.
+        /// The group member status.
         /// </value>
         [DataMember]
-        public int? GroupMemberStatusId { get; set; }
+        public GroupMemberStatus GroupMemberStatus { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to notify group leaders when registrants are added to group through a registration.
@@ -242,6 +242,12 @@ namespace Rock.Model
         [DataMember]
         public int? FinancialGatewayId { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether this instance is active.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is active; otherwise, <c>false</c>.
+        /// </value>
         [DataMember]
         public bool IsActive { get; set; }
 
@@ -336,6 +342,34 @@ namespace Rock.Model
         /// </value>
         public virtual FinancialGateway FinancialGateway { get; set; }
 
+        /// <summary>
+        /// Gets or sets the discounts.
+        /// </summary>
+        /// <value>
+        /// The discounts.
+        /// </value>
+        [DataMember]
+        public virtual ICollection<RegistrationTemplateDiscount> Discounts
+        {
+            get { return _discounts ?? ( _discounts = new Collection<RegistrationTemplateDiscount>() ); }
+            set { _discounts = value; }
+        }
+        private ICollection<RegistrationTemplateDiscount> _discounts;
+
+        /// <summary>
+        /// Gets or sets the fees.
+        /// </summary>
+        /// <value>
+        /// The fees.
+        /// </value>
+        [DataMember]
+        public virtual ICollection<RegistrationTemplateFee> Fees
+        {
+            get { return _fees ?? ( _fees = new Collection<RegistrationTemplateFee>() ); }
+            set { _fees = value; }
+        }
+        private ICollection<RegistrationTemplateFee> _fees;
+        
         /// <summary>
         /// Gets or sets the collection of the current page's child pages.
         /// </summary>

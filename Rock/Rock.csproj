@@ -295,6 +295,12 @@
     <Compile Include="Model\CodeGenerated\PersonDuplicateService.cs" />
     <Compile Include="Model\CodeGenerated\PersonPreviousNameService.cs" />
     <Compile Include="Model\CodeGenerated\PluginMigrationService.cs" />
+    <Compile Include="Model\CodeGenerated\RegistrationInstanceService.cs" />
+    <Compile Include="Model\CodeGenerated\RegistrationTemplateDiscountService.cs" />
+    <Compile Include="Model\CodeGenerated\RegistrationTemplateFeeService.cs" />
+    <Compile Include="Model\CodeGenerated\RegistrationTemplateFormAttributeService.cs" />
+    <Compile Include="Model\CodeGenerated\RegistrationTemplateFormService.cs" />
+    <Compile Include="Model\CodeGenerated\RegistrationTemplateService.cs" />
     <Compile Include="Model\ContentChannel.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -394,6 +400,7 @@
     <Compile Include="Web\UI\Controls\Pickers\MergeTemplatePicker.cs" />
     <Compile Include="Web\UI\Controls\Pickers\DataViewPicker.cs" />
     <Compile Include="Web\UI\Controls\Pickers\GradePicker.cs" />
+    <Compile Include="Web\UI\Controls\Registration\AttributeFormEditor.cs" />
     <Compile Include="Web\UI\Controls\RockRating.cs" />
     <Compile Include="Web\UI\RockBlockWrapper.cs" />
     <Compile Include="Web\UI\Controls\Chart\ChartClickArgs.cs" />
