@@ -240,7 +240,7 @@ namespace Rock.Web.UI.Controls
                         }
                     }
 
-                    _ddlGroupRole.SelectedValue = groupRoleId.ToString();
+                    _ddlGroupRole.SetValue( groupRoleId.ToString() );
                 }
             }
         }

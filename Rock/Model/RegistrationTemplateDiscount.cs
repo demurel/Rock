@@ -40,26 +40,6 @@ namespace Rock.Model
         #region Entity Properties
 
         /// <summary>
-        /// Gets or sets the name.
-        /// </summary>
-        /// <value>
-        /// The name.
-        /// </value>
-        [Required]
-        [MaxLength( 100 )]
-        [DataMember( IsRequired = true )]
-        public string Name { get; set; }
-
-        /// <summary>
-        /// Gets or sets the registration template identifier.
-        /// </summary>
-        /// <value>
-        /// The registration template identifier.
-        /// </value>
-        [DataMember]
-        public int? RegistrationTemplateId { get; set; }
-
-        /// <summary>
         /// Gets or sets the code.
         /// </summary>
         /// <value>
@@ -69,6 +49,15 @@ namespace Rock.Model
         [MaxLength( 100 )]
         [DataMember( IsRequired = true )]
         public string Code { get; set; }
+
+        /// <summary>
+        /// Gets or sets the registration template identifier.
+        /// </summary>
+        /// <value>
+        /// The registration template identifier.
+        /// </value>
+        [DataMember]
+        public int? RegistrationTemplateId { get; set; }
 
         /// <summary>
         /// Gets or sets the discount percentage.
@@ -121,7 +110,7 @@ namespace Rock.Model
         /// </returns>
         public override string ToString()
         {
-            return Name;
+            return Code;
         }
 
         #endregion

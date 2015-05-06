@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data.Entity;
 using System.Linq;
 using System.Web.UI;
 
@@ -205,7 +206,7 @@ namespace RockWeb.Blocks.Registration
 
             if ( RegistrationTemplate != null )
             {
-                // Load the state objects for the source workflow type
+                // Load the state objects for the source registration template
                 LoadStateDetails( RegistrationTemplate, rockContext );
 
                 // clone the registration template
@@ -220,7 +221,7 @@ namespace RockWeb.Blocks.Registration
                 newRegistrationTemplate.Guid = Guid.NewGuid();
                 newRegistrationTemplate.Name = RegistrationTemplate.Name + " - Copy";
 
-                // Create temporary state objects for the new workflow type
+                // Create temporary state objects for the new registration template
                 var newDiscountState = new List<RegistrationTemplateDiscount>();
                 var newFeeState = new List<RegistrationTemplateFee>();
 
@@ -313,7 +314,7 @@ namespace RockWeb.Blocks.Registration
 
             rockContext.WrapTransaction( () =>
             {
-                // Save the entity field changes to workflow type
+                // Save the entity field changes to registration template
                 if ( RegistrationTemplate.Id.Equals( 0 ) )
                 {
                     service.Add( RegistrationTemplate );
@@ -322,22 +323,26 @@ namespace RockWeb.Blocks.Registration
 
                 // delete discounts that aren't assigned in the UI anymore
                 var registrationTemplateDiscountService = new RegistrationTemplateDiscountService( rockContext );
-                foreach ( var discount in registrationTemplateDiscountService
-                    .Queryable()
-                    .Where( d =>
-                        d.RegistrationTemplateId.Equals( RegistrationTemplate.Id ) &&
-                        !DiscountState.Select( u => u.Guid ).Contains( d.Guid ) ) )
+                var uiGuids = DiscountState.Select( u => u.Guid ).ToList();
                 {
-                    registrationTemplateDiscountService.Delete( discount );
+                    foreach ( var discount in registrationTemplateDiscountService
+                        .Queryable()
+                        .Where( d =>
+                            d.RegistrationTemplateId == RegistrationTemplate.Id &&
+                            !uiGuids.Contains( d.Guid ) ) )
+                    {
+                        registrationTemplateDiscountService.Delete( discount );
+                    }
                 }
 
                 // delete fees that aren't assigned in the UI anymore
                 var registrationTemplateFeeService = new RegistrationTemplateFeeService( rockContext );
+                uiGuids = FeeState.Select( u => u.Guid ).ToList();
                 foreach ( var fee in  registrationTemplateFeeService
                     .Queryable()
                     .Where( d => 
-                        d.RegistrationTemplateId.Equals( RegistrationTemplate.Id ) &&
-                        !FeeState.Select( u => u.Guid ).Contains( d.Guid ) ) )
+                        d.RegistrationTemplateId == RegistrationTemplate.Id &&
+                        !uiGuids.Contains( d.Guid ) ) )
                 {
                     registrationTemplateFeeService.Delete( fee );
                 }
@@ -355,6 +360,7 @@ namespace RockWeb.Blocks.Registration
                     discount.Code = discountUI.Code;
                     discount.DiscountPercentage = discountUI.DiscountPercentage;
                     discount.DiscountAmount = discountUI.DiscountAmount;
+                    discount.Order = discountUI.Order;
                 }
 
                 // add/updated fees
@@ -367,10 +373,12 @@ namespace RockWeb.Blocks.Registration
                         fee.Guid = feeUI.Guid;
                         RegistrationTemplate.Fees.Add( fee );
                     }
+                    fee.Name = feeUI.Name;
                     fee.FeeType = feeUI.FeeType;
                     fee.CostValue = feeUI.CostValue;
                     fee.DiscountApplies = feeUI.DiscountApplies;
                     fee.AllowMultiple = feeUI.AllowMultiple;
+                    fee.Order = feeUI.Order;
                 }
 
                 rockContext.SaveChanges();
@@ -414,6 +422,42 @@ namespace RockWeb.Blocks.Registration
             }
         }
 
+        protected void gtpGroupType_SelectedIndexChanged( object sender, EventArgs e )
+        {
+            rpGroupTypeRole.GroupTypeId = gtpGroupType.SelectedGroupTypeId ?? 0;
+        }
+
+        protected void cbMultipleRegistrants_CheckedChanged( object sender, EventArgs e )
+        {
+            nbMaxRegistrants.Visible = cbMultipleRegistrants.Checked;
+        }
+
+        protected void cbUserDefaultConfirmation_CheckedChanged( object sender, EventArgs e )
+        {
+            ceConfirmationEmailTemplate.Visible = !cbUserDefaultConfirmation.Checked;
+        }
+
+        protected void rblDiscountType_SelectedIndexChanged( object sender, EventArgs e )
+        {
+            if ( rblDiscountType.SelectedValue == "Amount" )
+            {
+                nbDiscountPercentage.Visible = false;
+                cbDiscountAmount.Visible = true;
+            }
+            else
+            {
+                nbDiscountPercentage.Visible = true;
+                cbDiscountAmount.Visible = false;
+            }
+        }
+
+        protected void rblFeeType_SelectedIndexChanged( object sender, EventArgs e )
+        {
+            var feeType = rblFeeType.SelectedValueAsEnum<RegistrationFeeType>();
+            cCost.Visible = feeType == RegistrationFeeType.Single;
+            kvlMultipleFees.Visible = feeType == RegistrationFeeType.Multiple;
+        }
+
         #endregion
 
         #region Methods
@@ -448,6 +492,7 @@ namespace RockWeb.Blocks.Registration
                 RegistrationTemplate.Id = 0;
                 RegistrationTemplate.IsActive = true;
                 RegistrationTemplate.CategoryId = parentCategoryId;
+                RegistrationTemplate.UseDefaultConfirmationEmail = true;
             }
 
             pnlDetails.Visible = true;
@@ -509,7 +554,7 @@ namespace RockWeb.Blocks.Registration
         /// <summary>
         /// Shows the edit details.
         /// </summary>
-        /// <param name="RegistrationTemplate">Type of the workflow.</param>
+        /// <param name="RegistrationTemplate">The registration template.</param>
         /// <param name="rockContext">The rock context.</param>
         private void ShowEditDetails( RegistrationTemplate RegistrationTemplate, RockContext rockContext )
         {
@@ -517,6 +562,7 @@ namespace RockWeb.Blocks.Registration
             {
                 lReadOnlyTitle.Text = ActionTitle.Add( RegistrationTemplate.FriendlyTypeName ).FormatAsHtmlTitle();
                 hlInactive.Visible = false;
+                hlType.Visible = false;
             }
             else
             {
@@ -525,18 +571,21 @@ namespace RockWeb.Blocks.Registration
 
             SetEditMode( true );
 
-            LoadDropDowns();
+            LoadDropDowns( rockContext );
 
             cbIsActive.Checked = RegistrationTemplate.IsActive;
             tbName.Text = RegistrationTemplate.Name;
             cpCategory.SetValue( RegistrationTemplate.CategoryId );
 
             gtpGroupType.SelectedGroupTypeId = RegistrationTemplate.GroupTypeId;
+            rpGroupTypeRole.GroupTypeId = RegistrationTemplate.GroupTypeId ?? 0;
             rpGroupTypeRole.GroupRoleId = RegistrationTemplate.GroupMemberRoleId;
             ddlGroupMemberStatus.SetValue( RegistrationTemplate.GroupMemberStatus.ConvertToInt() );
             cbNotifyLeaders.Checked = RegistrationTemplate.NotifyGroupLeaders;
             cbLoginRequired.Checked = RegistrationTemplate.LoginRequired;
             cbMultipleRegistrants.Checked = RegistrationTemplate.AllowMultipleRegistrants;
+            nbMaxRegistrants.Visible = RegistrationTemplate.AllowMultipleRegistrants;
+            nbMaxRegistrants.Text = RegistrationTemplate.MaxRegistrants.ToString();
             rblRegistrantsInSameFamily.SetValue( RegistrationTemplate.RegistrantsSameFamily.ConvertToInt() );
             fgpFinancialGateway.SetValue( RegistrationTemplate.FinancialGatewayId );
             cbMinimumInitialPayment.Text = RegistrationTemplate.MinimumInitialPayment.ToString();
@@ -550,7 +599,8 @@ namespace RockWeb.Blocks.Registration
 
             ceReminderEmailTemplate.Text = RegistrationTemplate.ReminderEmailTemplate;
             cbUserDefaultConfirmation.Checked = RegistrationTemplate.UseDefaultConfirmationEmail;
-            ceReminderEmailTemplate.OnChangeScript = RegistrationTemplate.ConfirmationEmailTemplate;
+            ceConfirmationEmailTemplate.Visible = !cbUserDefaultConfirmation.Checked;
+            ceConfirmationEmailTemplate.Text = RegistrationTemplate.ConfirmationEmailTemplate;
 
             tbRegistrationTerm.Text = RegistrationTemplate.RegistrationTerm;
             tbRegistrantTerm.Text = RegistrationTemplate.RegistrantTerm;
@@ -567,7 +617,7 @@ namespace RockWeb.Blocks.Registration
         /// <summary>
         /// Shows the readonly details.
         /// </summary>
-        /// <param name="RegistrationTemplate">Type of the workflow.</param>
+        /// <param name="RegistrationTemplate">The registration template.</param>
         private void ShowReadonlyDetails( RegistrationTemplate RegistrationTemplate )
         {
             SetEditMode( false );
@@ -578,6 +628,17 @@ namespace RockWeb.Blocks.Registration
 
             lReadOnlyTitle.Text = RegistrationTemplate.Name.FormatAsHtmlTitle();
             hlInactive.Visible = RegistrationTemplate.IsActive == false;
+            hlType.Visible = RegistrationTemplate.Category != null;
+            hlType.Text = RegistrationTemplate.Category != null ?
+                RegistrationTemplate.Category.Name : string.Empty;
+            lGroupType.Text = RegistrationTemplate.GroupType != null ?
+                RegistrationTemplate.GroupType.Name : string.Empty;
+
+            lGateway.Text = RegistrationTemplate.FinancialGateway != null ?
+                RegistrationTemplate.FinancialGateway.Name : string.Empty;
+
+            rFees.DataSource = RegistrationTemplate.Fees.OrderBy( f => f.Order ).ToList();
+            rFees.DataBind();
         }
 
         /// <summary>
@@ -593,8 +654,15 @@ namespace RockWeb.Blocks.Registration
         /// <summary>
         /// Loads the drop downs.
         /// </summary>
-        private void LoadDropDowns()
+        private void LoadDropDowns( RockContext rockContext )
         {
+            gtpGroupType.GroupTypes = new GroupTypeService( rockContext )
+                .Queryable().AsNoTracking()
+                .Where( t => t.ShowInNavigation )
+                .OrderBy( t => t.Order )
+                .ThenBy( t => t.Name )
+                .ToList();
+                
             ddlGroupMemberStatus.BindToEnum<GroupMemberStatus>();
             rblRegistrantsInSameFamily.BindToEnum<RegistrantsSameFamily>();
             rblRequestHomeCampus.BindToEnum<RegistrationRequestField>();
@@ -603,7 +671,7 @@ namespace RockWeb.Blocks.Registration
             rblRequstBirthdate.BindToEnum<RegistrationRequestField>();
             rblRequestGender.BindToEnum<RegistrationRequestField>();
             rblRequestMaritalStatus.BindToEnum<RegistrationRequestField>();
-            ddlFeeType.BindToEnum<RegistrationFeeType>();
+            rblFeeType.BindToEnum<RegistrationFeeType>();
         }
 
         #endregion
@@ -612,7 +680,33 @@ namespace RockWeb.Blocks.Registration
 
         protected void gDiscounts_GridReorder( object sender, GridReorderEventArgs e )
         {
- 	        throw new NotImplementedException();
+            var movedItem = DiscountState.Where( a => a.Order == e.OldIndex ).FirstOrDefault();
+            if ( movedItem != null )
+            {
+                if ( e.NewIndex < e.OldIndex )
+                {
+                    // Moved up
+                    foreach ( var otherItem in DiscountState.Where( a => a.Order < e.OldIndex && a.Order >= e.NewIndex ) )
+                    {
+                        otherItem.Order = otherItem.Order + 1;
+                    }
+                }
+                else
+                {
+                    // Moved Down
+                    foreach ( var otherItem in DiscountState.Where( a => a.Order > e.OldIndex && a.Order <= e.NewIndex ) )
+                    {
+                        otherItem.Order = otherItem.Order - 1;
+                    }
+                }
+
+                movedItem.Order = e.NewIndex;
+            }
+
+            int order = 0;
+            DiscountState.OrderBy( d => d.Order ).ToList().ForEach( d => d.Order = order++ );
+
+            BindDiscountsGrid();
         }
 
         protected void gDiscounts_GridRebind( object sender, EventArgs e )
@@ -643,12 +737,21 @@ namespace RockWeb.Blocks.Registration
             {
                 discount = new RegistrationTemplateDiscount();
                 discount.Guid = Guid.NewGuid();
+                discount.Order = DiscountState.Any() ? DiscountState.Max( d => d.Order ) + 1 : 0;
                 DiscountState.Add( discount );
             }
 
             discount.Code = tbDiscountCode.Text;
-            discount.DiscountPercentage = nbDiscountPercentage.Text.AsDouble();
-            discount.DiscountAmount = cbDiscountAmount.Text.AsDecimal();
+            if ( rblDiscountType.SelectedValue == "Amount" )
+            {
+                discount.DiscountPercentage = 0;
+                discount.DiscountAmount = cbDiscountAmount.Text.AsDecimal();
+            }
+            else
+            {
+                discount.DiscountPercentage = nbDiscountPercentage.Text.AsDouble();
+                discount.DiscountAmount = 0;
+            }
 
             HideDialog();
 
@@ -665,13 +768,25 @@ namespace RockWeb.Blocks.Registration
             if ( discount != null )
             {
                 DiscountState.Remove( discount );
+
+                int order = 0;
+                DiscountState.OrderBy( f => f.Order ).ToList().ForEach( f => f.Order = order++ );
+
                 BindDiscountsGrid();
             }
         }
 
         private void BindDiscountsGrid()
         {
-            gDiscounts.DataSource = DiscountState.OrderBy( d => d.Code ).ToList();
+            gDiscounts.DataSource = DiscountState.OrderBy( d => d.Order )
+                .Select( d => new {
+                    d.Guid,
+                    d.Id,
+                    d.Code,
+                    Discount = d.DiscountAmount > 0 ?
+                        d.DiscountAmount.ToString("C2") :
+                        d.DiscountPercentage.ToString("N0") + " %"
+                }).ToList();
             gDiscounts.DataBind();
         }
 
@@ -688,6 +803,19 @@ namespace RockWeb.Blocks.Registration
             nbDiscountPercentage.Text = discount.DiscountPercentage.ToString();
             cbDiscountAmount.Text = discount.DiscountAmount.ToString();
 
+            if ( discount.DiscountAmount > 0 )
+            {
+                rblDiscountType.SetValue( "Amount" );
+                nbDiscountPercentage.Visible = false;
+                cbDiscountAmount.Visible = true;
+            }
+            else
+            {
+                rblDiscountType.SetValue( "Percentage" );
+                nbDiscountPercentage.Visible = true;
+                cbDiscountAmount.Visible = false;
+            }
+
             ShowDialog( "Discounts" );
         }
 
@@ -697,7 +825,33 @@ namespace RockWeb.Blocks.Registration
 
         protected void gFees_GridReorder( object sender, GridReorderEventArgs e )
         {
- 	        throw new NotImplementedException();
+            var movedItem = FeeState.Where( a => a.Order == e.OldIndex ).FirstOrDefault();
+            if ( movedItem != null )
+            {
+                if ( e.NewIndex < e.OldIndex )
+                {
+                    // Moved up
+                    foreach ( var otherItem in FeeState.Where( a => a.Order < e.OldIndex && a.Order >= e.NewIndex ) )
+                    {
+                        otherItem.Order = otherItem.Order + 1;
+                    }
+                }
+                else
+                {
+                    // Moved Down
+                    foreach ( var otherItem in FeeState.Where( a => a.Order > e.OldIndex && a.Order <= e.NewIndex ) )
+                    {
+                        otherItem.Order = otherItem.Order - 1;
+                    }
+                }
+
+                movedItem.Order = e.NewIndex;
+            }
+
+            int order = 0;
+            FeeState.OrderBy( f => f.Order ).ToList().ForEach( f => f.Order = order++ );
+
+            BindFeesGrid();
         }
 
         protected void gFees_GridRebind( object sender, EventArgs e )
@@ -728,11 +882,12 @@ namespace RockWeb.Blocks.Registration
             {
                 fee = new RegistrationTemplateFee();
                 fee.Guid = Guid.NewGuid();
+                fee.Order = FeeState.Any() ? FeeState.Max( d => d.Order ) + 1 : 0;
                 FeeState.Add( fee );
             }
 
             fee.Name = tbFeeName.Text;
-            fee.FeeType = ddlFeeType.SelectedValueAsEnum<RegistrationFeeType>();
+            fee.FeeType = rblFeeType.SelectedValueAsEnum<RegistrationFeeType>();
             if ( fee.FeeType == RegistrationFeeType.Single )
             {
                 fee.CostValue = cCost.Text;
@@ -742,6 +897,7 @@ namespace RockWeb.Blocks.Registration
                 fee.CostValue = kvlMultipleFees.Value;
             }
             fee.AllowMultiple = cbAllowMultiple.Checked;
+            fee.DiscountApplies = cbDiscountApplies.Checked;
 
             HideDialog();
 
@@ -757,13 +913,28 @@ namespace RockWeb.Blocks.Registration
             if ( fee != null )
             {
                 FeeState.Remove( fee );
+
+                int order = 0;
+                FeeState.OrderBy( f => f.Order ).ToList().ForEach( f => f.Order = order++ );
+
                 BindFeesGrid();
             }
         }
 
         private void BindFeesGrid()
         {
-            gFees.DataSource = FeeState.OrderBy( f => f.Order ).ToList();
+            gFees.DataSource = FeeState.OrderBy( f => f.Order )
+                .Select( f => new
+                {
+                    f.Id,
+                    f.Guid,
+                    f.Name,
+                    f.FeeType,
+                    Cost = FormatFeeCost( f.CostValue ),
+                    f.AllowMultiple,
+                    f.DiscountApplies
+                } )
+                .ToList();
             gFees.DataBind();
         }
 
@@ -777,13 +948,41 @@ namespace RockWeb.Blocks.Registration
 
             hfFeeGuid.Value = fee.Guid.ToString();
             tbFeeName.Text = fee.Name;
-            ddlFeeType.SetValue( fee.FeeType.ConvertToInt() );
+
+            rblFeeType.SetValue( fee.FeeType.ConvertToInt() );
+
+            cCost.Visible = fee.FeeType == RegistrationFeeType.Single;
             cCost.Text = fee.CostValue;
+
+            kvlMultipleFees.Visible = fee.FeeType == RegistrationFeeType.Multiple;
             kvlMultipleFees.Value = fee.CostValue;
+
+            cbAllowMultiple.Checked = fee.AllowMultiple;
+            cbDiscountApplies.Checked = fee.DiscountApplies;
 
             ShowDialog( "Fees" );
         }
 
+        protected string FormatFeeCost( string value )
+        {
+            var values = new List<string>();
+
+            string[] nameValues = value.Split( new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries );
+            foreach ( string nameValue in nameValues )
+            {
+                string[] nameAndValue = nameValue.Split( new char[] { '^' }, StringSplitOptions.RemoveEmptyEntries );
+                if ( nameAndValue.Length == 2 )
+                {
+                    values.Add( string.Format( "{0}-{1:C2}", nameAndValue[0], nameAndValue[1].AsDecimal() ) );
+                }
+                else
+                {
+                    values.Add( string.Format( "{0:C2}", nameValue.AsDecimal() ) );
+                }
+            }
+
+            return values.AsDelimited( ", " );
+        }
         #endregion
 
         #region Dialog
@@ -837,7 +1036,5 @@ namespace RockWeb.Blocks.Registration
         #endregion
 
         #endregion
-
-
-}
+    }
 }

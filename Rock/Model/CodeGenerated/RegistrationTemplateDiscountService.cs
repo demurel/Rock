@@ -91,7 +91,6 @@ namespace Rock.Model
             target.Code = source.Code;
             target.DiscountAmount = source.DiscountAmount;
             target.DiscountPercentage = source.DiscountPercentage;
-            target.Name = source.Name;
             target.RegistrationTemplateId = source.RegistrationTemplateId;
             target.CreatedDateTime = source.CreatedDateTime;
             target.ModifiedDateTime = source.ModifiedDateTime;

@@ -14,7 +14,7 @@
             <asp:HiddenField ID="hfRegistrationTemplateId" runat="server" />
 
             <div class="panel-heading">
-                <h1 class="panel-title"><i class="fa fa-cogs"></i> <asp:Literal ID="lReadOnlyTitle" runat="server" /></h1>
+                <h1 class="panel-title"><i class="fa fa-clipboard"></i> <asp:Literal ID="lReadOnlyTitle" runat="server" /></h1>
                 
                 <div class="panel-labels">
                     <Rock:HighlightLabel ID="hlInactive" runat="server" LabelType="Danger" Text="Inactive" />
@@ -30,7 +30,7 @@
                     <Rock:PanelWidget ID="pwDetails" runat="server" Title="Details" Expanded="true">
                         <div class="row">
                             <div class="col-md-6">
-                                <Rock:DataTextBox ID="tbName" runat="server" SourceTypeName="Rock.Model.WorkflowType, Rock" PropertyName="Name" />
+                                <Rock:DataTextBox ID="tbName" runat="server" SourceTypeName="Rock.Model.RegistrationTemplate, Rock" PropertyName="Name" />
                             </div>
                             <div class="col-md-6">
                                 <Rock:RockCheckBox ID="cbIsActive" runat="server" Text="Active" />
@@ -38,19 +38,35 @@
                         </div>
                         <div class="row">
                             <div class="col-md-6">
-                                <Rock:CategoryPicker ID="cpCategory" runat="server" Required="true" Label="Category" EntityTypeName="Rock.Model.WorkflowType" />
-                                <Rock:GroupTypePicker ID="gtpGroupType" runat="server" Label="Group Type" />
-                                <Rock:GroupRolePicker ID="rpGroupTypeRole" runat="server" Label="Group Member Role" />
-                                <Rock:RockDropDownList ID="ddlGroupMemberStatus" runat="server" Label="Group Member Status" />
-                                <Rock:RockCheckBox ID="cbNotifyLeaders" runat="server" Label="Notify Group Leader(s)" />
+                                <Rock:CategoryPicker ID="cpCategory" runat="server" Required="true" Label="Category" EntityTypeName="Rock.Model.RegistrationTemplate" />
+                                <Rock:GroupTypePicker ID="gtpGroupType" runat="server" Label="Group Type" AutoPostBack="true" OnSelectedIndexChanged="gtpGroupType_SelectedIndexChanged" />
+                                <Rock:GroupRolePicker ID="rpGroupTypeRole" runat="server" Label="Group Member Role"
+                                    Help="The group member role that new registrants should be added to group with." />
+                                <Rock:RockDropDownList ID="ddlGroupMemberStatus" runat="server" Label="Group Member Status" 
+                                    Help="The group member status that new registrants should be added to group with."/>
+                                <Rock:RockCheckBox ID="cbNotifyLeaders" runat="server" Label="Notify Group Leader(s)" Text="Yes" 
+                                    Help="Should leaders in the target group be notified when new people register for the group?" />
                             </div>
                             <div class="col-md-6">
-                                <Rock:RockCheckBox ID="cbLoginRequired" runat="server" Label="Login Required" />
-                                <Rock:RockCheckBox ID="cbMultipleRegistrants" runat="server" Label="Login Required" />
-                                <Rock:NumberBox ID="nbMaxRegistrants" runat="server" Label="Maximum Registrants" />
-                                <Rock:RockRadioButtonList ID="rblRegistrantsInSameFamily" runat="server" Label="Registrants in same Family" />
-                                <Rock:FinancialGatewayPicker ID="fgpFinancialGateway" runat="server" Label="Financial Gateway" />
-                                <Rock:CurrencyBox ID="cbMinimumInitialPayment" runat="server" Label="Minimum Initial Payment" />
+                                <Rock:RockCheckBox ID="cbLoginRequired" runat="server" Label="Login Required" Text="Yes"
+                                    Help="Is user required to be logged in when registering?" />
+                                <div class="row">
+                                    <div class="col-xs-6">
+                                        <Rock:RockCheckBox ID="cbMultipleRegistrants" runat="server" Label="Allow Multiple Registrants"
+                                            Help="Should user be allowed to register multiple registrants at the same time?"
+                                            AutoPostBack="true" OnCheckedChanged="cbMultipleRegistrants_CheckedChanged" />
+                                    </div>
+                                    <div class="col-xs-6">
+                                        <Rock:NumberBox ID="nbMaxRegistrants" runat="server" Label="Maximum Registrants"
+                                            Help="The maximum number of registrants that user is allowed to register" Visible="false" />
+                                    </div>
+                                </div>
+                                <Rock:RockRadioButtonList ID="rblRegistrantsInSameFamily" runat="server" Label="Registrants in same Family" RepeatDirection="Horizontal"
+                                    Help="Typical relationship of registrants that user would register." />
+                                <Rock:FinancialGatewayPicker ID="fgpFinancialGateway" runat="server" Label="Financial Gateway"
+                                    Help="The financial gateway to use for processing registration payments." />
+                                <Rock:CurrencyBox ID="cbMinimumInitialPayment" runat="server" Label="Minimum Initial Payment"
+                                    Help="The minimum amount required per registrant." />
                             </div>
                         </div>
                     </Rock:PanelWidget>
@@ -58,14 +74,14 @@
                     <Rock:PanelWidget ID="wpPersonFields" runat="server" Title="Fields/Attributes">
                         <div class="row">
                             <div class="col-md-6">
-                                <Rock:RockRadioButtonList ID="rblRequestHomeCampus" runat="server" Label="Home Campus" />
-                                <Rock:RockRadioButtonList ID="rblRequestPhone" runat="server" Label="Phone" />
-                                <Rock:RockRadioButtonList ID="rblRequestEmail" runat="server" Label="Email" />
+                                <Rock:RockRadioButtonList ID="rblRequestHomeCampus" runat="server" Label="Show Home Campus" RepeatDirection="Horizontal" />
+                                <Rock:RockRadioButtonList ID="rblRequestPhone" runat="server" Label="Show Phone" RepeatDirection="Horizontal" />
+                                <Rock:RockRadioButtonList ID="rblRequestEmail" runat="server" Label="Show Email" RepeatDirection="Horizontal" />
                             </div>
                             <div class="col-md-6">
-                                <Rock:RockRadioButtonList ID="rblRequstBirthdate" runat="server" Label="Birthdate" />
-                                <Rock:RockRadioButtonList ID="rblRequestGender" runat="server" Label="Gender" />
-                                <Rock:RockRadioButtonList ID="rblRequestMaritalStatus" runat="server" Label="Marital Status" />
+                                <Rock:RockRadioButtonList ID="rblRequstBirthdate" runat="server" Label="Show Birthdate" RepeatDirection="Horizontal" />
+                                <Rock:RockRadioButtonList ID="rblRequestGender" runat="server" Label="Show Gender" RepeatDirection="Horizontal" />
+                                <Rock:RockRadioButtonList ID="rblRequestMaritalStatus" runat="server" Label="Show Marital Status" RepeatDirection="Horizontal" />
                             </div>
                         </div>
                     </Rock:PanelWidget>
@@ -75,8 +91,10 @@
                             <Columns>
                                 <Rock:ReorderField />
                                 <Rock:RockBoundField DataField="Name" HeaderText="Fee" />
-                                <Rock:RockBoundField DataField="Type" HeaderText="Type" />
+                                <Rock:EnumField DataField="FeeType" HeaderText="Options" />
                                 <Rock:RockBoundField DataField="Cost" HeaderText="Cost" />
+                                <Rock:BoolField DataField="AllowMultiple" HeaderText="Allow Multiple" />
+                                <Rock:BoolField DataField="DiscountApplies" HeaderText="Discount Applies" />
                                 <Rock:EditField OnClick="gFees_Edit" />
                                 <Rock:DeleteField OnClick="gFees_Delete" />
                             </Columns>
@@ -88,8 +106,7 @@
                             <Columns>
                                 <Rock:ReorderField />
                                 <Rock:RockBoundField DataField="Code" HeaderText="Code" />
-                                <Rock:RockBoundField DataField="Percentage" HeaderText="Percentage" />
-                                <Rock:RockBoundField DataField="Amount" HeaderText="Amount" />
+                                <Rock:RockBoundField DataField="Discount" HeaderText="Discount" ItemStyle-HorizontalAlign="Right" />
                                 <Rock:EditField OnClick="gDiscounts_Edit" />
                                 <Rock:DeleteField OnClick="gDiscounts_Delete" />
                             </Columns>
@@ -97,20 +114,20 @@
                     </Rock:PanelWidget>
 
                     <Rock:PanelWidget ID="wpCommunications" runat="server" Title="Communications">
-                        <Rock:CodeEditor ID="ceReminderEmailTemplate" runat="server" Label="Reminder Email Template" EditorMode="Liquid" EditorTheme="Rock" EditorHeight="400" />
-                        <Rock:RockCheckBox ID="cbUserDefaultConfirmation" runat="server" Label="Use Default Confirmation Email" />
-                        <Rock:CodeEditor ID="ceConfirmationEmailTemplate" runat="server" Label="Confirmation Email Template" EditorMode="Liquid" EditorTheme="Rock" EditorHeight="400" />
+                        <Rock:CodeEditor ID="ceReminderEmailTemplate" runat="server" Label="Reminder Email Template" EditorMode="Liquid" EditorTheme="Rock" EditorHeight="300" />
+                        <Rock:RockCheckBox ID="cbUserDefaultConfirmation" runat="server" Label="Use Default Confirmation Email" AutoPostBack="true" OnCheckedChanged="cbUserDefaultConfirmation_CheckedChanged" />
+                        <Rock:CodeEditor ID="ceConfirmationEmailTemplate" runat="server" Label="Confirmation Email Template" EditorMode="Liquid" EditorTheme="Rock" EditorHeight="300" Visible="false" />
                     </Rock:PanelWidget>
 
                     <Rock:PanelWidget ID="wpTerms" runat="server" Title="Terms/Text">
                         <div class="row">
                             <div class="col-md-6">
-                                <Rock:RockTextBox ID="tbRegistrationTerm" runat="server" Label="Registration Term" />
-                                <Rock:RockTextBox ID="tbRegistrantTerm" runat="server" Label="Registrant Term" />
+                                <Rock:RockTextBox ID="tbRegistrationTerm" runat="server" Label="Registration Term" Placeholder="Registration" />
+                                <Rock:RockTextBox ID="tbRegistrantTerm" runat="server" Label="Registrant Term" Placeholder="Registrant" />
                             </div>
                             <div class="col-md-6">
-                                <Rock:RockTextBox ID="tbFeeTerm" runat="server" Label="Fee Term" />
-                                <Rock:RockTextBox ID="tbDiscountCodeTerm" runat="server" Label="Discount Code Term" />
+                                <Rock:RockTextBox ID="tbFeeTerm" runat="server" Label="Fee Term" Placeholder="Fee" />
+                                <Rock:RockTextBox ID="tbDiscountCodeTerm" runat="server" Label="Discount Code Term" Placeholder="Discount" />
                             </div>
                         </div>
                         <div class="row">
@@ -130,14 +147,24 @@
 
                 <fieldset id="fieldsetViewDetails" runat="server">
 
-                    <p class="description"><asp:Literal ID="lWorkflowTypeDescription" runat="server"></asp:Literal></p>
-
                     <Rock:NotificationBox ID="nbEditModeMessage" runat="server" NotificationBoxType="Info" />
 
                     <div class="row">
                         <div class="col-md-6">
+                            <Rock:RockLiteral ID="lGroupType" runat="server" Label="Group Type" />
                         </div>
                         <div class="col-md-6">
+                            <Rock:RockLiteral ID="lGateway" runat="server" Label="Gateway" />
+                            <Rock:RockControlWrapper ID="rcwFees" runat="server" Label="Fees">
+                                <asp:Repeater ID="rFees" runat="server">
+                                    <ItemTemplate>
+                                        <div class="row">
+                                            <div class="col-xs-4"><%# Eval("Name") %></div>
+                                            <div class="col-xs-8"><%# FormatFeeCost( Eval("CostValue").ToString() ) %></div>
+                                        </div>
+                                    </ItemTemplate>
+                                </asp:Repeater>
+                            </Rock:RockControlWrapper>
                         </div>
                     </div>
 
@@ -163,8 +190,13 @@
         <Rock:ModalDialog ID="dlgDiscount" runat="server" Title="Discount Code" OnSaveClick="dlgDiscount_SaveClick" OnCancelScript="clearActiveDialog();" ValidationGroup="Discount">
             <Content>
                 <asp:HiddenField ID="hfDiscountGuid" runat="server" />
-                <Rock:RockTextBox ID="tbDiscountCode" runat="server" Label="Discount Code" ValidationGroup="Discount" />
-                <Rock:NumberBox ID="nbDiscountPercentage" runat="server" Label="Discount Percentage" NumberType="Integer" ValidationGroup="Discount" />
+                <asp:ValidationSummary ID="ValidationSummaryDiscount" runat="server" HeaderText="Please Correct the Following" CssClass="alert alert-danger" ValidationGroup="Discount" />
+                <Rock:RockTextBox ID="tbDiscountCode" runat="server" Label="Discount Code" ValidationGroup="Discount" Required="true" />
+                <Rock:RockRadioButtonList ID="rblDiscountType" runat="server" Label="Discount Type" RepeatDirection="Horizontal" AutoPostBack="true" OnSelectedIndexChanged="rblDiscountType_SelectedIndexChanged">
+                    <asp:ListItem Text="Percentage" Value="Percentage" />
+                    <asp:ListItem Text="Amount" Value="Amount" />
+                </Rock:RockRadioButtonList>
+                <Rock:NumberBox ID="nbDiscountPercentage" runat="server" Label="Discount Percentage" NumberType="Integer" ValidationGroup="Discount"  />
                 <Rock:CurrencyBox ID="cbDiscountAmount" runat="server" Label="Discount Amount" ValidationGroup="Discount" />
             </Content>
         </Rock:ModalDialog>
@@ -172,83 +204,17 @@
         <Rock:ModalDialog ID="dlgFee" runat="server" Title="Fee" OnSaveClick="dlgFee_SaveClick" OnCancelScript="clearActiveDialog();" ValidationGroup="Fee">
             <Content>
                 <asp:HiddenField ID="hfFeeGuid" runat="server" />
-                <Rock:RockTextBox ID="tbFeeName" runat="server" Label="Name" ValidationGroup="Fee" />
-                <Rock:RockDropDownList ID="ddlFeeType" runat="server" Label="Fee Type" ValidationGroup="Fee" />
+                <asp:ValidationSummary ID="ValidationSummaryFee" runat="server" HeaderText="Please Correct the Following" CssClass="alert alert-danger" ValidationGroup="Fee" />
+                <Rock:RockTextBox ID="tbFeeName" runat="server" Label="Name" ValidationGroup="Fee" Required="true" />
+                <Rock:RockRadioButtonList ID="rblFeeType" runat="server" Label="Options" ValidationGroup="Fee" RepeatDirection="Horizontal" AutoPostBack="true" OnSelectedIndexChanged="rblFeeType_SelectedIndexChanged" />
                 <Rock:CurrencyBox ID="cCost" runat="server" Label="Cost" ValidationGroup="Fee" />
-                <Rock:KeyValueList ID="kvlMultipleFees" runat="server" Label="Cost Values" ValidationGroup="Fee" />
-                <Rock:RockCheckBox ID="cbAllowMultiple" runat="server" Label="Allow Multiple" ValidationGroup="Fee" />
+                <Rock:KeyValueList ID="kvlMultipleFees" runat="server" Label="Costs" ValidationGroup="Fee" KeyPrompt="Option" ValuePrompt="Cost" />
+                <Rock:RockCheckBox ID="cbAllowMultiple" runat="server" Label="Allow Multiple" ValidationGroup="Fee" Text="Yes"
+                    Help="Should registrants be able to select more than one of this item?" />
+                <Rock:RockCheckBox ID="cbDiscountApplies" runat="server" Label="Discount Applies" ValidationGroup="Fee" Text="Yes"
+                    Help="Should discounts be applied to this fee?" />
             </Content>
         </Rock:ModalDialog>
 
-        <script>
-
-            function toggleReadOnlyActivitiesList() {
-                $('.workflow-activities-readonly-list').toggle(500);
-            }
-
-            Sys.Application.add_load(function () {
-                var fixHelper = function (e, ui) {
-                    ui.children().each(function () {
-                        $(this).width($(this).width());
-                    });
-                    return ui;
-                };
-
-                $('.workflow-activity-list').sortable({
-                    helper: fixHelper,
-                    handle: '.workflow-activity-reorder',
-                    containment: 'parent',
-                    tolerance: 'pointer',
-                    start: function (event, ui) {
-                        {
-                            var start_pos = ui.item.index();
-                            ui.item.data('start_pos', start_pos);
-                        }
-                    },
-                    update: function (event, ui) {
-                        {
-                            __doPostBack('<%=upDetail.ClientID %>', 're-order-activity:' + ui.item.attr('data-key') + ';' + ui.item.index());
-                        }
-                    }
-                });
-
-                $('.workflow-action-list').sortable({
-                    helper: fixHelper,
-                    handle: '.workflow-action-reorder',
-                    containment: 'parent',
-                    tolerance: 'pointer',
-                    start: function (event, ui) {
-                        {
-                            var start_pos = ui.item.index();
-                            ui.item.data('start_pos', start_pos);
-                        }
-                    },
-                    update: function (event, ui) {
-                        {
-                            __doPostBack('<%=upDetail.ClientID %>', 're-order-action:' + ui.item.attr('data-key') + ';' + ui.item.index());
-                        }
-                    }
-                });
-
-                $('.workflow-formfield-list').sortable({
-                    helper: fixHelper,
-                    handle: '.workflow-formfield-reorder',
-                    containment: 'parent',
-                    tolerance: 'pointer',
-                    start: function (event, ui) {
-                        {
-                            var start_pos = ui.item.index();
-                            ui.item.data('start_pos', start_pos);
-                        }
-                    },
-                    update: function (event, ui) {
-                        {
-                            __doPostBack('<%=upDetail.ClientID %>', 're-order-formfield:' + ui.item.attr('data-key') + ';' + ui.item.index());
-                        }
-                    }
-                });
-
-            });
-        </script>
     </ContentTemplate>
 </asp:UpdatePanel>
