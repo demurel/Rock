@@ -84,6 +84,20 @@
                                 <Rock:RockRadioButtonList ID="rblRequestMaritalStatus" runat="server" Label="Show Marital Status" RepeatDirection="Horizontal" />
                             </div>
                         </div>
+                        <div class="grid">
+                            <Rock:Grid ID="gAttributes" runat="server" AllowPaging="false" DisplayType="Light" RowItemText="Attribute">
+                                <Columns>
+                                    <Rock:ReorderField />
+                                    <Rock:RockBoundField DataField="Type" HeaderText="Type" />
+                                    <Rock:RockBoundField DataField="Name" HeaderText="Attribute" />
+                                    <Rock:RockBoundField DataField="Description" HeaderText="Description" />
+                                    <Rock:RockBoundField DataField="FieldType" HeaderText="Field Type" />
+                                    <Rock:BoolField DataField="IsRequired" HeaderText="Required" />
+                                    <Rock:EditField OnClick="gAttributes_Edit" />
+                                    <Rock:DeleteField OnClick="gAttributes_Delete" />
+                                </Columns>
+                            </Rock:Grid>
+                        </div>
                     </Rock:PanelWidget>
 
                     <Rock:PanelWidget ID="wpFees" runat="server" Title="Fees">
@@ -186,6 +200,11 @@
         </asp:Panel>
 
         <asp:HiddenField ID="hfActiveDialog" runat="server" />
+
+        <Rock:ModalDialog ID="dlgAttribute" runat="server" Title="Attribute" OnSaveClick="dlgAttribute_SaveClick" OnCancelScript="clearActiveDialog();" ValidationGroup="Attribute">
+            <Content>
+            </Content>
+        </Rock:ModalDialog>
 
         <Rock:ModalDialog ID="dlgDiscount" runat="server" Title="Discount Code" OnSaveClick="dlgDiscount_SaveClick" OnCancelScript="clearActiveDialog();" ValidationGroup="Discount">
             <Content>

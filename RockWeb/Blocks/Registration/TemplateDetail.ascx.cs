@@ -44,6 +44,7 @@ namespace RockWeb.Blocks.Registration
     {
         #region Properties
 
+        private List<RegistrationTemplateFormAttribute> AttributeState { get; set; }
         private List<RegistrationTemplateDiscount> DiscountState { get; set; }
         private List<RegistrationTemplateFee> FeeState { get; set; }
 
@@ -59,7 +60,17 @@ namespace RockWeb.Blocks.Registration
         {
             base.LoadViewState( savedState );
 
-            string json = ViewState["DiscountState"] as string;
+            string json = ViewState["AttributeState"] as string;
+            if ( string.IsNullOrWhiteSpace( json ) )
+            {
+                AttributeState = new List<RegistrationTemplateFormAttribute>();
+            }
+            else
+            {
+                AttributeState = JsonConvert.DeserializeObject<List<RegistrationTemplateFormAttribute>>( json );
+            }
+
+            json = ViewState["DiscountState"] as string;
             if ( string.IsNullOrWhiteSpace( json ) )
             {
                 DiscountState = new List<RegistrationTemplateDiscount>();
@@ -87,6 +98,14 @@ namespace RockWeb.Blocks.Registration
         protected override void OnInit( EventArgs e )
         {
             base.OnInit( e );
+
+            // assign attributes grid actions
+            gAttributes.AddCssClass( "attribute-grid" );
+            gAttributes.DataKeyNames = new string[] { "Guid" };
+            gAttributes.Actions.ShowAdd = true;
+            gAttributes.Actions.AddClick += gAttributes_AddClick;
+            gAttributes.GridRebind += gAttributes_GridRebind;
+            gAttributes.GridReorder += gAttributes_GridReorder;
 
             // assign discounts grid actions
             gDiscounts.AddCssClass( "discount-grid" );
@@ -140,6 +159,7 @@ namespace RockWeb.Blocks.Registration
                 ContractResolver = new Rock.Utility.IgnoreUrlEncodedKeyContractResolver()
             };
 
+            ViewState["AttributeState"] = JsonConvert.SerializeObject( AttributeState, Formatting.None, jsonSetting );
             ViewState["DiscountState"] = JsonConvert.SerializeObject( DiscountState, Formatting.None, jsonSetting );
             ViewState["FeeState"] = JsonConvert.SerializeObject( FeeState, Formatting.None, jsonSetting );
 
@@ -540,12 +560,16 @@ namespace RockWeb.Blocks.Registration
         {
             if ( RegistrationTemplate != null )
             {
+                AttributeState = RegistrationTemplate.Forms.Any() ?
+                    RegistrationTemplate.Forms.First().FormAttributes.OrderBy( a => a.Order ).ToList() :
+                    new List<RegistrationTemplateFormAttribute>();
                 DiscountState = RegistrationTemplate.Discounts.OrderBy( a => a.Order ).ToList();
                 FeeState = RegistrationTemplate.Fees.OrderBy( a => a.Order ).ToList();
 
             }
             else
             {
+                AttributeState = new List<RegistrationTemplateFormAttribute>();
                 DiscountState = new List<RegistrationTemplateDiscount>();
                 FeeState = new List<RegistrationTemplateFee>();
             }
@@ -623,6 +647,7 @@ namespace RockWeb.Blocks.Registration
             SetEditMode( false );
 
             hfRegistrationTemplateId.SetValue( RegistrationTemplate.Id );
+            AttributeState = null;
             DiscountState = null;
             FeeState = null;
 
@@ -672,6 +697,120 @@ namespace RockWeb.Blocks.Registration
             rblRequestGender.BindToEnum<RegistrationRequestField>();
             rblRequestMaritalStatus.BindToEnum<RegistrationRequestField>();
             rblFeeType.BindToEnum<RegistrationFeeType>();
+        }
+
+        #endregion
+
+        #region Attribute Grid
+
+        protected void gAttributes_GridReorder( object sender, GridReorderEventArgs e )
+        {
+            var movedItem = AttributeState.Where( a => a.Order == e.OldIndex ).FirstOrDefault();
+            if ( movedItem != null )
+            {
+                if ( e.NewIndex < e.OldIndex )
+                {
+                    // Moved up
+                    foreach ( var otherItem in AttributeState.Where( a => a.Order < e.OldIndex && a.Order >= e.NewIndex ) )
+                    {
+                        otherItem.Order = otherItem.Order + 1;
+                    }
+                }
+                else
+                {
+                    // Moved Down
+                    foreach ( var otherItem in AttributeState.Where( a => a.Order > e.OldIndex && a.Order <= e.NewIndex ) )
+                    {
+                        otherItem.Order = otherItem.Order - 1;
+                    }
+                }
+
+                movedItem.Order = e.NewIndex;
+            }
+
+            int order = 0;
+            AttributeState.OrderBy( f => f.Order ).ToList().ForEach( f => f.Order = order++ );
+
+            BindAttributesGrid();
+        }
+
+        protected void gAttributes_GridRebind( object sender, EventArgs e )
+        {
+            BindAttributesGrid();
+        }
+
+        protected void gAttributes_AddClick( object sender, EventArgs e )
+        {
+            ShowAttributeEdit( Guid.NewGuid() );
+        }
+
+        protected void gAttributes_Edit( object sender, RowEventArgs e )
+        {
+            ShowAttributeEdit( e.RowKeyValue.ToString().AsGuid() );
+        }
+
+        protected void dlgAttribute_SaveClick( object sender, EventArgs e )
+        {
+            RegistrationTemplateFormAttribute attribute = null;
+            var attributeGuid = hfAttributeGuid.Value.AsGuidOrNull();
+            if ( attributeGuid.HasValue )
+            {
+                attribute = AttributeState.Where( a => a.Guid.Equals( attributeGuid.Value ) ).FirstOrDefault();
+            }
+
+            if ( attribute == null )
+            {
+                attribute = new RegistrationTemplateFormAttribute();
+                attribute.Guid = Guid.NewGuid();
+                attribute.Order = AttributeState.Any() ? AttributeState.Max( d => d.Order ) + 1 : 0;
+                AttributeState.Add( attribute );
+            }
+
+            HideDialog();
+
+            hfAttributeGuid.Value = string.Empty;
+
+            BindAttributesGrid();
+        }
+
+        protected void gAttributes_Delete( object sender, RowEventArgs e )
+        {
+            var attributeGuid = e.RowKeyValue.ToString().AsGuid();
+            var attribute = AttributeState.FirstOrDefault( f => f.Guid.Equals( e.RowKeyValue.ToString().AsGuid() ) );
+            if ( attribute != null )
+            {
+                AttributeState.Remove( attribute );
+
+                int order = 0;
+                AttributeState.OrderBy( f => f.Order ).ToList().ForEach( f => f.Order = order++ );
+
+                BindAttributesGrid();
+            }
+        }
+
+        private void BindAttributesGrid()
+        {
+            gAttributes.DataSource = AttributeState.OrderBy( f => f.Order )
+                .Select( f => new
+                {
+                    f.Id,
+                    f.Guid,
+                } )
+                .ToList();
+            gAttributes.DataBind();
+        }
+
+        private void ShowAttributeEdit( Guid attributeGuid )
+        {
+            var attribute = AttributeState.FirstOrDefault( d => d.Guid.Equals( attributeGuid ) );
+            if ( attribute == null )
+            {
+                attribute = new RegistrationTemplateFormAttribute();
+            }
+
+            hfAttributeGuid.Value = attribute.Guid.ToString();
+
+            ShowDialog( "Attributes" );
         }
 
         #endregion
@@ -1006,6 +1145,9 @@ namespace RockWeb.Blocks.Registration
         {
             switch ( hfActiveDialog.Value )
             {
+                case "ATTRIBUTES":
+                    dlgAttribute.Show();
+                    break;
                 case "DISCOUNTS":
                     dlgDiscount.Show();
                     break;
@@ -1022,6 +1164,9 @@ namespace RockWeb.Blocks.Registration
         {
             switch ( hfActiveDialog.Value )
             {
+                case "ATTRIBUTES":
+                    dlgAttribute.Hide();
+                    break;
                 case "DISCOUNTS":
                     dlgDiscount.Hide();
                     break;
