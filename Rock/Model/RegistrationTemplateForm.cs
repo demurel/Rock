@@ -56,7 +56,7 @@ namespace Rock.Model
         /// The registration template identifier.
         /// </value>
         [DataMember]
-        public int? RegistrationTemplateId { get; set; }
+        public int RegistrationTemplateId { get; set; }
 
         /// <summary>
         /// Gets or sets the order.
@@ -86,12 +86,13 @@ namespace Rock.Model
         /// The form attributes.
         /// </value>
         [DataMember]
-        public virtual ICollection<RegistrationTemplateFormAttribute> FormAttributes
+        public virtual ICollection<RegistrationTemplateFormField> Fields
         {
-            get { return _registrationTemplateFormAttributes ?? ( _registrationTemplateFormAttributes = new Collection<RegistrationTemplateFormAttribute>() ); }
-            set { _registrationTemplateFormAttributes = value; }
+            get { return _fields ?? ( _fields = new Collection<RegistrationTemplateFormField>() ); }
+            set { _fields = value; }
         }
-        private ICollection<RegistrationTemplateFormAttribute> _registrationTemplateFormAttributes;
+        private ICollection<RegistrationTemplateFormField> _fields;
+
         #endregion
 
         #region Methods

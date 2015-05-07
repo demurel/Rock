@@ -38,7 +38,10 @@ namespace Rock.Client
         public string Name { get; set; }
 
         /// <summary />
-        public int? RegistrationTemplateId { get; set; }
+        public int Order { get; set; }
+
+        /// <summary />
+        public int RegistrationTemplateId { get; set; }
 
         /// <summary />
         public Guid Guid { get; set; }
@@ -54,7 +57,7 @@ namespace Rock.Client
     public partial class RegistrationTemplateForm : RegistrationTemplateFormEntity
     {
         /// <summary />
-        public ICollection<RegistrationTemplateFormAttribute> FormAttributes { get; set; }
+        public ICollection<RegistrationTemplateFormField> Fields { get; set; }
 
         /// <summary />
         public DateTime? CreatedDateTime { get; set; }

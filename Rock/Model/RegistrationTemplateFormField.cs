@@ -31,23 +31,12 @@ namespace Rock.Model
     /// <summary>
     /// 
     /// </summary>
-    [Table( "RegistrationTemplateFormAttribute" )]
+    [Table( "RegistrationTemplateFormField" )]
     [DataContract]
-    public partial class RegistrationTemplateFormAttribute : Model<RegistrationTemplateFormAttribute>, IOrdered
+    public partial class RegistrationTemplateFormField : Model<RegistrationTemplateFormField>, IOrdered
     {
 
         #region Entity Properties
-
-        /// <summary>
-        /// Gets or sets the name.
-        /// </summary>
-        /// <value>
-        /// The name.
-        /// </value>
-        [Required]
-        [MaxLength( 100 )]
-        [DataMember( IsRequired = true )]
-        public string Name { get; set; }
 
         /// <summary>
         /// Gets or sets the registration template form identifier.
@@ -56,16 +45,25 @@ namespace Rock.Model
         /// The registration template form identifier.
         /// </value>
         [DataMember]
-        public int? RegistrationTemplateFormId { get; set; }
+        public int RegistrationTemplateFormId { get; set; }
 
         /// <summary>
-        /// Gets or sets the entity ( Person/GroupMember/Registrant ) that attribute applies to.
+        /// Gets or sets the source of the field value.
         /// </summary>
         /// <value>
         /// The applies to.
         /// </value>
         [DataMember]
-        public RegistrationAttributeAppliesTo AppliesTo { get; set; }
+        public RegistrationFieldSource FieldSource { get; set; }
+
+        /// <summary>
+        /// Gets or sets the type of the person field.
+        /// </summary>
+        /// <value>
+        /// The type of the person field.
+        /// </value>
+        [DataMember]
+        public RegistrationPersonFieldType PersonFieldType { get; set; }
 
         /// <summary>
         /// Gets or sets the attribute identifier.
@@ -77,22 +75,22 @@ namespace Rock.Model
         public int? AttributeId { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether this is a 'common value'. If so, the value entered will be auto set for each person on the registration.
+        /// Gets or sets a value indicating whether this is a 'shared value'. If so, the value entered will be auto set for each person on the registration.
         /// </summary>
         /// <value>
         ///   <c>true</c> if [common value]; otherwise, <c>false</c>.
         /// </value>
         [DataMember]
-        public bool CommonValue { get; set; }
+        public bool IsSharedValue { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to use the current value of the person attribute if it already exists.
+        /// Gets or sets a value indicating whether [show current value].
         /// </summary>
         /// <value>
-        /// <c>true</c> if [use current person attribute value]; otherwise, <c>false</c>.
+        ///   <c>true</c> if [show current value]; otherwise, <c>false</c>.
         /// </value>
         [DataMember]
-        public bool UseCurrentPersonAttributeValue { get; set; }
+        public bool ShowCurrentValue { get; set; }
 
         /// <summary>
         /// Gets or sets the pre text.
@@ -113,22 +111,22 @@ namespace Rock.Model
         public string PostText { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to show on grid.
+        /// Gets or sets a value indicating whether this instance is grid field.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if [show on grid]; otherwise, <c>false</c>.
+        /// <c>true</c> if this instance is grid field; otherwise, <c>false</c>.
         /// </value>
         [DataMember]
-        public bool ShowOnGrid { get; set; }
+        public bool IsGridField { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to require on initial entry.
+        /// Gets or sets a value indicating whether this instance is required.
         /// </summary>
         /// <value>
-        /// <c>true</c> if [required on initial entry]; otherwise, <c>false</c>.
+        /// <c>true</c> if this instance is required; otherwise, <c>false</c>.
         /// </value>
         [DataMember]
-        public bool RequiredOnInitialEntry { get; set; }
+        public bool IsRequired { get; set; }
 
         /// <summary>
         /// Gets or sets the order.
@@ -157,6 +155,7 @@ namespace Rock.Model
         /// <value>
         /// The attribute.
         /// </value>
+        [DataMember]
         public virtual Attribute Attribute { get; set; }
 
         #endregion
@@ -171,7 +170,17 @@ namespace Rock.Model
         /// </returns>
         public override string ToString()
         {
-            return Name;
+            if ( FieldSource == RegistrationFieldSource.PersonField )
+            {
+                return PersonFieldType.ConvertToString();
+            }
+
+            if ( Attribute != null )
+            {
+                return Attribute.Name;
+            }
+
+            return base.ToString();
         }
 
         #endregion
@@ -183,15 +192,15 @@ namespace Rock.Model
     /// <summary>
     /// Configuration class.
     /// </summary>
-    public partial class RegistrationTemplateFormAttributeConfiguration : EntityTypeConfiguration<RegistrationTemplateFormAttribute>
+    public partial class RegistrationTemplateFormAttributeConfiguration : EntityTypeConfiguration<RegistrationTemplateFormField>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="RegistrationTemplateFormAttributeConfiguration"/> class.
         /// </summary>
         public RegistrationTemplateFormAttributeConfiguration()
         {
-            this.HasRequired( a => a.RegistrationTemplateForm ).WithMany( t => t.FormAttributes ).HasForeignKey( i => i.RegistrationTemplateFormId ).WillCascadeOnDelete( true );
-            this.HasRequired( a => a.Attribute ).WithMany().HasForeignKey( a => a.AttributeId ).WillCascadeOnDelete( false );
+            this.HasRequired( a => a.RegistrationTemplateForm ).WithMany( t => t.Fields ).HasForeignKey( i => i.RegistrationTemplateFormId ).WillCascadeOnDelete( true );
+            this.HasOptional( a => a.Attribute ).WithMany().HasForeignKey( a => a.AttributeId ).WillCascadeOnDelete( false );
         }
     }
 
@@ -202,22 +211,73 @@ namespace Rock.Model
     /// <summary>
     /// The entity that attribute applies to
     /// </summary>
-    public enum RegistrationAttributeAppliesTo
+    public enum RegistrationFieldSource
     {
         /// <summary>
         /// Person attribute
         /// </summary>
-        Person = 0,
+        PersonField = 0,
+
+        /// <summary>
+        /// Person attribute
+        /// </summary>
+        PersonAttribute = 1,
 
         /// <summary>
         /// Group Member attribute
         /// </summary>
-        GroupMember = 1,
+        GroupMemberAttribute = 2,
 
         /// <summary>
         /// Registration attribute
         /// </summary>
-        Registration = 2
+        RegistrationAttribute = 4
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public enum RegistrationPersonFieldType
+    {
+        /// <summary>
+        /// The first name
+        /// </summary>
+        FirstName = 0,
+
+        /// <summary>
+        /// The last name
+        /// </summary>
+        LastName = 1,
+
+        /// <summary>
+        /// The home campus
+        /// </summary>
+        HomeCampus = 2,
+
+        /// <summary>
+        /// The phone
+        /// </summary>
+        Phone = 3,
+
+        /// <summary>
+        /// The email
+        /// </summary>
+        Email = 4,
+
+        /// <summary>
+        /// The birthdate
+        /// </summary>
+        Birthdate = 5,
+
+        /// <summary>
+        /// The gender
+        /// </summary>
+        Gender = 6,
+
+        /// <summary>
+        /// The marital status
+        /// </summary>
+        MaritalStatus = 7
     }
 
     #endregion

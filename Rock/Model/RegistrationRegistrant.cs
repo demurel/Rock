@@ -32,86 +32,80 @@ namespace Rock.Model
     /// <summary>
     /// 
     /// </summary>
-    [Table( "RegistrationTemplateDiscount" )]
+    [Table( "RegistrationRegistrant" )]
     [DataContract]
-    public partial class RegistrationTemplateDiscount : Model<RegistrationTemplateDiscount>, IOrdered
+    public partial class RegistrationRegistrant : Model<RegistrationRegistrant>
     {
 
         #region Entity Properties
 
         /// <summary>
-        /// Gets or sets the code.
+        /// Gets or sets the registration identifier.
         /// </summary>
         /// <value>
-        /// The code.
-        /// </value>
-        [Required]
-        [MaxLength( 100 )]
-        [DataMember( IsRequired = true )]
-        public string Code { get; set; }
-
-        /// <summary>
-        /// Gets or sets the registration template identifier.
-        /// </summary>
-        /// <value>
-        /// The registration template identifier.
+        /// The registration identifier.
         /// </value>
         [DataMember]
-        public int RegistrationTemplateId { get; set; }
+        public int RegistrationId { get; set; }
 
         /// <summary>
-        /// Gets or sets the discount percentage.
+        /// Gets or sets the person alias identifier.
         /// </summary>
         /// <value>
-        /// The discount percentage.
+        /// The person alias identifier.
         /// </value>
         [DataMember]
-        public double DiscountPercentage { get; set; }
+        public int? PersonAliasId { get; set; }
 
         /// <summary>
-        /// Gets or sets the discount amount.
+        /// Gets or sets the group member identifier.
         /// </summary>
         /// <value>
-        /// The discount amount.
+        /// The group member identifier.
         /// </value>
         [DataMember]
-        public decimal DiscountAmount { get; set; }
+        public int? GroupMemberId { get; set; }
 
         /// <summary>
-        /// Gets or sets the order.
+        /// Gets or sets the cost.
         /// </summary>
         /// <value>
-        /// The order.
+        /// The cost.
         /// </value>
         [DataMember]
-        public int Order { get; set; }
+        public decimal Cost { get; set; }
 
         #endregion
 
         #region Virtual Properties
 
         /// <summary>
-        /// Gets or sets the registration template.
+        /// Gets or sets the registration instance.
         /// </summary>
         /// <value>
-        /// The registration template.
+        /// The registration instance.
         /// </value>
-        public virtual RegistrationTemplate RegistrationTemplate { get; set; }
+        public virtual Registration Registration { get; set; }
+
+        /// <summary>
+        /// Gets or sets the person alias.
+        /// </summary>
+        /// <value>
+        /// The person alias.
+        /// </value>
+        public virtual PersonAlias PersonAlias { get; set; }
+
+        /// <summary>
+        /// Gets or sets the group member.
+        /// </summary>
+        /// <value>
+        /// The group member.
+        /// </value>
+        public virtual GroupMember GroupMember { get; set; }
 
         #endregion
 
         #region Methods
-
-        /// <summary>
-        /// Returns a <see cref="string"/> that represents this instance.
-        /// </summary>
-        /// <returns>
-        /// A <see cref="string"/> that represents this instance.
-        /// </returns>
-        public override string ToString()
-        {
-            return Code;
-        }
 
         #endregion
 
@@ -122,14 +116,16 @@ namespace Rock.Model
     /// <summary>
     /// Configuration class.
     /// </summary>
-    public partial class RegistrationTemplateDiscountConfiguration : EntityTypeConfiguration<RegistrationTemplateDiscount>
+    public partial class RegistrationRegistrantConfiguration : EntityTypeConfiguration<RegistrationRegistrant>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="RegistrationTemplateDiscountConfiguration"/> class.
+        /// Initializes a new instance of the <see cref="RegistrationRegistrantConfiguration"/> class.
         /// </summary>
-        public RegistrationTemplateDiscountConfiguration()
+        public RegistrationRegistrantConfiguration()
         {
-            this.HasRequired( d => d.RegistrationTemplate ).WithMany( t => t.Discounts ).HasForeignKey( d => d.RegistrationTemplateId ).WillCascadeOnDelete( true );
+            this.HasRequired( r => r.Registration ).WithMany( t => t.Registrants ).HasForeignKey( r => r.RegistrationId ).WillCascadeOnDelete( true );
+            this.HasOptional( r => r.PersonAlias ).WithMany().HasForeignKey( r => r.PersonAliasId ).WillCascadeOnDelete( false );
+            this.HasOptional( r => r.GroupMember ).WithMany().HasForeignKey( r => r.GroupMemberId ).WillCascadeOnDelete( false );
         }
     }
 

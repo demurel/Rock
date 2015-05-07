@@ -27,54 +27,24 @@ using System.Collections.Generic;
 namespace Rock.Client
 {
     /// <summary>
-    /// Base client model for RegistrationInstance that only includes the non-virtual fields. Use this for PUT/POSTs
+    /// Base client model for RegistrationRegistrant that only includes the non-virtual fields. Use this for PUT/POSTs
     /// </summary>
-    public partial class RegistrationInstanceEntity
+    public partial class RegistrationRegistrantEntity
     {
         /// <summary />
         public int Id { get; set; }
 
         /// <summary />
-        public string AccountCode { get; set; }
+        public decimal Cost { get; set; }
 
         /// <summary />
-        public string AdditionalConfirmationDetails { get; set; }
+        public int? GroupMemberId { get; set; }
 
         /// <summary />
-        public string AdditionalReminderDetails { get; set; }
+        public int? PersonAliasId { get; set; }
 
         /// <summary />
-        public DateTime? ConfirmationSentDateTime { get; set; }
-
-        /// <summary />
-        public string ContactEmail { get; set; }
-
-        /// <summary />
-        public string ContactName { get; set; }
-
-        /// <summary />
-        public string Details { get; set; }
-
-        /// <summary />
-        public DateTime? EndDateTime { get; set; }
-
-        /// <summary />
-        public bool IsActive { get; set; }
-
-        /// <summary />
-        public int MaxAttendees { get; set; }
-
-        /// <summary />
-        public string Name { get; set; }
-
-        /// <summary />
-        public int RegistrationTemplateId { get; set; }
-
-        /// <summary />
-        public DateTime? ReminderSentDateTime { get; set; }
-
-        /// <summary />
-        public DateTime? StartDateTime { get; set; }
+        public int RegistrationId { get; set; }
 
         /// <summary />
         public Guid Guid { get; set; }
@@ -85,9 +55,9 @@ namespace Rock.Client
     }
 
     /// <summary>
-    /// Client model for RegistrationInstance that includes all the fields that are available for GETs. Use this for GETs (use RegistrationInstanceEntity for POST/PUTs)
+    /// Client model for RegistrationRegistrant that includes all the fields that are available for GETs. Use this for GETs (use RegistrationRegistrantEntity for POST/PUTs)
     /// </summary>
-    public partial class RegistrationInstance : RegistrationInstanceEntity
+    public partial class RegistrationRegistrant : RegistrationRegistrantEntity
     {
         /// <summary />
         public DateTime? CreatedDateTime { get; set; }

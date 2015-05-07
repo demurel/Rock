@@ -251,69 +251,6 @@ namespace Rock.Model
         [DataMember]
         public bool IsActive { get; set; }
 
-        /// <summary>
-        /// Gets or sets value indicating how user should be prompted for home campus.
-        /// </summary>
-        /// <value>
-        /// The request home campus.
-        /// </value>
-        [DataMember]
-        public RegistrationRequestField RequestHomeCampus { get; set; }
-
-        /// <summary>
-        /// Gets or sets value indicating how user should be prompted for phone.
-        /// </summary>
-        /// <value>
-        /// The request phone.
-        /// </value>
-        [DataMember]
-        public RegistrationRequestField RequestPhone { get; set; }
-
-        /// <summary>
-        /// Gets or sets value indicating how user should be prompted for home address.
-        /// </summary>
-        /// <value>
-        /// The request home address.
-        /// </value>
-        [DataMember]
-        public RegistrationRequestField RequestHomeAddress { get; set; }
-
-        /// <summary>
-        /// Gets or sets value indicating how user should be prompted for email.
-        /// </summary>
-        /// <value>
-        /// The request email.
-        /// </value>
-        [DataMember]
-        public RegistrationRequestField RequestEmail { get; set; }
-
-        /// <summary>
-        /// Gets or sets value indicating how user should be prompted for birth date.
-        /// </summary>
-        /// <value>
-        /// The request birth date.
-        /// </value>
-        [DataMember]
-        public RegistrationRequestField RequestBirthDate { get; set; }
-
-        /// <summary>
-        /// Gets or sets value indicating how user should be prompted for gender.
-        /// </summary>
-        /// <value>
-        /// The request gender.
-        /// </value>
-        [DataMember]
-        public RegistrationRequestField RequestGender { get; set; }
-
-        /// <summary>
-        /// Gets or sets value indicating how user should be prompted for marital status.
-        /// </summary>
-        /// <value>
-        /// The request marital status.
-        /// </value>
-        [DataMember]
-        public RegistrationRequestField RequestMaritalStatus { get; set; }
-
         #endregion
 
         #region Virtual Properties
@@ -438,27 +375,6 @@ namespace Rock.Model
     #endregion
 
     #region Enumerations
-
-    /// <summary>
-    /// Flag for how person details should be displayed/required by user
-    /// </summary>
-    public enum RegistrationRequestField
-    {
-        /// <summary>
-        /// Do NOT display field to user
-        /// </summary>
-        No = 0,
-
-        /// <summary>
-        /// Display the field to user
-        /// </summary>
-        Yes = 1,
-
-        /// <summary>
-        /// Require user to enter the field value
-        /// </summary>
-        Require = 2
-    }
 
     /// <summary>
     /// Flag indicating if registrants are typically in the same family

@@ -27,54 +27,45 @@ using System.Collections.Generic;
 namespace Rock.Client
 {
     /// <summary>
-    /// Base client model for RegistrationInstance that only includes the non-virtual fields. Use this for PUT/POSTs
+    /// Base client model for RegistrationTemplateFormField that only includes the non-virtual fields. Use this for PUT/POSTs
     /// </summary>
-    public partial class RegistrationInstanceEntity
+    public partial class RegistrationTemplateFormFieldEntity
     {
         /// <summary />
         public int Id { get; set; }
 
         /// <summary />
-        public string AccountCode { get; set; }
+        public int? AttributeId { get; set; }
 
         /// <summary />
-        public string AdditionalConfirmationDetails { get; set; }
+        public int /* RegistrationFieldSource*/ FieldSource { get; set; }
 
         /// <summary />
-        public string AdditionalReminderDetails { get; set; }
+        public bool IsGridField { get; set; }
 
         /// <summary />
-        public DateTime? ConfirmationSentDateTime { get; set; }
+        public bool IsRequired { get; set; }
 
         /// <summary />
-        public string ContactEmail { get; set; }
+        public bool IsSharedValue { get; set; }
 
         /// <summary />
-        public string ContactName { get; set; }
+        public int Order { get; set; }
 
         /// <summary />
-        public string Details { get; set; }
+        public int /* RegistrationPersonFieldType*/ PersonFieldType { get; set; }
 
         /// <summary />
-        public DateTime? EndDateTime { get; set; }
+        public string PostText { get; set; }
 
         /// <summary />
-        public bool IsActive { get; set; }
+        public string PreText { get; set; }
 
         /// <summary />
-        public int MaxAttendees { get; set; }
+        public int RegistrationTemplateFormId { get; set; }
 
         /// <summary />
-        public string Name { get; set; }
-
-        /// <summary />
-        public int RegistrationTemplateId { get; set; }
-
-        /// <summary />
-        public DateTime? ReminderSentDateTime { get; set; }
-
-        /// <summary />
-        public DateTime? StartDateTime { get; set; }
+        public bool ShowCurrentValue { get; set; }
 
         /// <summary />
         public Guid Guid { get; set; }
@@ -85,10 +76,13 @@ namespace Rock.Client
     }
 
     /// <summary>
-    /// Client model for RegistrationInstance that includes all the fields that are available for GETs. Use this for GETs (use RegistrationInstanceEntity for POST/PUTs)
+    /// Client model for RegistrationTemplateFormField that includes all the fields that are available for GETs. Use this for GETs (use RegistrationTemplateFormFieldEntity for POST/PUTs)
     /// </summary>
-    public partial class RegistrationInstance : RegistrationInstanceEntity
+    public partial class RegistrationTemplateFormField : RegistrationTemplateFormFieldEntity
     {
+        /// <summary />
+        public Attribute Attribute { get; set; }
+
         /// <summary />
         public DateTime? CreatedDateTime { get; set; }
 

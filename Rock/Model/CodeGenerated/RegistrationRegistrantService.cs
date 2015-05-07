@@ -28,15 +28,15 @@ using Rock.Data;
 namespace Rock.Model
 {
     /// <summary>
-    /// GroupMember Service class
+    /// RegistrationRegistrant Service class
     /// </summary>
-    public partial class GroupMemberService : Service<GroupMember>
+    public partial class RegistrationRegistrantService : Service<RegistrationRegistrant>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="GroupMemberService"/> class
+        /// Initializes a new instance of the <see cref="RegistrationRegistrantService"/> class
         /// </summary>
         /// <param name="context">The context.</param>
-        public GroupMemberService(RockContext context) : base(context)
+        public RegistrationRegistrantService(RockContext context) : base(context)
         {
         }
 
@@ -48,15 +48,9 @@ namespace Rock.Model
         /// <returns>
         ///   <c>true</c> if this instance can delete the specified item; otherwise, <c>false</c>.
         /// </returns>
-        public bool CanDelete( GroupMember item, out string errorMessage )
+        public bool CanDelete( RegistrationRegistrant item, out string errorMessage )
         {
             errorMessage = string.Empty;
- 
-            if ( new Service<RegistrationRegistrant>( Context ).Queryable().Any( a => a.GroupMemberId == item.Id ) )
-            {
-                errorMessage = string.Format( "This {0} is assigned to a {1}.", GroupMember.FriendlyTypeName, RegistrationRegistrant.FriendlyTypeName );
-                return false;
-            }  
             return true;
         }
     }
@@ -64,43 +58,40 @@ namespace Rock.Model
     /// <summary>
     /// Generated Extension Methods
     /// </summary>
-    public static partial class GroupMemberExtensionMethods
+    public static partial class RegistrationRegistrantExtensionMethods
     {
         /// <summary>
-        /// Clones this GroupMember object to a new GroupMember object
+        /// Clones this RegistrationRegistrant object to a new RegistrationRegistrant object
         /// </summary>
         /// <param name="source">The source.</param>
         /// <param name="deepCopy">if set to <c>true</c> a deep copy is made. If false, only the basic entity properties are copied.</param>
         /// <returns></returns>
-        public static GroupMember Clone( this GroupMember source, bool deepCopy )
+        public static RegistrationRegistrant Clone( this RegistrationRegistrant source, bool deepCopy )
         {
             if (deepCopy)
             {
-                return source.Clone() as GroupMember;
+                return source.Clone() as RegistrationRegistrant;
             }
             else
             {
-                var target = new GroupMember();
+                var target = new RegistrationRegistrant();
                 target.CopyPropertiesFrom( source );
                 return target;
             }
         }
 
         /// <summary>
-        /// Copies the properties from another GroupMember object to this GroupMember object
+        /// Copies the properties from another RegistrationRegistrant object to this RegistrationRegistrant object
         /// </summary>
         /// <param name="target">The target.</param>
         /// <param name="source">The source.</param>
-        public static void CopyPropertiesFrom( this GroupMember target, GroupMember source )
+        public static void CopyPropertiesFrom( this RegistrationRegistrant target, RegistrationRegistrant source )
         {
             target.Id = source.Id;
-            target.DateTimeAdded = source.DateTimeAdded;
-            target.GroupId = source.GroupId;
-            target.GroupMemberStatus = source.GroupMemberStatus;
-            target.GroupRoleId = source.GroupRoleId;
-            target.GuestCount = source.GuestCount;
-            target.IsSystem = source.IsSystem;
-            target.PersonId = source.PersonId;
+            target.Cost = source.Cost;
+            target.GroupMemberId = source.GroupMemberId;
+            target.PersonAliasId = source.PersonAliasId;
+            target.RegistrationId = source.RegistrationId;
             target.CreatedDateTime = source.CreatedDateTime;
             target.ModifiedDateTime = source.ModifiedDateTime;
             target.CreatedByPersonAliasId = source.CreatedByPersonAliasId;

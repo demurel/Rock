@@ -50,7 +50,10 @@ namespace Rock.Client
         public string Name { get; set; }
 
         /// <summary />
-        public int? RegistrationTemplateId { get; set; }
+        public int Order { get; set; }
+
+        /// <summary />
+        public int RegistrationTemplateId { get; set; }
 
         /// <summary />
         public Guid Guid { get; set; }

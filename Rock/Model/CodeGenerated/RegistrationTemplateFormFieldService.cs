@@ -28,15 +28,15 @@ using Rock.Data;
 namespace Rock.Model
 {
     /// <summary>
-    /// RegistrationTemplateFormAttribute Service class
+    /// RegistrationTemplateFormField Service class
     /// </summary>
-    public partial class RegistrationTemplateFormAttributeService : Service<RegistrationTemplateFormAttribute>
+    public partial class RegistrationTemplateFormFieldService : Service<RegistrationTemplateFormField>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="RegistrationTemplateFormAttributeService"/> class
+        /// Initializes a new instance of the <see cref="RegistrationTemplateFormFieldService"/> class
         /// </summary>
         /// <param name="context">The context.</param>
-        public RegistrationTemplateFormAttributeService(RockContext context) : base(context)
+        public RegistrationTemplateFormFieldService(RockContext context) : base(context)
         {
         }
 
@@ -48,7 +48,7 @@ namespace Rock.Model
         /// <returns>
         ///   <c>true</c> if this instance can delete the specified item; otherwise, <c>false</c>.
         /// </returns>
-        public bool CanDelete( RegistrationTemplateFormAttribute item, out string errorMessage )
+        public bool CanDelete( RegistrationTemplateFormField item, out string errorMessage )
         {
             errorMessage = string.Empty;
             return true;
@@ -58,46 +58,47 @@ namespace Rock.Model
     /// <summary>
     /// Generated Extension Methods
     /// </summary>
-    public static partial class RegistrationTemplateFormAttributeExtensionMethods
+    public static partial class RegistrationTemplateFormFieldExtensionMethods
     {
         /// <summary>
-        /// Clones this RegistrationTemplateFormAttribute object to a new RegistrationTemplateFormAttribute object
+        /// Clones this RegistrationTemplateFormField object to a new RegistrationTemplateFormField object
         /// </summary>
         /// <param name="source">The source.</param>
         /// <param name="deepCopy">if set to <c>true</c> a deep copy is made. If false, only the basic entity properties are copied.</param>
         /// <returns></returns>
-        public static RegistrationTemplateFormAttribute Clone( this RegistrationTemplateFormAttribute source, bool deepCopy )
+        public static RegistrationTemplateFormField Clone( this RegistrationTemplateFormField source, bool deepCopy )
         {
             if (deepCopy)
             {
-                return source.Clone() as RegistrationTemplateFormAttribute;
+                return source.Clone() as RegistrationTemplateFormField;
             }
             else
             {
-                var target = new RegistrationTemplateFormAttribute();
+                var target = new RegistrationTemplateFormField();
                 target.CopyPropertiesFrom( source );
                 return target;
             }
         }
 
         /// <summary>
-        /// Copies the properties from another RegistrationTemplateFormAttribute object to this RegistrationTemplateFormAttribute object
+        /// Copies the properties from another RegistrationTemplateFormField object to this RegistrationTemplateFormField object
         /// </summary>
         /// <param name="target">The target.</param>
         /// <param name="source">The source.</param>
-        public static void CopyPropertiesFrom( this RegistrationTemplateFormAttribute target, RegistrationTemplateFormAttribute source )
+        public static void CopyPropertiesFrom( this RegistrationTemplateFormField target, RegistrationTemplateFormField source )
         {
             target.Id = source.Id;
-            target.AppliesTo = source.AppliesTo;
             target.AttributeId = source.AttributeId;
-            target.CommonValue = source.CommonValue;
-            target.Name = source.Name;
+            target.FieldSource = source.FieldSource;
+            target.IsGridField = source.IsGridField;
+            target.IsRequired = source.IsRequired;
+            target.IsSharedValue = source.IsSharedValue;
+            target.Order = source.Order;
+            target.PersonFieldType = source.PersonFieldType;
             target.PostText = source.PostText;
             target.PreText = source.PreText;
             target.RegistrationTemplateFormId = source.RegistrationTemplateFormId;
-            target.RequiredOnInitialEntry = source.RequiredOnInitialEntry;
-            target.ShowOnGrid = source.ShowOnGrid;
-            target.UseCurrentPersonAttributeValue = source.UseCurrentPersonAttributeValue;
+            target.ShowCurrentValue = source.ShowCurrentValue;
             target.CreatedDateTime = source.CreatedDateTime;
             target.ModifiedDateTime = source.ModifiedDateTime;
             target.CreatedByPersonAliasId = source.CreatedByPersonAliasId;

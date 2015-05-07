@@ -44,10 +44,10 @@ namespace Rock.Client
         public double DiscountPercentage { get; set; }
 
         /// <summary />
-        public string Name { get; set; }
+        public int Order { get; set; }
 
         /// <summary />
-        public int? RegistrationTemplateId { get; set; }
+        public int RegistrationTemplateId { get; set; }
 
         /// <summary />
         public Guid Guid { get; set; }

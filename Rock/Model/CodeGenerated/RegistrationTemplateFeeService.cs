@@ -93,6 +93,7 @@ namespace Rock.Model
             target.DiscountApplies = source.DiscountApplies;
             target.FeeType = source.FeeType;
             target.Name = source.Name;
+            target.Order = source.Order;
             target.RegistrationTemplateId = source.RegistrationTemplateId;
             target.CreatedDateTime = source.CreatedDateTime;
             target.ModifiedDateTime = source.ModifiedDateTime;

@@ -57,7 +57,7 @@ namespace Rock.Model
         /// The registration template identifier.
         /// </value>
         [DataMember]
-        public int? RegistrationTemplateId { get; set; }
+        public int RegistrationTemplateId { get; set; }
 
         /// <summary>
         /// Gets or sets the fee type ( single option vs multiple options ).

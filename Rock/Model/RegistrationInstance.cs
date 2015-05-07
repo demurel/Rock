@@ -57,7 +57,7 @@ namespace Rock.Model
         /// The registration template identifier.
         /// </value>
         [DataMember]
-        public int? RegistrationTemplateId { get; set; }
+        public int RegistrationTemplateId { get; set; }
 
         /// <summary>
         /// Gets or sets the start date time.
@@ -182,6 +182,19 @@ namespace Rock.Model
         /// </value>
         public virtual RegistrationTemplate RegistrationTemplate { get; set; }
 
+        /// <summary>
+        /// Gets or sets the registrations.
+        /// </summary>
+        /// <value>
+        /// The registrations.
+        /// </value>
+        public virtual ICollection<Registration> Registrations
+        {
+            get { return _registrations ?? ( _registrations = new Collection<Registration>() ); }
+            set { _registrations = value; }
+        }
+        private ICollection<Registration> _registrations;
+
         #endregion
 
         #region Methods
@@ -209,11 +222,11 @@ namespace Rock.Model
     public partial class RegistrationInstanceConfiguration : EntityTypeConfiguration<RegistrationInstance>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="RegistrationTemplateConfiguration"/> class.
+        /// Initializes a new instance of the <see cref="RegistrationInstanceConfiguration"/> class.
         /// </summary>
         public RegistrationInstanceConfiguration()
         {
-            this.HasRequired( i => i.RegistrationTemplate ).WithMany( t => t.Instances).HasForeignKey( i => i.RegistrationTemplateId ).WillCascadeOnDelete( true );
+            this.HasRequired( i => i.RegistrationTemplate ).WithMany( t => t.Instances ).HasForeignKey( i => i.RegistrationTemplateId ).WillCascadeOnDelete( true );
         }
     }
 

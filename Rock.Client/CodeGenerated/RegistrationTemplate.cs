@@ -56,7 +56,7 @@ namespace Rock.Client
         public int? GroupMemberRoleId { get; set; }
 
         /// <summary />
-        public int? GroupMemberStatusId { get; set; }
+        public int /* GroupMemberStatus*/ GroupMemberStatus { get; set; }
 
         /// <summary />
         public int? GroupTypeId { get; set; }
@@ -92,28 +92,7 @@ namespace Rock.Client
         public string ReminderEmailTemplate { get; set; }
 
         /// <summary />
-        public int /* RegistrationRequestField*/ RequestBirthDate { get; set; }
-
-        /// <summary />
-        public int /* RegistrationRequestField*/ RequestEmail { get; set; }
-
-        /// <summary />
         public string RequestEntryName { get; set; }
-
-        /// <summary />
-        public int /* RegistrationRequestField*/ RequestGender { get; set; }
-
-        /// <summary />
-        public int /* RegistrationRequestField*/ RequestHomeAddress { get; set; }
-
-        /// <summary />
-        public int /* RegistrationRequestField*/ RequestHomeCampus { get; set; }
-
-        /// <summary />
-        public int /* RegistrationRequestField*/ RequestMaritalStatus { get; set; }
-
-        /// <summary />
-        public int /* RegistrationRequestField*/ RequestPhone { get; set; }
 
         /// <summary />
         public string SuccessText { get; set; }
@@ -137,6 +116,12 @@ namespace Rock.Client
     /// </summary>
     public partial class RegistrationTemplate : RegistrationTemplateEntity
     {
+        /// <summary />
+        public ICollection<RegistrationTemplateDiscount> Discounts { get; set; }
+
+        /// <summary />
+        public ICollection<RegistrationTemplateFee> Fees { get; set; }
+
         /// <summary />
         public ICollection<RegistrationTemplateForm> Forms { get; set; }
 

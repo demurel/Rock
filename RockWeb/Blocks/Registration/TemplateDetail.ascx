@@ -71,33 +71,28 @@
                         </div>
                     </Rock:PanelWidget>
 
-                    <Rock:PanelWidget ID="wpPersonFields" runat="server" Title="Fields/Attributes">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <Rock:RockRadioButtonList ID="rblRequestHomeCampus" runat="server" Label="Show Home Campus" RepeatDirection="Horizontal" />
-                                <Rock:RockRadioButtonList ID="rblRequestPhone" runat="server" Label="Show Phone" RepeatDirection="Horizontal" />
-                                <Rock:RockRadioButtonList ID="rblRequestEmail" runat="server" Label="Show Email" RepeatDirection="Horizontal" />
-                            </div>
-                            <div class="col-md-6">
-                                <Rock:RockRadioButtonList ID="rblRequstBirthdate" runat="server" Label="Show Birthdate" RepeatDirection="Horizontal" />
-                                <Rock:RockRadioButtonList ID="rblRequestGender" runat="server" Label="Show Gender" RepeatDirection="Horizontal" />
-                                <Rock:RockRadioButtonList ID="rblRequestMaritalStatus" runat="server" Label="Show Marital Status" RepeatDirection="Horizontal" />
-                            </div>
-                        </div>
-                        <div class="grid">
-                            <Rock:Grid ID="gAttributes" runat="server" AllowPaging="false" DisplayType="Light" RowItemText="Attribute">
+                    <Rock:PanelWidget ID="wpPersonFields" runat="server" Title="Form(s)">
+                        <Rock:PanelWidget ID="wpDefaultForm" runat="server" Title="Default Form" Expanded="true">
+                            <Rock:Grid ID="gFields" runat="server" AllowPaging="false" DisplayType="Light" RowItemText="Field">
                                 <Columns>
                                     <Rock:ReorderField />
-                                    <Rock:RockBoundField DataField="Type" HeaderText="Type" />
-                                    <Rock:RockBoundField DataField="Name" HeaderText="Attribute" />
-                                    <Rock:RockBoundField DataField="Description" HeaderText="Description" />
-                                    <Rock:RockBoundField DataField="FieldType" HeaderText="Field Type" />
+                                    <Rock:RockBoundField DataField="Name" HeaderText="Field" />
+                                    <Rock:EnumField DataField="FieldSource" HeaderText="Source" />
+                                    <Rock:FieldTypeField DataField="FieldType" HeaderText="Type" />
+                                    <Rock:BoolField DataField="IsGridField" HeaderText="Show on Grid" />
                                     <Rock:BoolField DataField="IsRequired" HeaderText="Required" />
-                                    <Rock:EditField OnClick="gAttributes_Edit" />
-                                    <Rock:DeleteField OnClick="gAttributes_Delete" />
+                                    <Rock:EditField OnClick="gFields_Edit" />
+                                    <Rock:DeleteField OnClick="gFields_Delete" />
                                 </Columns>
                             </Rock:Grid>
+                        </Rock:PanelWidget>
+                        <div class="form-list">
+                            <asp:PlaceHolder ID="phForms" runat="server" />
                         </div>
+                        <div class="pull-right">
+                            <asp:LinkButton ID="lbAddForm" runat="server" CssClass="btn btn-action btn-xs" OnClick="lbAddForm_Click" CausesValidation="false"><i class="fa fa-plus"></i> Add Form</asp:LinkButton>
+                        </div>
+
                     </Rock:PanelWidget>
 
                     <Rock:PanelWidget ID="wpFees" runat="server" Title="Fees">
@@ -129,7 +124,7 @@
 
                     <Rock:PanelWidget ID="wpCommunications" runat="server" Title="Communications">
                         <Rock:CodeEditor ID="ceReminderEmailTemplate" runat="server" Label="Reminder Email Template" EditorMode="Liquid" EditorTheme="Rock" EditorHeight="300" />
-                        <Rock:RockCheckBox ID="cbUserDefaultConfirmation" runat="server" Label="Use Default Confirmation Email" AutoPostBack="true" OnCheckedChanged="cbUserDefaultConfirmation_CheckedChanged" />
+                        <Rock:RockCheckBox ID="cbUserDefaultConfirmation" runat="server" Label="Use Default Confirmation Email" Text="Yes" AutoPostBack="true" OnCheckedChanged="cbUserDefaultConfirmation_CheckedChanged" />
                         <Rock:CodeEditor ID="ceConfirmationEmailTemplate" runat="server" Label="Confirmation Email Template" EditorMode="Liquid" EditorTheme="Rock" EditorHeight="300" Visible="false" />
                     </Rock:PanelWidget>
 
@@ -166,6 +161,11 @@
                     <div class="row">
                         <div class="col-md-6">
                             <Rock:RockLiteral ID="lGroupType" runat="server" Label="Group Type" />
+                            <Rock:RockControlWrapper ID="rcwForms" runat="server" Label="Forms" CssClass="js-forms-wrapper">
+                                <div class="forms-readonly-list" style="display: none">
+                                    <asp:Literal ID="lFormsReadonly" runat="server" />
+                                </div>
+                            </Rock:RockControlWrapper>
                         </div>
                         <div class="col-md-6">
                             <Rock:RockLiteral ID="lGateway" runat="server" Label="Gateway" />
@@ -201,9 +201,44 @@
 
         <asp:HiddenField ID="hfActiveDialog" runat="server" />
 
-        <Rock:ModalDialog ID="dlgAttribute" runat="server" Title="Attribute" OnSaveClick="dlgAttribute_SaveClick" OnCancelScript="clearActiveDialog();" ValidationGroup="Attribute">
+        <Rock:ModalDialog ID="dlgField" runat="server" Title="Attribute" OnSaveClick="dlgField_SaveClick" OnCancelScript="clearActiveDialog();" ValidationGroup="Field">
             <Content>
-            </Content>
+                <asp:HiddenField ID="hfFormGuid" runat="server" />
+                <asp:HiddenField ID="hfAttributeGuid" runat="server" />
+                <asp:ValidationSummary ID="ValidationSummaryAttribute" runat="server" HeaderText="Please Correct the Following" CssClass="alert alert-danger" ValidationGroup="Field" />
+                <div class="row">
+                    <div class="col-md-4">
+                        <Rock:RockDropDownList ID="ddlFieldSource" runat="server" Label="Source" AutoPostBack="true" OnSelectedIndexChanged="ddlFieldSource_SelectedIndexChanged" ValidationGroup="Field" />
+                    </div>
+                    <div class="col-md-4">
+                        <Rock:RockCheckBox ID="cbCommonValue" runat="server" Label="Common Value" Text="Yes" ValidationGroup="Field"
+                            Help="When registering more than one person, should the value of this attribute default to the value entered for first person registered?" />
+                    </div>
+                    <div class="col-md-4">
+                        <Rock:RockCheckBox ID="cbUseCurrentPersonAttributeValue" runat="server" Label="Display Current Value" Text="Yes" Visible="false" ValidationGroup="Field"
+                            Help="Should the person's current value for this attribute be displayed when they register?" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <Rock:RockLiteral ID="lPersonField" runat="server" Label="Person Field" Visible="false" />
+                        <Rock:RockDropDownList ID="ddlPersonField" runat="server" Label="Person Field" Visible="false" ValidationGroup="Field" />
+                        <Rock:RockDropDownList ID="ddlPersonAttributes" runat="server" Label="Person Attribute" Visible="false" ValidationGroup="Field" />
+                        <Rock:RockDropDownList ID="ddlGroupTypeAttributes" runat="server" Label="Group Member Attribute" Visible="false" ValidationGroup="Field" />
+                    </div>
+                    <div class="col-md-4">
+                        <Rock:RockCheckBox ID="cbShowOnGrid" runat="server" Label="Show on Grid" Text="Yes" Visible="false" ValidationGroup="Field"
+                            Help="Should this value be displayed on the list of registrants?" />
+                    </div>
+                    <div class="col-md-4">
+                        <Rock:RockCheckBox ID="cbRequireInInitialEntry" runat="server" Label="Required" Text="Yes" Visible="false" ValidationGroup="Field"
+                            Help="Should a value for this attribute be required when registering?" />
+                    </div>
+                </div>
+                <Rock:AttributeEditor ID="edtRegistrationAttribute" runat="server" ShowActions="false" ValidationGroup="Field" Visible="false" />
+                <Rock:CodeEditor ID="ceAttributePreText" runat="server" Label="Pre-Text" EditorMode="Html" EditorTheme="Rock" EditorHeight="100" ValidationGroup="Field" />
+                <Rock:CodeEditor ID="ceAttributePostText" runat="server" Label="Post-Text" EditorMode="Html" EditorTheme="Rock" EditorHeight="100" ValidationGroup="Field" />
+           </Content>
         </Rock:ModalDialog>
 
         <Rock:ModalDialog ID="dlgDiscount" runat="server" Title="Discount Code" OnSaveClick="dlgDiscount_SaveClick" OnCancelScript="clearActiveDialog();" ValidationGroup="Discount">
@@ -235,5 +270,41 @@
             </Content>
         </Rock:ModalDialog>
 
+        <script>
+
+            Sys.Application.add_load(function () {
+
+                var fixHelper = function (e, ui) {
+                    ui.children().each(function () {
+                        $(this).width($(this).width());
+                    });
+                    return ui;
+                };
+
+                $('.js-forms-wrapper > label.control-label').click( function(){
+                    $('.forms-readonly-list').toggle(500);
+                })
+
+                $('.form-list').sortable({
+                    helper: fixHelper,
+                    handle: '.form-reorder',
+                    containment: 'parent',
+                    tolerance: 'pointer',
+                    start: function (event, ui) {
+                        {
+                            var start_pos = ui.item.index();
+                            ui.item.data('start_pos', start_pos);
+                        }
+                    },
+                    update: function (event, ui) {
+                        {
+                            __doPostBack('<%=upDetail.ClientID %>', 're-order-form:' + ui.item.attr('data-key') + ';' + ui.item.index());
+                        }
+                    }
+                });
+
+            });
+
+        </script>
     </ContentTemplate>
 </asp:UpdatePanel>

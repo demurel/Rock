@@ -38,7 +38,7 @@ namespace Rock.Web.UI.Controls
 
         private RockTextBox _tbFormName;
 
-        private Grid _gAttributes;
+        private Grid _gFields;
 
         /// <summary>
         /// Gets or sets a value indicating whether this <see cref="TemplateFormEditor"/> is expanded.
@@ -135,35 +135,35 @@ namespace Rock.Web.UI.Controls
 
             string script = @"
 // activity animation
-$('.attribute-form > header').click(function () {
+$('.template-form > header').click(function () {
     $(this).siblings('.panel-body').slideToggle();
 
     $expanded = $(this).children('input.filter-expanded');
     $expanded.val($expanded.val() == 'True' ? 'False' : 'True');
 
-    $('i.attribute-form-state', this).toggleClass('fa-chevron-down');
-    $('i.attribute-form-state', this).toggleClass('fa-chevron-up');
+    $('i.template-form-state', this).toggleClass('fa-chevron-down');
+    $('i.template-form-state', this).toggleClass('fa-chevron-up');
 });
 
 // fix so that the Remove button will fire its event, but not the parent event 
-$('.attribute-form a.js-activity-delete').click(function (event) {
+$('.template-form a.js-activity-delete').click(function (event) {
     event.stopImmediatePropagation();
 });
 
 // fix so that the Reorder button will fire its event, but not the parent event 
-$('.attribute-form a.attribute-form-reorder').click(function (event) {
+$('.template-form a.template-form-reorder').click(function (event) {
     event.stopImmediatePropagation();
 });
 
-$('.attribute-form > .panel-body').on('validation-error', function() {
+$('.template-form > .panel-body').on('validation-error', function() {
     var $header = $(this).siblings('header');
     $(this).slideDown();
 
     $expanded = $header.children('input.filter-expanded');
     $expanded.val('True');
 
-    $('i.attribute-form-state', $header).removeClass('fa-chevron-down');
-    $('i.attribute-form-state', $header).addClass('fa-chevron-up');
+    $('i.template-form-state', $header).removeClass('fa-chevron-down');
+    $('i.template-form-state', $header).addClass('fa-chevron-up');
 
     return false;
 });
@@ -198,7 +198,7 @@ $('.attribute-form > .panel-body').on('validation-error', function() {
         /// <value>
         /// The type of the workflow activity.
         /// </value>
-        public RegistrationTemplateForm GetAttributeForm( bool expandInvalid )
+        public RegistrationTemplateForm GetForm( bool expandInvalid )
         {
             EnsureChildControls();
             RegistrationTemplateForm result = new RegistrationTemplateForm();
@@ -218,7 +218,7 @@ $('.attribute-form > .panel-body').on('validation-error', function() {
         /// Sets the type of the workflow activity.
         /// </summary>
         /// <param name="value">The value.</param>
-        public void SetAttributeForm( RegistrationTemplateForm value )
+        public void SetForm( RegistrationTemplateForm value )
         {
             EnsureChildControls();
             _hfFormGuid.Value = value.Guid.ToString();
@@ -227,25 +227,27 @@ $('.attribute-form > .panel-body').on('validation-error', function() {
         }
 
         /// <summary>
-        /// Binds the attributes grid.
+        /// Binds the fields grid.
         /// </summary>
-        /// <param name="attributes">The attributes.</param>
-        public void BindAttributesGrid( List<Rock.Model.Attribute> attributes )
+        /// <param name="formFields">The fields.</param>
+        public void BindFieldsGrid( List<RegistrationTemplateFormField> formFields )
         {
-            _gAttributes.DataSource = attributes
+            _gFields.DataSource = formFields
                 .OrderBy( a => a.Order )
-                .ThenBy( a => a.Name )
                 .Select( a => new
                 {
                     a.Id,
                     a.Guid,
-                    a.Name,
-                    a.Description,
-                    FieldType = FieldTypeCache.GetName( a.FieldTypeId ),
+                    Name = a.FieldSource == RegistrationFieldSource.PersonField ?
+                        a.PersonFieldType.ToString() :
+                        a.Attribute.Name,
+                    FieldSource = a.FieldSource.ConvertToString(),
+                    FieldType = a.FieldSource == RegistrationFieldSource.PersonField ? 0 : a.Attribute.FieldTypeId,
+                    a.IsGridField,
                     a.IsRequired
                 } )
                 .ToList();
-            _gAttributes.DataBind();
+            _gFields.DataBind();
         }
 
         /// <summary>
@@ -285,53 +287,58 @@ $('.attribute-form > .panel-body').on('validation-error', function() {
             _tbFormName = new RockTextBox();
             Controls.Add( _tbFormName );
             _tbFormName.ID = this.ID + "_tbFormName";
-            _tbFormName.Label = "Name";
+            _tbFormName.Label = "Form Name";
             _tbFormName.Required = true;
             _tbFormName.Attributes["onblur"] = string.Format( "javascript: $('#{0}').text($(this).val());", _lblFormName.ID );
 
-            _gAttributes = new Grid();
-            Controls.Add( _gAttributes );
-            _gAttributes.ID = this.ID + "_gAttributes";
-            _gAttributes.AllowPaging = false;
-            _gAttributes.DisplayType = GridDisplayType.Light;
-            _gAttributes.RowItemText = "Activity Attribute";
-            _gAttributes.AddCssClass( "attribute-grid" );
-            _gAttributes.DataKeyNames = new string[] { "Guid" };
-            _gAttributes.Actions.ShowAdd = true;
-            _gAttributes.Actions.AddClick += gAttributes_Add;
-            _gAttributes.GridRebind += gAttributes_Rebind;
-            _gAttributes.GridReorder += gAttributes_Reorder;
+            _gFields = new Grid();
+            Controls.Add( _gFields );
+            _gFields.ID = this.ID + "_gFields";
+            _gFields.AllowPaging = false;
+            _gFields.DisplayType = GridDisplayType.Light;
+            _gFields.RowItemText = "Field";
+            _gFields.AddCssClass( "field-grid" );
+            _gFields.DataKeyNames = new string[] { "Guid" };
+            _gFields.Actions.ShowAdd = true;
+            _gFields.Actions.AddClick += gFields_Add;
+            _gFields.GridRebind += gFields_Rebind;
+            _gFields.GridReorder += gFields_Reorder;
 
             var reorderField = new ReorderField();
-            _gAttributes.Columns.Add( reorderField );
+            _gFields.Columns.Add( reorderField );
 
             var nameField = new BoundField();
             nameField.DataField = "Name";
-            nameField.HeaderText = "Attribute";
-            _gAttributes.Columns.Add( nameField );
+            nameField.HeaderText = "Field";
+            _gFields.Columns.Add( nameField );
 
-            var descField = new BoundField();
-            descField.DataField = "Description";
-            descField.HeaderText = "Description";
-            _gAttributes.Columns.Add( descField );
+            var sourceField = new EnumField();
+            sourceField.DataField = "FieldSource";
+            sourceField.HeaderText = "Source";
+            _gFields.Columns.Add( sourceField );
 
-            var fieldTypeField = new BoundField();
-            fieldTypeField.DataField = "FieldType";
-            fieldTypeField.HeaderText = "Field Type";
-            _gAttributes.Columns.Add( fieldTypeField );
+            var typeField = new FieldTypeField();
+            typeField.DataField = "FieldType";
+            typeField.HeaderText = "Type";
+            _gFields.Columns.Add( typeField );
 
-            var reqField = new BoolField();
-            reqField.DataField = "IsRequired";
-            reqField.HeaderText = "Required";
-            _gAttributes.Columns.Add( reqField );
+            var gridField = new BoolField();
+            gridField.DataField = "IsGridField";
+            gridField.HeaderText = "Show on Grid";
+            _gFields.Columns.Add( gridField );
+
+            var requireField = new BoolField();
+            requireField.DataField = "IsRequired";
+            requireField.HeaderText = "Required";
+            _gFields.Columns.Add( requireField );
 
             var editField = new EditField();
-            editField.Click += gAttributes_Edit;
-            _gAttributes.Columns.Add( editField );
+            editField.Click += gFields_Edit;
+            _gFields.Columns.Add( editField );
 
             var delField = new DeleteField();
-            delField.Click += gAttributes_Delete;
-            _gAttributes.Columns.Add( delField );
+            delField.Click += gFields_Delete;
+            _gFields.Columns.Add( delField );
         }
 
         /// <summary>
@@ -340,19 +347,8 @@ $('.attribute-form > .panel-body').on('validation-error', function() {
         /// <param name="writer">An <see cref="T:System.Web.UI.HtmlTextWriter" /> that represents the output stream to render HTML content on the client.</param>
         public override void RenderControl( HtmlTextWriter writer )
         {
-            if ( !Expanded )
-            {
-                foreach ( WorkflowActionTypeEditor workflowActionTypeEditor in this.Controls.OfType<WorkflowActionTypeEditor>() )
-                {
-                    if ( workflowActionTypeEditor.Expanded )
-                    {
-                        Expanded = true;
-                        break;
-                    }
-                }
-            }
 
-            writer.AddAttribute( HtmlTextWriterAttribute.Class, "panel panel-widget attribute-form" );
+            writer.AddAttribute( HtmlTextWriterAttribute.Class, "panel panel-widget template-form" );
 
             writer.AddAttribute( "data-key", _hfFormGuid.Value );
             writer.AddAttribute( HtmlTextWriterAttribute.Id, this.ID + "_section" );
@@ -375,14 +371,14 @@ $('.attribute-form > .panel-body').on('validation-error', function() {
             // H3 tag
             writer.RenderEndTag();
 
-            // Name/Description div
+            // Name div
             writer.RenderEndTag();
 
             writer.AddAttribute( HtmlTextWriterAttribute.Class, "pull-right" );
             writer.RenderBeginTag( HtmlTextWriterTag.Div );
 
-            writer.WriteLine( "<a class='btn btn-xs btn-link attribute-form-reorder'><i class='fa fa-bars'></i></a>" );
-            writer.WriteLine( string.Format( "<a class='btn btn-xs btn-link'><i class='attribute-form-state fa {0}'></i></a>",
+            writer.WriteLine( "<a class='btn btn-xs btn-link form-reorder'><i class='fa fa-bars'></i></a>" );
+            writer.WriteLine( string.Format( "<a class='btn btn-xs btn-link'><i class='form-state fa {0}'></i></a>",
                 Expanded ? "fa fa-chevron-up" : "fa fa-chevron-down" ) );
 
             if ( IsDeleteEnabled )
@@ -427,7 +423,7 @@ $('.attribute-form > .panel-body').on('validation-error', function() {
 
             writer.RenderEndTag();
 
-            _gAttributes.RenderControl( writer );
+            _gFields.RenderControl( writer );
 
             // widget-content div
             writer.RenderEndTag();
@@ -450,72 +446,72 @@ $('.attribute-form > .panel-body').on('validation-error', function() {
         }
 
         /// <summary>
-        /// Handles the Rebind event of the gAttributes control.
+        /// Handles the Rebind event of the gFields control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
-        protected void gAttributes_Rebind( object sender, EventArgs e )
+        protected void gFields_Rebind( object sender, EventArgs e )
         {
-            if ( RebindAttributeClick != null )
+            if ( RebindFieldClick != null )
             {
-                var eventArg = new AttributeFormAttributeEventArg( FormGuid );
-                RebindAttributeClick( this, eventArg );
+                var eventArg = new TemplateFormFieldEventArg( FormGuid );
+                RebindFieldClick( this, eventArg );
             }
         }
 
         /// <summary>
-        /// Handles the Add event of the gAttributes control.
+        /// Handles the Add event of the gFields control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
-        protected void gAttributes_Add( object sender, EventArgs e )
+        protected void gFields_Add( object sender, EventArgs e )
         {
-            if ( AddAttributeClick != null )
+            if ( AddFieldClick != null )
             {
-                var eventArg = new AttributeFormAttributeEventArg( FormGuid, Guid.Empty );
-                AddAttributeClick( this, eventArg );
+                var eventArg = new TemplateFormFieldEventArg( FormGuid, Guid.Empty );
+                AddFieldClick( this, eventArg );
             }
         }
 
         /// <summary>
-        /// Handles the Edit event of the gAttributes control.
+        /// Handles the Edit event of the gFields control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="RowEventArgs"/> instance containing the event data.</param>
-        protected void gAttributes_Edit( object sender, RowEventArgs e )
+        protected void gFields_Edit( object sender, RowEventArgs e )
         {
-            if ( EditAttributeClick != null )
+            if ( EditFieldClick != null )
             {
-                var eventArg = new AttributeFormAttributeEventArg( FormGuid, (Guid)e.RowKeyValue );
-                EditAttributeClick( this, eventArg );
+                var eventArg = new TemplateFormFieldEventArg( FormGuid, (Guid)e.RowKeyValue );
+                EditFieldClick( this, eventArg );
             }
         }
 
         /// <summary>
-        /// Handles the Reorder event of the gAttributes control.
+        /// Handles the Reorder event of the gFields control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="GridReorderEventArgs"/> instance containing the event data.</param>
-        protected void gAttributes_Reorder( object sender, GridReorderEventArgs e )
+        protected void gFields_Reorder( object sender, GridReorderEventArgs e )
         {
-            if ( ReorderAttributeClick != null )
+            if ( ReorderFieldClick != null )
             {
-                var eventArg = new AttributeFormAttributeEventArg( FormGuid, e.OldIndex, e.NewIndex );
-                ReorderAttributeClick( this, eventArg );
+                var eventArg = new TemplateFormFieldEventArg( FormGuid, e.OldIndex, e.NewIndex );
+                ReorderFieldClick( this, eventArg );
             }
         }
 
         /// <summary>
-        /// Handles the Delete event of the gAttributes control.
+        /// Handles the Delete event of the gFields control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="RowEventArgs"/> instance containing the event data.</param>
-        protected void gAttributes_Delete( object sender, RowEventArgs e )
+        protected void gFields_Delete( object sender, RowEventArgs e )
         {
-            if ( DeleteAttributeClick != null )
+            if ( DeleteFieldClick != null )
             {
-                var eventArg = new AttributeFormAttributeEventArg( FormGuid, (Guid)e.RowKeyValue );
-                DeleteAttributeClick( this, eventArg );
+                var eventArg = new TemplateFormFieldEventArg( FormGuid, (Guid)e.RowKeyValue );
+                DeleteFieldClick( this, eventArg );
             }
         }
 
@@ -526,36 +522,36 @@ $('.attribute-form > .panel-body').on('validation-error', function() {
         public event EventHandler DeleteFormClick;
 
         /// <summary>
-        /// Occurs when [add attribute click].
+        /// Occurs when [add field click].
         /// </summary>
-        public event EventHandler<AttributeFormAttributeEventArg> RebindAttributeClick;
+        public event EventHandler<TemplateFormFieldEventArg> RebindFieldClick;
 
         /// <summary>
-        /// Occurs when [add attribute click].
+        /// Occurs when [add field click].
         /// </summary>
-        public event EventHandler<AttributeFormAttributeEventArg> AddAttributeClick;
+        public event EventHandler<TemplateFormFieldEventArg> AddFieldClick;
 
         /// <summary>
-        /// Occurs when [edit attribute click].
+        /// Occurs when [edit field click].
         /// </summary>
-        public event EventHandler<AttributeFormAttributeEventArg> EditAttributeClick;
+        public event EventHandler<TemplateFormFieldEventArg> EditFieldClick;
 
         /// <summary>
-        /// Occurs when [edit attribute click].
+        /// Occurs when [edit field click].
         /// </summary>
-        public event EventHandler<AttributeFormAttributeEventArg> ReorderAttributeClick;
+        public event EventHandler<TemplateFormFieldEventArg> ReorderFieldClick;
 
         /// <summary>
-        /// Occurs when [delete attribute click].
+        /// Occurs when [delete field click].
         /// </summary>
-        public event EventHandler<AttributeFormAttributeEventArg> DeleteAttributeClick;
+        public event EventHandler<TemplateFormFieldEventArg> DeleteFieldClick;
 
     }
 
     /// <summary>
     /// 
     /// </summary>
-    public class AttributeFormAttributeEventArg : EventArgs
+    public class TemplateFormFieldEventArg : EventArgs
     {
         /// <summary>
         /// Gets or sets the activity type unique identifier.
@@ -566,12 +562,12 @@ $('.attribute-form > .panel-body').on('validation-error', function() {
         public Guid FormGuid { get; set; }
 
         /// <summary>
-        /// Gets or sets the attribute unique identifier.
+        /// Gets or sets the field unique identifier.
         /// </summary>
         /// <value>
-        /// The attribute unique identifier.
+        /// The field unique identifier.
         /// </value>
-        public Guid AttributeGuid { get; set; }
+        public Guid FormFieldGuid { get; set; }
 
         /// <summary>
         /// Gets or sets the old index.
@@ -590,34 +586,34 @@ $('.attribute-form > .panel-body').on('validation-error', function() {
         public int NewIndex { get; set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AttributeFormAttributeEventArg"/> class.
+        /// Initializes a new instance of the <see cref="TemplateFormFieldEventArg"/> class.
         /// </summary>
         /// <param name="activityTypeGuid">The activity type unique identifier.</param>
-        public AttributeFormAttributeEventArg( Guid activityTypeGuid )
+        public TemplateFormFieldEventArg( Guid activityTypeGuid )
         {
             FormGuid = activityTypeGuid;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AttributeFormAttributeEventArg"/> class.
+        /// Initializes a new instance of the <see cref="TemplateFormFieldEventArg"/> class.
         /// </summary>
-        /// <param name="activityTypeGuid">The activity type unique identifier.</param>
-        /// <param name="attributeGuid">The attribute unique identifier.</param>
-        public AttributeFormAttributeEventArg( Guid activityTypeGuid, Guid attributeGuid )
+        /// <param name="formGuid">The form unique identifier.</param>
+        /// <param name="formFieldGuid">The form field unique identifier.</param>
+        public TemplateFormFieldEventArg( Guid formGuid, Guid formFieldGuid )
         {
-            FormGuid = activityTypeGuid;
-            AttributeGuid = attributeGuid;
+            FormGuid = formGuid;
+            FormFieldGuid = formFieldGuid;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AttributeFormAttributeEventArg"/> class.
+        /// Initializes a new instance of the <see cref="TemplateFormFieldEventArg" /> class.
         /// </summary>
-        /// <param name="activityTypeGuid">The activity type unique identifier.</param>
+        /// <param name="formGuid">The form unique identifier.</param>
         /// <param name="oldIndex">The old index.</param>
         /// <param name="newIndex">The new index.</param>
-        public AttributeFormAttributeEventArg( Guid activityTypeGuid, int oldIndex, int newIndex )
+        public TemplateFormFieldEventArg( Guid formGuid, int oldIndex, int newIndex )
         {
-            FormGuid = activityTypeGuid;
+            FormGuid = formGuid;
             OldIndex = oldIndex;
             NewIndex = newIndex;
         }

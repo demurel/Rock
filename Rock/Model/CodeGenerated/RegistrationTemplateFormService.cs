@@ -89,6 +89,7 @@ namespace Rock.Model
         {
             target.Id = source.Id;
             target.Name = source.Name;
+            target.Order = source.Order;
             target.RegistrationTemplateId = source.RegistrationTemplateId;
             target.CreatedDateTime = source.CreatedDateTime;
             target.ModifiedDateTime = source.ModifiedDateTime;

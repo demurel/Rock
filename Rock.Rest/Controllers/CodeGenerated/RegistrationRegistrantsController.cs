@@ -26,10 +26,10 @@ using Rock.Model;
 namespace Rock.Rest.Controllers
 {
     /// <summary>
-    /// RegistrationTemplateFormAttributes REST API
+    /// RegistrationRegistrants REST API
     /// </summary>
-    public partial class RegistrationTemplateFormAttributesController : Rock.Rest.ApiController<Rock.Model.RegistrationTemplateFormAttribute>
+    public partial class RegistrationRegistrantsController : Rock.Rest.ApiController<Rock.Model.RegistrationRegistrant>
     {
-        public RegistrationTemplateFormAttributesController() : base( new Rock.Model.RegistrationTemplateFormAttributeService( new Rock.Data.RockContext() ) ) { } 
+        public RegistrationRegistrantsController() : base( new Rock.Model.RegistrationRegistrantService( new Rock.Data.RockContext() ) ) { } 
     }
 }

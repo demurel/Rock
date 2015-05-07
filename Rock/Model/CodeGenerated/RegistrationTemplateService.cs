@@ -107,14 +107,7 @@ namespace Rock.Model
             target.RegistrantTerm = source.RegistrantTerm;
             target.RegistrationTerm = source.RegistrationTerm;
             target.ReminderEmailTemplate = source.ReminderEmailTemplate;
-            target.RequestBirthDate = source.RequestBirthDate;
-            target.RequestEmail = source.RequestEmail;
             target.RequestEntryName = source.RequestEntryName;
-            target.RequestGender = source.RequestGender;
-            target.RequestHomeAddress = source.RequestHomeAddress;
-            target.RequestHomeCampus = source.RequestHomeCampus;
-            target.RequestMaritalStatus = source.RequestMaritalStatus;
-            target.RequestPhone = source.RequestPhone;
             target.SuccessText = source.SuccessText;
             target.SuccessTitle = source.SuccessTitle;
             target.UseDefaultConfirmationEmail = source.UseDefaultConfirmationEmail;

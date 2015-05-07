@@ -1042,6 +1042,24 @@ namespace Rock.Model
                 return false;
             }  
  
+            if ( new Service<Registration>( Context ).Queryable().Any( a => a.CreatedByPersonAliasId == item.Id ) )
+            {
+                errorMessage = string.Format( "This {0} is assigned to a {1}.", PersonAlias.FriendlyTypeName, Registration.FriendlyTypeName );
+                return false;
+            }  
+ 
+            if ( new Service<Registration>( Context ).Queryable().Any( a => a.ModifiedByPersonAliasId == item.Id ) )
+            {
+                errorMessage = string.Format( "This {0} is assigned to a {1}.", PersonAlias.FriendlyTypeName, Registration.FriendlyTypeName );
+                return false;
+            }  
+ 
+            if ( new Service<Registration>( Context ).Queryable().Any( a => a.PersonAliasId == item.Id ) )
+            {
+                errorMessage = string.Format( "This {0} is assigned to a {1}.", PersonAlias.FriendlyTypeName, Registration.FriendlyTypeName );
+                return false;
+            }  
+ 
             if ( new Service<RegistrationInstance>( Context ).Queryable().Any( a => a.CreatedByPersonAliasId == item.Id ) )
             {
                 errorMessage = string.Format( "This {0} is assigned to a {1}.", PersonAlias.FriendlyTypeName, RegistrationInstance.FriendlyTypeName );
@@ -1051,6 +1069,24 @@ namespace Rock.Model
             if ( new Service<RegistrationInstance>( Context ).Queryable().Any( a => a.ModifiedByPersonAliasId == item.Id ) )
             {
                 errorMessage = string.Format( "This {0} is assigned to a {1}.", PersonAlias.FriendlyTypeName, RegistrationInstance.FriendlyTypeName );
+                return false;
+            }  
+ 
+            if ( new Service<RegistrationRegistrant>( Context ).Queryable().Any( a => a.CreatedByPersonAliasId == item.Id ) )
+            {
+                errorMessage = string.Format( "This {0} is assigned to a {1}.", PersonAlias.FriendlyTypeName, RegistrationRegistrant.FriendlyTypeName );
+                return false;
+            }  
+ 
+            if ( new Service<RegistrationRegistrant>( Context ).Queryable().Any( a => a.ModifiedByPersonAliasId == item.Id ) )
+            {
+                errorMessage = string.Format( "This {0} is assigned to a {1}.", PersonAlias.FriendlyTypeName, RegistrationRegistrant.FriendlyTypeName );
+                return false;
+            }  
+ 
+            if ( new Service<RegistrationRegistrant>( Context ).Queryable().Any( a => a.PersonAliasId == item.Id ) )
+            {
+                errorMessage = string.Format( "This {0} is assigned to a {1}.", PersonAlias.FriendlyTypeName, RegistrationRegistrant.FriendlyTypeName );
                 return false;
             }  
  
@@ -1102,15 +1138,15 @@ namespace Rock.Model
                 return false;
             }  
  
-            if ( new Service<RegistrationTemplateFormAttribute>( Context ).Queryable().Any( a => a.CreatedByPersonAliasId == item.Id ) )
+            if ( new Service<RegistrationTemplateFormField>( Context ).Queryable().Any( a => a.CreatedByPersonAliasId == item.Id ) )
             {
-                errorMessage = string.Format( "This {0} is assigned to a {1}.", PersonAlias.FriendlyTypeName, RegistrationTemplateFormAttribute.FriendlyTypeName );
+                errorMessage = string.Format( "This {0} is assigned to a {1}.", PersonAlias.FriendlyTypeName, RegistrationTemplateFormField.FriendlyTypeName );
                 return false;
             }  
  
-            if ( new Service<RegistrationTemplateFormAttribute>( Context ).Queryable().Any( a => a.ModifiedByPersonAliasId == item.Id ) )
+            if ( new Service<RegistrationTemplateFormField>( Context ).Queryable().Any( a => a.ModifiedByPersonAliasId == item.Id ) )
             {
-                errorMessage = string.Format( "This {0} is assigned to a {1}.", PersonAlias.FriendlyTypeName, RegistrationTemplateFormAttribute.FriendlyTypeName );
+                errorMessage = string.Format( "This {0} is assigned to a {1}.", PersonAlias.FriendlyTypeName, RegistrationTemplateFormField.FriendlyTypeName );
                 return false;
             }  
  
