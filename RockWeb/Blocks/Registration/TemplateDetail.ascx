@@ -52,7 +52,7 @@
                                     Help="Is user required to be logged in when registering?" />
                                 <div class="row">
                                     <div class="col-xs-6">
-                                        <Rock:RockCheckBox ID="cbMultipleRegistrants" runat="server" Label="Allow Multiple Registrants"
+                                        <Rock:RockCheckBox ID="cbMultipleRegistrants" runat="server" Label="Allow Multiple Registrants" Text="Yes"
                                             Help="Should user be allowed to register multiple registrants at the same time?"
                                             AutoPostBack="true" OnCheckedChanged="cbMultipleRegistrants_CheckedChanged" />
                                     </div>
