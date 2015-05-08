@@ -162,6 +162,15 @@ namespace Rock.Model
         public string ReminderEmailTemplate { get; set; }
 
         /// <summary>
+        /// Gets or sets the cost.
+        /// </summary>
+        /// <value>
+        /// The cost.
+        /// </value>
+        [DataMember]
+        public decimal Cost { get; set; }
+
+        /// <summary>
         /// Gets or sets the minimum initial payment.
         /// </summary>
         /// <value>

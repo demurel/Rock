@@ -382,8 +382,9 @@ namespace RockWeb.Blocks.Registration
             RegistrationTemplate.AllowMultipleRegistrants = cbMultipleRegistrants.Checked;
             RegistrationTemplate.MaxRegistrants = nbMaxRegistrants.Text.AsInteger();
             RegistrationTemplate.RegistrantsSameFamily = rblRegistrantsInSameFamily.SelectedValueAsEnum<RegistrantsSameFamily>();
-            RegistrationTemplate.FinancialGatewayId = fgpFinancialGateway.SelectedValueAsInt();
+            RegistrationTemplate.Cost = cbCost.Text.AsDecimal();
             RegistrationTemplate.MinimumInitialPayment = cbMinimumInitialPayment.Text.AsDecimal();
+            RegistrationTemplate.FinancialGatewayId = fgpFinancialGateway.SelectedValueAsInt();
 
             RegistrationTemplate.ReminderEmailTemplate = ceReminderEmailTemplate.Text;
             RegistrationTemplate.UseDefaultConfirmationEmail = cbUserDefaultConfirmation.Checked;
@@ -1526,8 +1527,9 @@ namespace RockWeb.Blocks.Registration
             nbMaxRegistrants.Visible = RegistrationTemplate.AllowMultipleRegistrants;
             nbMaxRegistrants.Text = RegistrationTemplate.MaxRegistrants.ToString();
             rblRegistrantsInSameFamily.SetValue( RegistrationTemplate.RegistrantsSameFamily.ConvertToInt() );
-            fgpFinancialGateway.SetValue( RegistrationTemplate.FinancialGatewayId );
+            cbCost.Text = RegistrationTemplate.Cost.ToString();
             cbMinimumInitialPayment.Text = RegistrationTemplate.MinimumInitialPayment.ToString();
+            fgpFinancialGateway.SetValue( RegistrationTemplate.FinancialGatewayId );
 
             ceReminderEmailTemplate.Text = RegistrationTemplate.ReminderEmailTemplate;
             cbUserDefaultConfirmation.Checked = RegistrationTemplate.UseDefaultConfirmationEmail;

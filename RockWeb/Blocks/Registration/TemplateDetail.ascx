@@ -27,18 +27,19 @@
 
                 <div id="pnlEditDetails" runat="server">
 
+                    <div class="row">
+                        <div class="col-md-6">
+                            <Rock:DataTextBox ID="tbName" runat="server" SourceTypeName="Rock.Model.RegistrationTemplate, Rock" PropertyName="Name" />
+                            <Rock:CategoryPicker ID="cpCategory" runat="server" Required="true" Label="Category" EntityTypeName="Rock.Model.RegistrationTemplate" />
+                        </div>
+                        <div class="col-md-6">
+                            <Rock:RockCheckBox ID="cbIsActive" runat="server" Text="Active" />
+                        </div>
+                    </div>
+
                     <Rock:PanelWidget ID="pwDetails" runat="server" Title="Details" Expanded="true">
                         <div class="row">
                             <div class="col-md-6">
-                                <Rock:DataTextBox ID="tbName" runat="server" SourceTypeName="Rock.Model.RegistrationTemplate, Rock" PropertyName="Name" />
-                            </div>
-                            <div class="col-md-6">
-                                <Rock:RockCheckBox ID="cbIsActive" runat="server" Text="Active" />
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <Rock:CategoryPicker ID="cpCategory" runat="server" Required="true" Label="Category" EntityTypeName="Rock.Model.RegistrationTemplate" />
                                 <Rock:GroupTypePicker ID="gtpGroupType" runat="server" Label="Group Type" AutoPostBack="true" OnSelectedIndexChanged="gtpGroupType_SelectedIndexChanged" />
                                 <Rock:GroupRolePicker ID="rpGroupTypeRole" runat="server" Label="Group Member Role"
                                     Help="The group member role that new registrants should be added to group with." />
@@ -46,10 +47,10 @@
                                     Help="The group member status that new registrants should be added to group with."/>
                                 <Rock:RockCheckBox ID="cbNotifyLeaders" runat="server" Label="Notify Group Leader(s)" Text="Yes" 
                                     Help="Should leaders in the target group be notified when new people register for the group?" />
-                            </div>
-                            <div class="col-md-6">
                                 <Rock:RockCheckBox ID="cbLoginRequired" runat="server" Label="Login Required" Text="Yes"
                                     Help="Is user required to be logged in when registering?" />
+                            </div>
+                            <div class="col-md-6">
                                 <div class="row">
                                     <div class="col-xs-6">
                                         <Rock:RockCheckBox ID="cbMultipleRegistrants" runat="server" Label="Allow Multiple Registrants" Text="Yes"
@@ -63,10 +64,12 @@
                                 </div>
                                 <Rock:RockRadioButtonList ID="rblRegistrantsInSameFamily" runat="server" Label="Registrants in same Family" RepeatDirection="Horizontal"
                                     Help="Typical relationship of registrants that user would register." />
-                                <Rock:FinancialGatewayPicker ID="fgpFinancialGateway" runat="server" Label="Financial Gateway"
-                                    Help="The financial gateway to use for processing registration payments." />
+                                <Rock:CurrencyBox ID="cbCost" runat="server" Label="Cost"
+                                    Help="The cost per registrant." />
                                 <Rock:CurrencyBox ID="cbMinimumInitialPayment" runat="server" Label="Minimum Initial Payment"
                                     Help="The minimum amount required per registrant." />
+                                <Rock:FinancialGatewayPicker ID="fgpFinancialGateway" runat="server" Label="Financial Gateway"
+                                    Help="The financial gateway to use for processing registration payments." />
                             </div>
                         </div>
                     </Rock:PanelWidget>
