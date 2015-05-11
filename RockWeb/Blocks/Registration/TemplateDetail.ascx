@@ -171,7 +171,8 @@
                             </Rock:RockControlWrapper>
                         </div>
                         <div class="col-md-6">
-                            <Rock:RockLiteral ID="lGateway" runat="server" Label="Gateway" />
+                            <Rock:RockLiteral ID="lCost" runat="server" Label="Cost" />
+                            <Rock:RockLiteral ID="lMinimumInitialPayment" runat="server" Label="Minimum Initial Payment" />
                             <Rock:RockControlWrapper ID="rcwFees" runat="server" Label="Fees">
                                 <asp:Repeater ID="rFees" runat="server">
                                     <ItemTemplate>

@@ -1593,9 +1593,9 @@ namespace RockWeb.Blocks.Registration
                         attributeText += string.Format( @"
             <div class='row'>
                 <div class='col-sm-1'></div>
-                <div class='col-sm-5'>{0}</div>
+                <div class='col-sm-4'>{0}</div>
                 <div class='col-sm-3'>{1}</div>
-                <div class='col-sm-3'>{2}</div>
+                <div class='col-sm-4'>{2}</div>
             </div>
 ", formFieldName, fieldTypeName, formField.FieldSource.ConvertToString() );
                     }
@@ -1608,8 +1608,8 @@ namespace RockWeb.Blocks.Registration
                 lFormsReadonly.Text = "<div>" + None.TextHtml + "</div>";
             }
 
-            lGateway.Text = RegistrationTemplate.FinancialGateway != null ?
-                RegistrationTemplate.FinancialGateway.Name : string.Empty;
+            lCost.Text = RegistrationTemplate.Cost.ToString( "C2" );
+            lMinimumInitialPayment.Text = RegistrationTemplate.MinimumInitialPayment.ToString( "C2" );
 
             rFees.DataSource = RegistrationTemplate.Fees.OrderBy( f => f.Order ).ToList();
             rFees.DataBind();
