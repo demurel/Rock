@@ -115,20 +115,10 @@ namespace RockWeb.Blocks.Registration
         {
             if ( e.Row.RowType == DataControlRowType.DataRow )
             {
-                var groupMember = e.Row.DataItem as Instance;
-                if ( groupMember != null && groupMember.Person != null )
+                dynamic instance = e.Row.DataItem;
+                if ( instance != null && !instance.IsActive )
                 {
-                    if ( _inactiveStatus != null &&
-                        groupMember.Person.RecordStatusValueId.HasValue &&
-                        groupMember.Person.RecordStatusValueId == _inactiveStatus.Id )
-                    {
-                        e.Row.AddCssClass( "inactive" );
-                    }
-
-                    if ( groupMember.Person.IsDeceased ?? false )
-                    {
-                        e.Row.AddCssClass( "deceased" );
-                    }
+                    e.Row.AddCssClass( "inactive" );
                 }
             }
         }
@@ -140,26 +130,14 @@ namespace RockWeb.Blocks.Registration
         /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
         protected void rFilter_ApplyFilterClick( object sender, EventArgs e )
         {
-            rFilter.SaveUserPreference( MakeKeyUniqueToGroup( "First Name" ), "First Name", tbFirstName.Text );
-            rFilter.SaveUserPreference( MakeKeyUniqueToGroup( "Last Name" ), "Last Name", tbLastName.Text );
-            rFilter.SaveUserPreference( MakeKeyUniqueToGroup( "Role" ), "Role", cblRole.SelectedValues.AsDelimited( ";" ) );
-            rFilter.SaveUserPreference( MakeKeyUniqueToGroup( "Status" ), "Status", cblStatus.SelectedValues.AsDelimited( ";" ) );
-
-            if ( AvailableAttributes != null )
+            rFilter.SaveUserPreference( "Date Range", drpDates.DelimitedValues );
+            if ( ddlActiveFilter.SelectedValue == "all" )
             {
-                foreach( var attribute in AvailableAttributes )
-                {
-                    var filterControl = phAttributeFilters.FindControl( "filter_" + attribute.Id.ToString() );
-                    if ( filterControl != null )
-                    {
-                        try
-                        {
-                            var values = attribute.FieldType.Field.GetFilterValues( filterControl, attribute.QualifierValues );
-                            rFilter.SaveUserPreference( MakeKeyUniqueToGroup( attribute.Key ), attribute.Name, attribute.FieldType.Field.GetFilterValues( filterControl, attribute.QualifierValues ).ToJson() );
-                        }
-                        catch { }
-                    }
-                }
+                rFilter.SaveUserPreference( "Active Status", string.Empty );
+            }
+            else
+            {
+                rFilter.SaveUserPreference( "Active Status", ddlActiveFilter.SelectedValue );
             }
 
             BindInstancesGrid();
@@ -172,43 +150,20 @@ namespace RockWeb.Blocks.Registration
         /// <param name="e">The e.</param>
         protected void rFilter_DisplayFilterValue( object sender, GridFilter.DisplayFilterValueArgs e )
         {
+            switch ( e.Key )
+            {
+                case "Date Range":
+                    e.Value = DateRangePicker.FormatDelimitedValues( e.Value );
+                    break;
 
-            if ( AvailableAttributes != null )
-            {
-                var attribute = AvailableAttributes.FirstOrDefault( a => MakeKeyUniqueToGroup( a.Key ) == e.Key );
-                if ( attribute != null )
-                {
-                    try
-                    {
-                        var values = JsonConvert.DeserializeObject<List<string>>( e.Value );
-                        e.Value = attribute.FieldType.Field.FormatFilterValues( attribute.QualifierValues, values );
-                        return;
-                    }
-                    catch { }
-                }
-            }
+                case "Active Status":
+                    e.Value = e.Value;
+                    break;
 
-            if ( e.Key == MakeKeyUniqueToGroup( "First Name" ) )
-            {
-                return;
+                default:
+                    e.Value = string.Empty;
+                    break;
             }
-            else if ( e.Key == MakeKeyUniqueToGroup( "Last Name" ) )
-            {
-                return;
-            }
-            else if ( e.Key == MakeKeyUniqueToGroup( "Role" ) )
-            {
-                e.Value = ResolveValues( e.Value, cblRole );
-            }
-            else if ( e.Key == MakeKeyUniqueToGroup( "Status" ) )
-            {
-                e.Value = ResolveValues( e.Value, cblStatus );
-            }
-            else
-            {
-                e.Value = string.Empty;
-            }
-
         }
 
         /// <summary>
@@ -219,29 +174,19 @@ namespace RockWeb.Blocks.Registration
         protected void DeleteInstance_Click( object sender, Rock.Web.UI.Controls.RowEventArgs e )
         {
             RockContext rockContext = new RockContext();
-            InstanceService groupMemberService = new InstanceService( rockContext );
-            Instance groupMember = groupMemberService.Get( e.RowKeyId );
-            if ( groupMember != null )
+            RegistrationInstanceService instanceService = new RegistrationInstanceService( rockContext );
+            RegistrationInstance instance = instanceService.Get( e.RowKeyId );
+            if ( instance != null )
             {
                 string errorMessage;
-                if ( !groupMemberService.CanDelete( groupMember, out errorMessage ) )
+                if ( !instanceService.CanDelete( instance, out errorMessage ) )
                 {
                     mdGridWarning.Show( errorMessage, ModalAlertType.Information );
                     return;
                 }
 
-                int groupId = groupMember.GroupId;
-
-                groupMemberService.Delete( groupMember );
+                instanceService.Delete( instance );
                 rockContext.SaveChanges();
-
-                Group group = new GroupService( rockContext ).Get( groupId );
-                if ( group.IsSecurityRole || group.GroupType.Guid.Equals( Rock.SystemGuid.GroupType.GROUPTYPE_SECURITY_ROLE.AsGuid() ) )
-                {
-                    // person removed from SecurityRole, Flush
-                    Rock.Security.Role.Flush( group.Id );
-                    Rock.Security.Authorization.Flush();
-                }
             }
 
             BindInstancesGrid();
@@ -255,7 +200,7 @@ namespace RockWeb.Blocks.Registration
         /// <exception cref="System.NotImplementedException"></exception>
         protected void gInstances_AddClick( object sender, EventArgs e )
         {
-            NavigateToLinkedPage( "DetailPage", "InstanceId", 0, "GroupId", _template.Id );
+            NavigateToLinkedPage( "DetailPage", "InstanceId", 0, "TemplateId", _template.Id );
         }
 
         /// <summary>
@@ -288,153 +233,15 @@ namespace RockWeb.Blocks.Registration
         /// </summary>
         private void SetFilter()
         {
-            if ( _template != null )
+            drpDates.DelimitedValues = rFilter.GetUserPreference( "Date Range" );
+
+            // Set the Active Status
+            var itemActiveStatus = ddlActiveFilter.Items.FindByValue( rFilter.GetUserPreference( "Active Status" ) );
+            if ( itemActiveStatus != null )
             {
-                cblRole.DataSource = _template.GroupType.Roles.OrderBy( a => a.Order ).ToList();
-                cblRole.DataBind();
+                itemActiveStatus.Selected = true;
             }
 
-            cblStatus.BindToEnum<InstanceStatus>();
-
-            BindAttributes();
-            AddDynamicControls();
-
-            tbFirstName.Text = rFilter.GetUserPreference( MakeKeyUniqueToGroup( "First Name" ) );
-            tbLastName.Text = rFilter.GetUserPreference( MakeKeyUniqueToGroup( "Last Name" ) );
-
-            string roleValue = rFilter.GetUserPreference( MakeKeyUniqueToGroup( "Role" ) );
-            if ( !string.IsNullOrWhiteSpace( roleValue ) )
-            {
-                cblRole.SetValues( roleValue.Split( ';' ).ToList() );
-            }
-
-            string statusValue = rFilter.GetUserPreference( MakeKeyUniqueToGroup( "Status" ) );
-            if ( !string.IsNullOrWhiteSpace( statusValue ) )
-            {
-                cblStatus.SetValues( statusValue.Split( ';' ).ToList() );
-            }
-
-        }
-
-        private void BindAttributes()
-        {
-            // Parse the attribute filters 
-            AvailableAttributes = new List<AttributeCache>();
-            if ( _template != null )
-            {
-                int entityTypeId = new Instance().TypeId;
-                string groupQualifier = _template.Id.ToString();
-                string groupTypeQualifier = _template.GroupTypeId.ToString();
-                foreach ( var attributeModel in new AttributeService( new RockContext() ).Queryable()
-                    .Where( a =>
-                        a.EntityTypeId == entityTypeId &&
-                        a.IsGridColumn &&
-                        ( ( a.EntityTypeQualifierColumn.Equals( "GroupId", StringComparison.OrdinalIgnoreCase ) && a.EntityTypeQualifierValue.Equals( groupQualifier ) ) ||
-                         ( a.EntityTypeQualifierColumn.Equals( "GroupTypeId", StringComparison.OrdinalIgnoreCase ) && a.EntityTypeQualifierValue.Equals( groupTypeQualifier ) ) ) )
-                    .OrderByDescending( a => a.EntityTypeQualifierColumn )
-                    .ThenBy( a => a.Order )
-                    .ThenBy( a => a.Name ) )
-                {
-                    AvailableAttributes.Add( AttributeCache.Read( attributeModel ) );
-                }
-            }
-        }
-
-        /// <summary>
-        /// Adds the attribute columns.
-        /// </summary>
-        private void AddDynamicControls()
-        {
-            // Clear the filter controls
-            phAttributeFilters.Controls.Clear();
-
-            // Remove attribute columns
-            foreach ( var column in gInstances.Columns.OfType<AttributeField>().ToList() )
-            {
-                gInstances.Columns.Remove( column );
-            }
-
-            if ( AvailableAttributes != null )
-            {
-                foreach( var attribute in AvailableAttributes )
-                {
-                    var control = attribute.FieldType.Field.FilterControl( attribute.QualifierValues, "filter_" + attribute.Id.ToString(), false );
-                    if ( control != null )
-                    {
-                        if ( control is IRockControl )
-                        {
-                            var rockControl = (IRockControl)control;
-                            rockControl.Label = attribute.Name;
-                            rockControl.Help = attribute.Description;
-                            phAttributeFilters.Controls.Add( control );
-                        }
-                        else
-                        {
-                            var wrapper = new RockControlWrapper();
-                            wrapper.ID = control.ID + "_wrapper";
-                            wrapper.Label = attribute.Name;
-                            wrapper.Controls.Add( control );
-                            phAttributeFilters.Controls.Add( wrapper );
-                        }
-
-                        string savedValue = rFilter.GetUserPreference( MakeKeyUniqueToGroup( attribute.Key ) );
-                        if ( !string.IsNullOrWhiteSpace( savedValue ) )
-                        {
-                            try
-                            {
-                                var values = JsonConvert.DeserializeObject<List<string>>( savedValue );
-                                attribute.FieldType.Field.SetFilterValues( control, attribute.QualifierValues, values );
-                            }
-                            catch { }
-                        }
-                    }
-
-                    string dataFieldExpression = attribute.Key;
-                    bool columnExists = gInstances.Columns.OfType<AttributeField>().FirstOrDefault( a => a.DataField.Equals( dataFieldExpression ) ) != null;
-                    if ( !columnExists )
-                    {
-                        AttributeField boundField = new AttributeField();
-                        boundField.DataField = dataFieldExpression;
-                        boundField.HeaderText = attribute.Name;
-                        boundField.SortExpression = string.Empty;
-
-                        var attributeCache = Rock.Web.Cache.AttributeCache.Read( attribute.Id );
-                        if ( attributeCache != null )
-                        {
-                            boundField.ItemStyle.HorizontalAlign = attributeCache.FieldType.Field.AlignValue;
-                        }
-
-                        gInstances.Columns.Add( boundField );
-                    }
-                }
-            }
-
-            // Add Link to Profile Page Column
-            if ( !string.IsNullOrEmpty( GetAttributeValue( "PersonProfilePage" ) ) )
-            {
-                AddPersonProfileLinkColumn();
-            }
-
-            // Add delete column
-            var deleteField = new DeleteField();
-            gInstances.Columns.Add( deleteField );
-            deleteField.Click += DeleteInstance_Click;
-        }
-
-        /// <summary>
-        /// Adds the column with a link to profile page.
-        /// </summary>
-        private void AddPersonProfileLinkColumn()
-        {
-            HyperLinkField hlPersonProfileLink = new HyperLinkField();
-            hlPersonProfileLink.ItemStyle.HorizontalAlign = HorizontalAlign.Center;
-            hlPersonProfileLink.HeaderStyle.CssClass = "grid-columncommand";
-            hlPersonProfileLink.ItemStyle.CssClass = "grid-columncommand";
-            hlPersonProfileLink.DataNavigateUrlFields = new String[1] { "PersonId" };
-            hlPersonProfileLink.DataNavigateUrlFormatString = LinkedPageUrl( "PersonProfilePage", new Dictionary<string, string> { { "PersonId", "###" } } ).Replace( "###", "{0}" );
-            hlPersonProfileLink.DataTextFormatString = "<div class='btn btn-default'><i class='fa fa-user'></i></div>";
-            hlPersonProfileLink.DataTextField = "PersonId";
-            gInstances.Columns.Add( hlPersonProfileLink );
         }
 
         /// <summary>
@@ -446,181 +253,71 @@ namespace RockWeb.Blocks.Registration
             {
                 pnlInstances.Visible = true;
 
-                lHeading.Text = string.Format( "{0} {1}", _template.GroupType.GroupTerm, _template.GroupType.InstanceTerm.Pluralize() );
+                lHeading.Text = string.Format( "{0} Instances", _template.Name );
 
-                if ( _template.GroupType.Roles.Any() )
+                var rockContext = new RockContext();
+
+                RegistrationInstanceService instanceService = new RegistrationInstanceService( rockContext );
+                var qry = instanceService.Queryable().AsNoTracking()
+                    .Where( i => i.RegistrationTemplateId == _template.Id );
+
+                // Date Range
+                var drp = new DateRangePicker();
+                drp.DelimitedValues = rFilter.GetUserPreference( "Date Range" );
+                if ( drp.LowerValue.HasValue )
                 {
-                    nbRoleWarning.Visible = false;
-                    rFilter.Visible = true;
-                    gInstances.Visible = true;
+                    qry = qry.Where( i => i.StartDateTime >= drp.LowerValue.Value );
+                }
 
-                    var rockContext = new RockContext();
+                if ( drp.UpperValue.HasValue )
+                {
+                    DateTime upperDate = drp.UpperValue.Value.Date.AddDays( 1 );
+                    qry = qry.Where( i => i.StartDateTime < upperDate );
+                }
 
-                    InstanceService groupMemberService = new InstanceService( rockContext );
-                    var qry = groupMemberService.Queryable( "Person,GroupRole", true ).AsNoTracking()
-                        .Where( m => m.GroupId == _template.Id );
-
-                    // Filter by First Name
-                    string firstName = tbFirstName.Text;
-                    if ( !string.IsNullOrWhiteSpace( firstName ) )
+                string statusFilter = rFilter.GetUserPreference( "Active Status" );
+                if ( !string.IsNullOrWhiteSpace(statusFilter))
+                {
+                    if ( statusFilter == "inactive")
                     {
-                        qry = qry.Where( m => m.Person.FirstName.StartsWith( firstName ) );
-                    }
-
-                    // Filter by Last Name
-                    string lastName = tbLastName.Text;
-                    if ( !string.IsNullOrWhiteSpace( lastName ) )
-                    {
-                        qry = qry.Where( m => m.Person.LastName.StartsWith( lastName ) );
-                    }
-
-                    // Filter by role
-                    var validGroupTypeRoles = _template.GroupType.Roles.Select( r => r.Id ).ToList();
-                    var roles = new List<int>();
-                    foreach ( string role in cblRole.SelectedValues )
-                    {
-                        if ( !string.IsNullOrWhiteSpace( role ) )
-                        {
-                            int roleId = int.MinValue;
-                            if ( int.TryParse( role, out roleId ) && validGroupTypeRoles.Contains( roleId ) )
-                            {
-                                roles.Add( roleId );
-                            }
-                        }
-                    }
-                    if ( roles.Any() )
-                    {
-                        qry = qry.Where( m => roles.Contains( m.GroupRoleId ) );
-                    }
-
-                    // Filter by Status
-                    var statuses = new List<InstanceStatus>();
-                    foreach ( string status in cblStatus.SelectedValues )
-                    {
-                        if ( !string.IsNullOrWhiteSpace( status ) )
-                        {
-                            statuses.Add( status.ConvertToEnum<InstanceStatus>() );
-                        }
-                    }
-                    if ( statuses.Any() )
-                    {
-                        qry = qry.Where( m => statuses.Contains( m.InstanceStatus ) );
-                    }
-
-                    // Filter query by any configured attribute filters
-                    if ( AvailableAttributes != null && AvailableAttributes.Any() )
-                    {
-                        var attributeValueService = new AttributeValueService( rockContext );
-                        var parameterExpression = attributeValueService.ParameterExpression;
-
-                        foreach ( var attribute in AvailableAttributes )
-                        {
-                            var filterControl = phAttributeFilters.FindControl( "filter_" + attribute.Id.ToString() );
-                            if ( filterControl != null )
-                            {
-                                var filterValues = attribute.FieldType.Field.GetFilterValues( filterControl, attribute.QualifierValues );
-                                var expression = attribute.FieldType.Field.AttributeFilterExpression( attribute.QualifierValues, filterValues, parameterExpression );
-                                if ( expression != null )
-                                {
-                                    var attributeValues = attributeValueService
-                                        .Queryable()
-                                        .Where( v => v.Attribute.Id == attribute.Id );
-
-                                    attributeValues = attributeValues.Where( parameterExpression, expression, null );
-
-                                    qry = qry.Where( w => attributeValues.Select( v => v.EntityId ).Contains( w.Id ) );
-                                }
-                            }
-                        }
-                    }
-
-
-                    _inactiveStatus = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.PERSON_RECORD_STATUS_INACTIVE );
-
-                    SortProperty sortProperty = gInstances.SortProperty;
-
-                    List<Instance> instances = null;
-
-                    if ( sortProperty != null )
-                    {
-                        instances = qry.Sort( sortProperty ).ToList();
+                        qry = qry.Where( i => i.IsActive == false );
                     }
                     else
                     {
-                        instances = qry.OrderBy( a => a.GroupRole.Order ).ThenBy( a => a.Person.LastName ).ThenBy( a => a.Person.FirstName ).ToList();
+                        qry = qry.Where( i => i.IsActive == true );
                     }
+                }
 
-                    // Since we're not binding to actual group member list, but are using AttributeField columns,
-                    // we need to save the workflows into the grid's object list
-                    gInstances.ObjectList = new Dictionary<string, object>();
-                    instances.ForEach( m => gInstances.ObjectList.Add( m.Id.ToString(), m ) );
-                    gInstances.EntityTypeId = EntityTypeCache.Read( Rock.SystemGuid.EntityType.GROUP_MEMBER.AsGuid() ).Id;
+                List<RegistrationInstance> instances = null;
 
-                    gInstances.DataSource = instances.Select( m => new
-                    {
-                        m.Id,
-                        m.Guid,
-                        m.PersonId,
-                        Name = m.Person.NickName + " " + m.Person.LastName,
-                        GroupRole = m.GroupRole.Name,
-                        m.InstanceStatus
-                    } ).ToList();
-
-                    gInstances.DataBind();
+                SortProperty sortProperty = gInstances.SortProperty;
+                if ( sortProperty != null )
+                {
+                    instances = qry.Sort( sortProperty ).ToList();
                 }
                 else
                 {
-                    nbRoleWarning.Text = string.Format(
-                        "{0} cannot be added to this {1} because the '{2}' group type does not have any roles defined.",
-                        _template.GroupType.InstanceTerm.Pluralize(),
-                        _template.GroupType.GroupTerm,
-                        _template.GroupType.Name );
-
-                    nbRoleWarning.Visible = true;
-                    rFilter.Visible = false;
-                    gInstances.Visible = false;
+                    instances = qry.OrderByDescending( a => a.StartDateTime ).ToList();
                 }
+
+                gInstances.DataSource = instances.Select( i => new
+                {
+                    i.Id,
+                    i.Guid,
+                    i.Name,
+                    i.StartDateTime,
+                    i.EndDateTime,
+                    i.IsActive,
+                    Details = string.Empty,
+                    Registrants = i.Registrations.SelectMany( r => r.Registrants).Count()
+                } ).ToList();
+
+                gInstances.DataBind();
             }
             else
             {
                 pnlInstances.Visible = false;
             }
-        }
-
-        /// <summary>
-        /// Resolves the values.
-        /// </summary>
-        /// <param name="values">The values.</param>
-        /// <param name="listControl">The list control.</param>
-        /// <returns></returns>
-        private string ResolveValues( string values, System.Web.UI.WebControls.CheckBoxList checkBoxList )
-        {
-            var resolvedValues = new List<string>();
-
-            foreach ( string value in values.Split( ';' ) )
-            {
-                var item = checkBoxList.Items.FindByValue( value );
-                if ( item != null )
-                {
-                    resolvedValues.Add( item.Text );
-                }
-            }
-
-            return resolvedValues.AsDelimited( ", " );
-        }
-
-        /// <summary>
-        /// Makes the key unique to group.
-        /// </summary>
-        /// <param name="key">The key.</param>
-        /// <returns></returns>
-        private string MakeKeyUniqueToGroup( string key )
-        {
-            if ( _template != null )
-            {
-                return string.Format( "{0}-{1}", _template.Id, key );
-            }
-            return key;
         }
 
         #endregion

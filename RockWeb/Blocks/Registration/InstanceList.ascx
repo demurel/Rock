@@ -34,12 +34,13 @@
                                     <Rock:DateField DataField="EndDateTime" HeaderText="End Date" SortExpression="EndDateTime" />
                                     <Rock:RockBoundField DataField="Details" HeaderText="Details" SortExpression="Details" />
                                     <Rock:RockBoundField DataField="Registrants" HeaderText="Registrants" SortExpression="Registrants" />
-                                    <Rock:BoolField DataField="Active" HeaderText="Active" SortExpression="Active" />
+                                    <Rock:BoolField DataField="IsActive" HeaderText="Active" SortExpression="IsActive" />
                                     <Rock:DeleteField OnClick="DeleteInstance_Click" />
                                 </Columns>
                             </Rock:Grid>
                         </div>
                     </div>
+
                 </div>
             </div>
 
