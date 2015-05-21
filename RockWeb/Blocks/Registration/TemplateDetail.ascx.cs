@@ -242,7 +242,7 @@ namespace RockWeb.Blocks.Registration
             var rockContext = new RockContext();
 
             var service = new RegistrationTemplateService( rockContext );
-            var RegistrationTemplate = service.Get( int.Parse( hfRegistrationTemplateId.Value ) );
+            var RegistrationTemplate = service.Get( hfRegistrationTemplateId.Value.AsInteger() );
 
             if ( RegistrationTemplate != null )
             {
@@ -1382,7 +1382,7 @@ namespace RockWeb.Blocks.Registration
             pnlDetails.Visible = true;
             hfRegistrationTemplateId.Value = RegistrationTemplate.Id.ToString();
 
-            // render UI based on Authorized and IsSystem
+            // render UI based on Authorized
             bool readOnly = false;
 
             nbEditModeMessage.Text = string.Empty;
@@ -1586,10 +1586,7 @@ namespace RockWeb.Blocks.Registration
                         string formFieldName = ( formField.Attribute != null ) ?
                             formField.Attribute.Name : formField.PersonFieldType.ConvertToString();
                         string fieldTypeName = ( formField.Attribute != null ) ?
-                            FieldTypeCache.Read( formField.Attribute.FieldTypeId ).Name : "";
-                        {
-
-                        }
+                            FieldTypeCache.GetName( formField.Attribute.FieldTypeId ) : "";
                         attributeText += string.Format( @"
             <div class='row'>
                 <div class='col-sm-1'></div>

@@ -41,7 +41,6 @@ namespace RockWeb.Blocks.Registration
     {
         #region Private Variables
 
-        private DefinedValueCache _inactiveStatus = null;
         private RegistrationTemplate _template = null;
         private bool _canView = false;
 
@@ -57,7 +56,7 @@ namespace RockWeb.Blocks.Registration
         {
             base.OnInit( e );
 
-            int templateId = PageParameter( "TemplateId" ).AsInteger();
+            int templateId = PageParameter( "RegistrationTemplateId" ).AsInteger();
             if ( templateId != 0 )
             {
                 _template = new RegistrationTemplateService( new RockContext() ).Queryable( "GroupType.Roles" )
@@ -200,7 +199,7 @@ namespace RockWeb.Blocks.Registration
         /// <exception cref="System.NotImplementedException"></exception>
         protected void gInstances_AddClick( object sender, EventArgs e )
         {
-            NavigateToLinkedPage( "DetailPage", "InstanceId", 0, "TemplateId", _template.Id );
+            NavigateToLinkedPage( "DetailPage", "RegistrationInstanceId", 0, "RegistrationTemplateId", _template.Id );
         }
 
         /// <summary>
@@ -210,7 +209,7 @@ namespace RockWeb.Blocks.Registration
         /// <param name="e">The <see cref="RowEventArgs" /> instance containing the event data.</param>
         protected void gInstances_Edit( object sender, RowEventArgs e )
         {
-            NavigateToLinkedPage( "DetailPage", "InstanceId", e.RowKeyId );
+            NavigateToLinkedPage( "DetailPage", "RegistrationInstanceId", e.RowKeyId );
         }
 
         /// <summary>
