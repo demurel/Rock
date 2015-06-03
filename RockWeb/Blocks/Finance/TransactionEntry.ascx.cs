@@ -416,10 +416,6 @@ namespace RockWeb.Blocks.Finance
 
                 // Resolve the text field merge fields
                 var configValues = new Dictionary<string, object>();
-                Rock.Web.Cache.GlobalAttributesCache.Read().AttributeValues
-                    .Where( v => v.Key.StartsWith( "Organization", StringComparison.CurrentCultureIgnoreCase ) )
-                    .ToList()
-                    .ForEach( v => configValues.Add( v.Key, v.Value ) );
                 phConfirmationHeader.Controls.Add( new LiteralControl( GetAttributeValue( "ConfirmationHeader" ).ResolveMergeFields( configValues ) ) );
                 phConfirmationFooter.Controls.Add( new LiteralControl( GetAttributeValue( "ConfirmationFooter" ).ResolveMergeFields( configValues ) ) );
                 phSuccessHeader.Controls.Add( new LiteralControl( GetAttributeValue( "SuccessHeader" ).ResolveMergeFields( configValues ) ) );
@@ -1090,43 +1086,49 @@ namespace RockWeb.Blocks.Finance
 
                 if ( _ccGateway != null )
                 {
+                    var ccGatewayComponent = _ccGateway.GetGatewayComponent(); 
                     var ccCurrencyType = DefinedValueCache.Read( new Guid( Rock.SystemGuid.DefinedValue.CURRENCY_TYPE_CREDIT_CARD ) );
-
-                    rblSavedCC.DataSource = savedAccounts
-                        .Where( a =>
-                            a.FinancialGatewayId == _ccGateway.Id &&
-                            a.CurrencyTypeValueId == ccCurrencyType.Id )
-                        .OrderBy( a => a.Name )
-                        .Select( a => new
-                        {
-                            Id = a.Id,
-                            Name = "Use " + a.Name + " (" + a.MaskedAccountNumber + ")"
-                        } ).ToList();
-                    rblSavedCC.DataBind();
-                    if ( rblSavedCC.Items.Count > 0 )
+                    if ( ccGatewayComponent != null && ccGatewayComponent.SupportsSavedAccount( ccCurrencyType ) )
                     {
-                        rblSavedCC.Items.Add( new ListItem( "Use a different card", "0" ) );
+                        rblSavedCC.DataSource = savedAccounts
+                            .Where( a =>
+                                a.FinancialGatewayId == _ccGateway.Id &&
+                                a.CurrencyTypeValueId == ccCurrencyType.Id )
+                            .OrderBy( a => a.Name )
+                            .Select( a => new
+                            {
+                                Id = a.Id,
+                                Name = "Use " + a.Name + " (" + a.MaskedAccountNumber + ")"
+                            } ).ToList();
+                        rblSavedCC.DataBind();
+                        if ( rblSavedCC.Items.Count > 0 )
+                        {
+                            rblSavedCC.Items.Add( new ListItem( "Use a different card", "0" ) );
+                        }
                     }
                 }
 
                 if ( _achGateway != null )
                 {
+                    var achGatewayComponent = _ccGateway.GetGatewayComponent();
                     var achCurrencyType = DefinedValueCache.Read( new Guid( Rock.SystemGuid.DefinedValue.CURRENCY_TYPE_ACH ) );
-
-                    rblSavedAch.DataSource = savedAccounts
-                        .Where( a =>
-                            a.FinancialGatewayId == _achGateway.Id &&
-                            a.CurrencyTypeValueId == achCurrencyType.Id )
-                        .OrderBy( a => a.Name )
-                        .Select( a => new
-                        {
-                            Id = a.Id,
-                            Name = "Use " + a.Name + " (" + a.MaskedAccountNumber + ")"
-                        } ).ToList();
-                    rblSavedAch.DataBind();
-                    if ( rblSavedAch.Items.Count > 0 )
+                    if ( achGatewayComponent != null && achGatewayComponent.SupportsSavedAccount( achCurrencyType ) )
                     {
-                        rblSavedAch.Items.Add( new ListItem( "Use a different bank account", "0" ) );
+                        rblSavedAch.DataSource = savedAccounts
+                            .Where( a =>
+                                a.FinancialGatewayId == _achGateway.Id &&
+                                a.CurrencyTypeValueId == achCurrencyType.Id )
+                            .OrderBy( a => a.Name )
+                            .Select( a => new
+                            {
+                                Id = a.Id,
+                                Name = "Use " + a.Name + " (" + a.MaskedAccountNumber + ")"
+                            } ).ToList();
+                        rblSavedAch.DataBind();
+                        if ( rblSavedAch.Items.Count > 0 )
+                        {
+                            rblSavedAch.Items.Add( new ListItem( "Use a different bank account", "0" ) );
+                        }
                     }
                 }
             }
@@ -1537,17 +1539,17 @@ namespace RockWeb.Blocks.Finance
                         rockContext.SaveChanges();
 
                         // Add a note about the change
-                        var noteTypeService = new NoteTypeService( rockContext );
-                        var noteType = noteTypeService.Get( scheduledTransaction.TypeId, "Note" );
-
-                        var noteService = new NoteService( rockContext );
-                        var note = new Note();
-                        note.NoteTypeId = noteType.Id;
-                        note.EntityId = scheduledTransaction.Id;
-                        note.Caption = "Created Transaction";
-                        note.Text = changeSummary.ToString();
-                        noteService.Add( note );
-
+                        var noteType = NoteTypeCache.Read( Rock.SystemGuid.NoteType.SCHEDULED_TRANSACTION_NOTE.AsGuid() );
+                        if ( noteType != null )
+                        {
+                            var noteService = new NoteService( rockContext );
+                            var note = new Note();
+                            note.NoteTypeId = noteType.Id;
+                            note.EntityId = scheduledTransaction.Id;
+                            note.Caption = "Created Transaction";
+                            note.Text = changeSummary.ToString();
+                            noteService.Add( note );
+                        }
                         rockContext.SaveChanges();
 
                         ScheduleId = scheduledTransaction.GatewayScheduleId;
@@ -1631,7 +1633,7 @@ namespace RockWeb.Blocks.Finance
 
                 // If there was a transaction code returned and this was not already created from a previous saved account,
                 // show the option to save the account.
-                if ( !( paymentInfo is ReferencePaymentInfo ) && !string.IsNullOrWhiteSpace( TransactionCode ) )
+                if ( !( paymentInfo is ReferencePaymentInfo ) && !string.IsNullOrWhiteSpace( TransactionCode ) && gateway.SupportsSavedAccount( paymentInfo.CurrencyTypeValue ) )
                 {
                     cbSaveAccount.Visible = true;
                     pnlSaveAccount.Visible = true;
