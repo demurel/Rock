@@ -10,6 +10,7 @@
     <ContentTemplate>
 
         <asp:Panel ID="pnlDetails" runat="server" CssClass="panel panel-block">
+
             <asp:HiddenField ID="hfRegistrationInstanceId" runat="server" />
         
             <div class="panel-heading">
@@ -100,15 +101,19 @@
 
         <ul class="nav nav-pills margin-b-md">
             <li id="liRegistrations" runat="server" class="active">
-                <a href='#<%=divDetails.ClientID%>' data-toggle="pill" data-active-div="Registrations">Registrations</a>
+                <a href='#<%=divRegistrations.ClientID%>' data-toggle="pill" data-active-div="Registrations">Registrations</a>
             </li>
-            <li id="liActivities" runat="server">
-                <a href='#<%=divActivities.ClientID%>' data-toggle="pill" data-active-div="Activities">Activities</a>
+            <li id="liRegistrants" runat="server">
+                <a href='#<%=divRegistrants.ClientID%>' data-toggle="pill" data-active-div="Activities">Activities</a>
             </li>
-            <li id="liLog" runat="server">
-                <a href='#<%=divLog.ClientID%>' data-toggle="pill" data-active-div="Log">Log</a>
+            <li id="liLinkage" runat="server">
+                <a href='#<%=divLinkage.ClientID%>' data-toggle="pill" data-active-div="Log">Log</a>
             </li>
         </ul>
+
+        <div id="divRegistrations" runat="server"></div>
+        <div id="divRegistrants" runat="server"></div>
+        <div id="divLinkage" runat="server"></div>
 
         <asp:HiddenField ID="hfActiveDialog" runat="server" />
 
