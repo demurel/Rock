@@ -35,13 +35,13 @@ using Rock.Web.UI;
 using Rock.Web.UI.Controls;
 using Attribute = Rock.Model.Attribute;
 
-namespace RockWeb.Blocks.Registration
+namespace RockWeb.Blocks.Event
 {
-    [DisplayName( "Template Detail" )]
-    [Category( "Registration" )]
+    [DisplayName( "Registration Template Detail" )]
+    [Category( "Event" )]
     [Description( "Displays the details of the given registration template." )]
 
-    public partial class TemplateDetail : RockBlock
+    public partial class RegistrationTemplateDetail : RockBlock
     {
 
         #region Properties

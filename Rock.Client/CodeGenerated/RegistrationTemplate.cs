@@ -44,6 +44,9 @@ namespace Rock.Client
         public string ConfirmationEmailTemplate { get; set; }
 
         /// <summary />
+        public decimal Cost { get; set; }
+
+        /// <summary />
         public string DiscountCodeTerm { get; set; }
 
         /// <summary />

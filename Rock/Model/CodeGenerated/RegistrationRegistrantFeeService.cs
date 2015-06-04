@@ -28,15 +28,15 @@ using Rock.Data;
 namespace Rock.Model
 {
     /// <summary>
-    /// Registration Service class
+    /// RegistrationRegistrantFee Service class
     /// </summary>
-    public partial class RegistrationService : Service<Registration>
+    public partial class RegistrationRegistrantFeeService : Service<RegistrationRegistrantFee>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="RegistrationService"/> class
+        /// Initializes a new instance of the <see cref="RegistrationRegistrantFeeService"/> class
         /// </summary>
         /// <param name="context">The context.</param>
-        public RegistrationService(RockContext context) : base(context)
+        public RegistrationRegistrantFeeService(RockContext context) : base(context)
         {
         }
 
@@ -48,7 +48,7 @@ namespace Rock.Model
         /// <returns>
         ///   <c>true</c> if this instance can delete the specified item; otherwise, <c>false</c>.
         /// </returns>
-        public bool CanDelete( Registration item, out string errorMessage )
+        public bool CanDelete( RegistrationRegistrantFee item, out string errorMessage )
         {
             errorMessage = string.Empty;
             return true;
@@ -58,42 +58,40 @@ namespace Rock.Model
     /// <summary>
     /// Generated Extension Methods
     /// </summary>
-    public static partial class RegistrationExtensionMethods
+    public static partial class RegistrationRegistrantFeeExtensionMethods
     {
         /// <summary>
-        /// Clones this Registration object to a new Registration object
+        /// Clones this RegistrationRegistrantFee object to a new RegistrationRegistrantFee object
         /// </summary>
         /// <param name="source">The source.</param>
         /// <param name="deepCopy">if set to <c>true</c> a deep copy is made. If false, only the basic entity properties are copied.</param>
         /// <returns></returns>
-        public static Registration Clone( this Registration source, bool deepCopy )
+        public static RegistrationRegistrantFee Clone( this RegistrationRegistrantFee source, bool deepCopy )
         {
             if (deepCopy)
             {
-                return source.Clone() as Registration;
+                return source.Clone() as RegistrationRegistrantFee;
             }
             else
             {
-                var target = new Registration();
+                var target = new RegistrationRegistrantFee();
                 target.CopyPropertiesFrom( source );
                 return target;
             }
         }
 
         /// <summary>
-        /// Copies the properties from another Registration object to this Registration object
+        /// Copies the properties from another RegistrationRegistrantFee object to this RegistrationRegistrantFee object
         /// </summary>
         /// <param name="target">The target.</param>
         /// <param name="source">The source.</param>
-        public static void CopyPropertiesFrom( this Registration target, Registration source )
+        public static void CopyPropertiesFrom( this RegistrationRegistrantFee target, RegistrationRegistrantFee source )
         {
             target.Id = source.Id;
-            target.ConfirmationEmail = source.ConfirmationEmail;
-            target.FirstName = source.FirstName;
-            target.GroupId = source.GroupId;
-            target.LastName = source.LastName;
-            target.PersonAliasId = source.PersonAliasId;
-            target.RegistrationInstanceId = source.RegistrationInstanceId;
+            target.Cost = source.Cost;
+            target.Quantity = source.Quantity;
+            target.RegistrationRegistrantId = source.RegistrationRegistrantId;
+            target.RegistrationTemplateFeeId = source.RegistrationTemplateFeeId;
             target.CreatedDateTime = source.CreatedDateTime;
             target.ModifiedDateTime = source.ModifiedDateTime;
             target.CreatedByPersonAliasId = source.CreatedByPersonAliasId;

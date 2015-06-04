@@ -39,7 +39,6 @@ namespace Rock.Model
 
         #region Entity Properties
 
-
         /// <summary>
         /// Gets or sets the registration instance identifier.
         /// </summary>
@@ -87,15 +86,6 @@ namespace Rock.Model
         [MaxLength( 75 )]
         [DataMember]
         public string ConfirmationEmail { get; set; }
-
-        /// <summary>
-        /// Gets or sets the total cost.
-        /// </summary>
-        /// <value>
-        /// The total cost.
-        /// </value>
-        [DataMember]
-        public decimal TotalCost { get; set; }
 
         /// <summary>
         /// Gets or sets the group identifier.
@@ -167,7 +157,7 @@ namespace Rock.Model
         /// </summary>
         public RegistrationConfiguration()
         {
-            this.HasRequired( r => r.RegistrationInstance ).WithMany( t => t.Registrations ).HasForeignKey( r => r.RegistrationInstanceId ).WillCascadeOnDelete( true );
+            this.HasRequired( r => r.RegistrationInstance ).WithMany( t => t.Registrations ).HasForeignKey( r => r.RegistrationInstanceId ).WillCascadeOnDelete( false );
             this.HasOptional( r => r.PersonAlias ).WithMany().HasForeignKey( r => r.PersonAliasId ).WillCascadeOnDelete( false );
             this.HasOptional( r => r.Group ).WithMany().HasForeignKey( r => r.GroupId ).WillCascadeOnDelete( false );
         }

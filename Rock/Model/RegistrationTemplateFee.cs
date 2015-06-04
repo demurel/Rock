@@ -74,6 +74,7 @@ namespace Rock.Model
         /// <value>
         /// The discount amount.
         /// </value>
+        [MaxLength(400)]
         [DataMember]
         public string CostValue { get; set; }
 

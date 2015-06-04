@@ -96,14 +96,13 @@ namespace Rock.Model
         public int MaxAttendees { get; set; }
 
         /// <summary>
-        /// Gets or sets the account code.
+        /// Gets or sets the account identifier.
         /// </summary>
         /// <value>
-        /// The account code.
+        /// The account identifier.
         /// </value>
         [DataMember]
-        [MaxLength( 100 )]
-        public string AccountCode { get; set; }
+        public int AccountId { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this instance is active.
@@ -183,6 +182,14 @@ namespace Rock.Model
         public virtual RegistrationTemplate RegistrationTemplate { get; set; }
 
         /// <summary>
+        /// Gets or sets the account.
+        /// </summary>
+        /// <value>
+        /// The account.
+        /// </value>
+        public virtual FinancialAccount Account { get; set; }
+
+        /// <summary>
         /// Gets or sets the registrations.
         /// </summary>
         /// <value>
@@ -241,6 +248,7 @@ namespace Rock.Model
         public RegistrationInstanceConfiguration()
         {
             this.HasRequired( i => i.RegistrationTemplate ).WithMany( t => t.Instances ).HasForeignKey( i => i.RegistrationTemplateId ).WillCascadeOnDelete( true );
+            this.HasRequired( i => i.Account ).WithMany().HasForeignKey( i => i.AccountId).WillCascadeOnDelete( false );
         }
     }
 

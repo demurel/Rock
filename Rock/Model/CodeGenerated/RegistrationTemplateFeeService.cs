@@ -51,6 +51,12 @@ namespace Rock.Model
         public bool CanDelete( RegistrationTemplateFee item, out string errorMessage )
         {
             errorMessage = string.Empty;
+ 
+            if ( new Service<RegistrationRegistrantFee>( Context ).Queryable().Any( a => a.RegistrationTemplateFeeId == item.Id ) )
+            {
+                errorMessage = string.Format( "This {0} is assigned to a {1}.", RegistrationTemplateFee.FriendlyTypeName, RegistrationRegistrantFee.FriendlyTypeName );
+                return false;
+            }  
             return true;
         }
     }

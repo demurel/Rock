@@ -103,6 +103,20 @@ namespace Rock.Model
         /// </value>
         public virtual GroupMember GroupMember { get; set; }
 
+        /// <summary>
+        /// Gets or sets the fees.
+        /// </summary>
+        /// <value>
+        /// The fees.
+        /// </value>
+        [DataMember]
+        public virtual ICollection<RegistrationRegistrantFee> Fees
+        {
+            get { return _fees ?? ( _fees = new Collection<RegistrationRegistrantFee>() ); }
+            set { _fees = value; }
+        }
+        private ICollection<RegistrationRegistrantFee> _fees;
+
         #endregion
 
         #region Methods

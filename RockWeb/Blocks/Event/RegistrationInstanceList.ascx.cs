@@ -30,14 +30,14 @@ using Rock.Web.Cache;
 using Rock.Web.UI;
 using Rock.Web.UI.Controls;
 
-namespace RockWeb.Blocks.Registration
+namespace RockWeb.Blocks.Event
 {
-    [DisplayName( "Instance List" )]
-    [Category( "Registration" )]
+    [DisplayName( "Registration Instance List" )]
+    [Category( "Event" )]
     [Description( "Lists all the instances of the given registration template." )]
 
     [LinkedPage( "Detail Page" )]
-    public partial class InstanceList : RockBlock, ISecondaryBlock
+    public partial class RegistrationInstanceList : RockBlock, ISecondaryBlock
     {
         #region Private Variables
 

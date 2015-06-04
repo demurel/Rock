@@ -51,6 +51,12 @@ namespace Rock.Model
         public bool CanDelete( RegistrationInstance item, out string errorMessage )
         {
             errorMessage = string.Empty;
+ 
+            if ( new Service<Registration>( Context ).Queryable().Any( a => a.RegistrationInstanceId == item.Id ) )
+            {
+                errorMessage = string.Format( "This {0} is assigned to a {1}.", RegistrationInstance.FriendlyTypeName, Registration.FriendlyTypeName );
+                return false;
+            }  
             return true;
         }
     }
@@ -88,7 +94,7 @@ namespace Rock.Model
         public static void CopyPropertiesFrom( this RegistrationInstance target, RegistrationInstance source )
         {
             target.Id = source.Id;
-            target.AccountCode = source.AccountCode;
+            target.AccountId = source.AccountId;
             target.AdditionalConfirmationDetails = source.AdditionalConfirmationDetails;
             target.AdditionalReminderDetails = source.AdditionalReminderDetails;
             target.ConfirmationSentDateTime = source.ConfirmationSentDateTime;

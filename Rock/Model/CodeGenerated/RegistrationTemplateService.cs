@@ -91,6 +91,7 @@ namespace Rock.Model
             target.AllowMultipleRegistrants = source.AllowMultipleRegistrants;
             target.CategoryId = source.CategoryId;
             target.ConfirmationEmailTemplate = source.ConfirmationEmailTemplate;
+            target.Cost = source.Cost;
             target.DiscountCodeTerm = source.DiscountCodeTerm;
             target.FeeTerm = source.FeeTerm;
             target.FinancialGatewayId = source.FinancialGatewayId;

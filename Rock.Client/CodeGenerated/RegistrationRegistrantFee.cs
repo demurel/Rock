@@ -27,9 +27,9 @@ using System.Collections.Generic;
 namespace Rock.Client
 {
     /// <summary>
-    /// Base client model for RegistrationRegistrant that only includes the non-virtual fields. Use this for PUT/POSTs
+    /// Base client model for RegistrationRegistrantFee that only includes the non-virtual fields. Use this for PUT/POSTs
     /// </summary>
-    public partial class RegistrationRegistrantEntity
+    public partial class RegistrationRegistrantFeeEntity
     {
         /// <summary />
         public int Id { get; set; }
@@ -38,13 +38,13 @@ namespace Rock.Client
         public decimal Cost { get; set; }
 
         /// <summary />
-        public int? GroupMemberId { get; set; }
+        public int Quantity { get; set; }
 
         /// <summary />
-        public int? PersonAliasId { get; set; }
+        public int RegistrationRegistrantId { get; set; }
 
         /// <summary />
-        public int RegistrationId { get; set; }
+        public int RegistrationTemplateFeeId { get; set; }
 
         /// <summary />
         public Guid Guid { get; set; }
@@ -55,13 +55,10 @@ namespace Rock.Client
     }
 
     /// <summary>
-    /// Client model for RegistrationRegistrant that includes all the fields that are available for GETs. Use this for GETs (use RegistrationRegistrantEntity for POST/PUTs)
+    /// Client model for RegistrationRegistrantFee that includes all the fields that are available for GETs. Use this for GETs (use RegistrationRegistrantFeeEntity for POST/PUTs)
     /// </summary>
-    public partial class RegistrationRegistrant : RegistrationRegistrantEntity
+    public partial class RegistrationRegistrantFee : RegistrationRegistrantFeeEntity
     {
-        /// <summary />
-        public ICollection<RegistrationRegistrantFee> Fees { get; set; }
-
         /// <summary />
         public DateTime? CreatedDateTime { get; set; }
 
