@@ -42,7 +42,7 @@ SET @BookFeeId = SCOPE_IDENTITY()
 
 DECLARE @ShirtFeeId int
 INSERT INTO [RegistrationTemplateFee] ( [Name], [RegistrationTemplateId], [FeeType], [CostValue], [DiscountApplies], [AllowMultiple], [Order], [Guid] )
-VALUES ( 'Shirt', @RegistrationTemplateId, 1, 'S|20,M|20,L|20,XL|20,XXL|25', 1, 1, 1, NEWID() ) 
+VALUES ( 'Shirt', @RegistrationTemplateId, 1, 'S^20|M^20|L^20|XL^20|XXL^25', 1, 1, 1, NEWID() ) 
 SET @ShirtFeeId = SCOPE_IDENTITY()
 
 -- Instance

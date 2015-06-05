@@ -44,6 +44,20 @@ namespace Rock.Web.UI.Controls
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the grid's ObjectList should be used first ( instead of data item ) 
+        /// when retrieving attributes and attribute values. This allows grid to pre-load attribute values prior to data
+        /// bind to improve performance.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [use object list first]; otherwise, <c>false</c>.
+        /// </value>
+        public bool UseObjectListFirst
+        {
+            get { return ViewState["UseObjectListFirst"] as bool? ?? false; }
+            set { ViewState["UseObjectListFirst"] = value; }
+        }
+
+        /// <summary>
         /// Retrieves the value of the field bound to the <see cref="T:System.Web.UI.WebControls.BoundField" /> object.
         /// </summary>
         /// <param name="controlContainer">The container for the field value.</param>
@@ -55,20 +69,23 @@ namespace Rock.Web.UI.Controls
             var row = controlContainer as GridViewRow;
             if ( row != null )
             {
-                // First check if DataItem has attributes
-                var dataItem = row.DataItem as IHasAttributes;
-                if ( dataItem == null )
+
+                // Try to find the object or row that implements IHasAttributes
+                IHasAttributes dataItem = null;
+                if ( UseObjectListFirst )
                 {
-                    // If the DataItem does not have attributes, check to see if there is an object list
-                    var grid = row.NamingContainer as Grid;
-                    if (grid != null && grid.ObjectList != null)
+                    dataItem = GetAttributeObject( row );
+                    if ( dataItem == null )
                     {
-                        // If an object list exists, check to see if the associated object has attributes
-                        string key = grid.DataKeys[row.RowIndex].Value.ToString();
-                        if (!string.IsNullOrWhiteSpace(key) && grid.ObjectList.ContainsKey(key))
-                        {
-                            dataItem = grid.ObjectList[key] as IHasAttributes;
-                        }
+                        dataItem = row.DataItem as IHasAttributes;
+                    }
+                }
+                else
+                {
+                    dataItem = row.DataItem as IHasAttributes;
+                    if ( dataItem == null )
+                    {
+                        dataItem = GetAttributeObject( row );
                     }
                 }
 
@@ -91,6 +108,30 @@ namespace Rock.Web.UI.Controls
             }
 
             return string.Empty;
+        }
+
+        /// <summary>
+        /// Gets the attribute object.
+        /// </summary>
+        /// <param name="row">The row.</param>
+        /// <returns></returns>
+        private IHasAttributes GetAttributeObject(GridViewRow row)
+        {
+            // Get the parent grid
+            var grid = row.NamingContainer as Grid;
+
+            // check to see if there is an object list for the grid
+            if ( grid != null && grid.ObjectList != null )
+            {
+                // If an object list exists, check to see if the associated object has attributes
+                string key = grid.DataKeys[row.RowIndex].Value.ToString();
+                if ( !string.IsNullOrWhiteSpace( key ) && grid.ObjectList.ContainsKey( key ) )
+                {
+                    return grid.ObjectList[key] as IHasAttributes;
+                }
+            }
+
+            return null;
         }
 
         /// <summary>

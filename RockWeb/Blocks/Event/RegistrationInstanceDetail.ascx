@@ -146,21 +146,29 @@
 
                 <asp:Panel ID="pnlRegistrants" runat="server" Visible="false">
 
-                    <Rock:Grid ID="gRegistrants" runat="server" DisplayType="Full" AllowSorting="true" OnRowSelected="gRegistrants_RowSelected" RowItemText="Registrant" >
-                        <Columns>
-                            <Rock:DateTimeField DataField="CreatedDateTime" HeaderText="Date" SortExpression="CreatedDateTime" />
-                            <Rock:RockTemplateField HeaderText="Registrant">
-                                <ItemTemplate><asp:Literal ID="lRegistrant" runat="server"></asp:Literal></ItemTemplate>
-                            </Rock:RockTemplateField>
-                            <Rock:RockTemplateField HeaderText="Group">
-                                <ItemTemplate><asp:Literal ID="lGroup" runat="server"></asp:Literal></ItemTemplate>
-                            </Rock:RockTemplateField>
-                            <Rock:RockTemplateField HeaderText="Fees">
-                                <ItemTemplate><asp:Literal ID="lFees" runat="server"></asp:Literal></ItemTemplate>
-                            </Rock:RockTemplateField>
-                            <Rock:DeleteField OnClick="gRegistrants_Delete" />
-                        </Columns>
-                    </Rock:Grid>
+                    <div class="grid grid-panel">
+                        <Rock:GridFilter ID="fRegistrants" runat="server" OnDisplayFilterValue="fRegistrants_DisplayFilterValue">
+                            <Rock:DateRangePicker ID="drpRegistrantDateRange" runat="server" Label="Date Range" />
+                            <Rock:RockTextBox ID="tbRegistrantFirstName" runat="server" Label="First Name" />
+                            <Rock:RockTextBox ID="tbRegistrantLastName" runat="server" Label="Last Name" />
+                            <asp:PlaceHolder ID="phRegistrantFormFieldFilters" runat="server" />
+                        </Rock:GridFilter>
+                        <Rock:Grid ID="gRegistrants" runat="server" DisplayType="Full" AllowSorting="true" OnRowSelected="gRegistrants_RowSelected" RowItemText="Registrant" >
+                            <Columns>
+                                <Rock:DateTimeField DataField="CreatedDateTime" HeaderText="Date" SortExpression="CreatedDateTime" />
+                                <Rock:RockTemplateField HeaderText="Registrant">
+                                    <ItemTemplate><asp:Literal ID="lRegistrant" runat="server"></asp:Literal></ItemTemplate>
+                                </Rock:RockTemplateField>
+                                <Rock:RockTemplateField HeaderText="Group">
+                                    <ItemTemplate><asp:Literal ID="lGroup" runat="server"></asp:Literal></ItemTemplate>
+                                </Rock:RockTemplateField>
+                                <Rock:RockTemplateField HeaderText="Fees">
+                                    <ItemTemplate><asp:Literal ID="lFees" runat="server"></asp:Literal></ItemTemplate>
+                                </Rock:RockTemplateField>
+                            </Columns>
+                        </Rock:Grid>
+                    </div>
+
                 </asp:Panel>
 
                 <asp:Panel ID="pnlLinkages" runat="server" Visible="false">
