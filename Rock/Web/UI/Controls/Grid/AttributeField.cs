@@ -20,6 +20,8 @@ using System.Linq;
 using System.Web;
 using System.Web.UI.WebControls;
 using Rock.Attribute;
+using Rock.Model;
+using Rock.Web.Cache;
 
 namespace Rock.Web.UI.Controls
 {
@@ -44,20 +46,6 @@ namespace Rock.Web.UI.Controls
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the grid's ObjectList should be used first ( instead of data item ) 
-        /// when retrieving attributes and attribute values. This allows grid to pre-load attribute values prior to data
-        /// bind to improve performance.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if [use object list first]; otherwise, <c>false</c>.
-        /// </value>
-        public bool UseObjectListFirst
-        {
-            get { return ViewState["UseObjectListFirst"] as bool? ?? false; }
-            set { ViewState["UseObjectListFirst"] = value; }
-        }
-
-        /// <summary>
         /// Retrieves the value of the field bound to the <see cref="T:System.Web.UI.WebControls.BoundField" /> object.
         /// </summary>
         /// <param name="controlContainer">The container for the field value.</param>
@@ -69,24 +57,12 @@ namespace Rock.Web.UI.Controls
             var row = controlContainer as GridViewRow;
             if ( row != null )
             {
-
-                // Try to find the object or row that implements IHasAttributes
-                IHasAttributes dataItem = null;
-                if ( UseObjectListFirst )
+                // First try to get an IHasAttributes from the grid's object list
+                IHasAttributes dataItem = GetAttributeObject( row );
+                if ( dataItem == null )
                 {
-                    dataItem = GetAttributeObject( row );
-                    if ( dataItem == null )
-                    {
-                        dataItem = row.DataItem as IHasAttributes;
-                    }
-                }
-                else
-                {
+                    // If unsuccesful, check to see if row has attributes
                     dataItem = row.DataItem as IHasAttributes;
-                    if ( dataItem == null )
-                    {
-                        dataItem = GetAttributeObject( row );
-                    }
                 }
 
                 if (dataItem != null)
@@ -145,6 +121,114 @@ namespace Rock.Web.UI.Controls
         protected override string FormatDataValue( object dataValue, bool encode )
         {
             return base.FormatDataValue( dataValue, false );
+        }
+    }
+
+    /// <summary>
+    /// Helper class that can be used by blocks to pre-load attributes/values so that
+    /// the attribute field columns don't need to call LoadAttributes or query for attribute 
+    /// values for every row/column
+    /// </summary>
+    public class AttributeFieldObject : IHasAttributes
+    {
+        int Id { get; set; }
+
+        int IHasAttributes.Id
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        /// <summary>
+        /// List of attributes associated with the object.  This property will not include the attribute values.
+        /// The <see cref="AttributeValues" /> property should be used to get attribute values.  Dictionary key
+        /// is the attribute key, and value is the cached attribute
+        /// </summary>
+        /// <value>
+        /// The attributes.
+        /// </value>
+        public Dictionary<string, AttributeCache> Attributes { get; set; }
+
+        /// <summary>
+        /// Dictionary of all attributes and their value.  Key is the attribute key, and value is the associated attribute value
+        /// </summary>
+        /// <value>
+        /// The attribute values.
+        /// </value>
+        public Dictionary<string, AttributeValue> AttributeValues { get; set; }
+
+        /// <summary>
+        /// Gets the attribute value defaults.  This property can be used by a subclass to override the parent class's default
+        /// value for an attribute
+        /// </summary>
+        /// <value>
+        /// The attribute value defaults.
+        /// </value>
+        public Dictionary<string, string> AttributeValueDefaults
+        {
+            get { return null; }
+        }
+
+        /// <summary>
+        /// Gets the value of an attribute key.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <returns></returns>
+        public string GetAttributeValue( string key )
+        {
+            if ( this.AttributeValues != null &&
+                this.AttributeValues.ContainsKey( key ) )
+            {
+                return this.AttributeValues[key].Value;
+            }
+
+            if ( this.Attributes != null &&
+                this.Attributes.ContainsKey( key ) )
+            {
+                return this.Attributes[key].DefaultValue;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Gets the value of an attribute key - splitting that delimited value into a list of strings.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <returns>
+        /// A list of string values or an empty list if none exist.
+        /// </returns>
+        public List<string> GetAttributeValues( string key )
+        {
+            string value = GetAttributeValue( key );
+            if ( !string.IsNullOrWhiteSpace( value ) )
+            {
+                return value.SplitDelimitedValues().ToList();
+            }
+
+            return new List<string>();
+        }
+
+        /// <summary>
+        /// Sets the value of an attribute key in memory.  Note, this will not persist value to database
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="value">The value.</param>
+        public void SetAttributeValue( string key, string value )
+        {
+            if ( this.AttributeValues != null &&
+                this.AttributeValues.ContainsKey( key ) )
+            {
+                this.AttributeValues[key].Value = value;
+            }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AttributeFieldObject"/> class.
+        /// </summary>
+        public AttributeFieldObject()
+        {
+            Attributes = new Dictionary<string, AttributeCache>();
+            AttributeValues = new Dictionary<string, AttributeValue>();
         }
     }
 }

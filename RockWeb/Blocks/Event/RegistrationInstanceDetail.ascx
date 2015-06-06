@@ -162,9 +162,6 @@
                                 <Rock:RockTemplateField HeaderText="Group">
                                     <ItemTemplate><asp:Literal ID="lGroup" runat="server"></asp:Literal></ItemTemplate>
                                 </Rock:RockTemplateField>
-                                <Rock:RockTemplateField HeaderText="Fees">
-                                    <ItemTemplate><asp:Literal ID="lFees" runat="server"></asp:Literal></ItemTemplate>
-                                </Rock:RockTemplateField>
                             </Columns>
                         </Rock:Grid>
                     </div>

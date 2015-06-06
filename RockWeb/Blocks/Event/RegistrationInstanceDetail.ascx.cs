@@ -51,7 +51,21 @@ namespace RockWeb.Blocks.Event
 
         #region Properties
 
+        /// <summary>
+        /// Gets or sets the registrant fields.
+        /// </summary>
+        /// <value>
+        /// The registrant fields.
+        /// </value>
         public List<RegistrantFormField> RegistrantFields { get; set; }
+
+        /// <summary>
+        /// Gets or sets the person campus ids.
+        /// </summary>
+        /// <value>
+        /// The person campus ids.
+        /// </value>
+        private Dictionary<int, List<int>> PersonCampusIds { get; set; }
 
         /// <summary>
         /// Gets or sets the active tab.
@@ -105,7 +119,6 @@ namespace RockWeb.Blocks.Event
 
             btnDelete.Attributes["onclick"] = string.Format( "javascript: return Rock.dialogs.confirmDelete(event, '{0}', 'This will also delete all the registration instances of this type!');", RegistrationTemplate.FriendlyTypeName );
             btnSecurity.EntityTypeId = EntityTypeCache.Read( typeof( Rock.Model.RegistrationTemplate ) ).Id;
-
         }
 
         /// <summary>
@@ -150,6 +163,11 @@ namespace RockWeb.Blocks.Event
 
         }
 
+        /// <summary>
+        /// Handles the Click event of the btnEdit control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void btnEdit_Click( object sender, EventArgs e )
         {
             var rockContext = new RockContext();
@@ -158,6 +176,11 @@ namespace RockWeb.Blocks.Event
             ShowEditDetails( registrationInstance, rockContext );
         }
 
+        /// <summary>
+        /// Handles the Click event of the btnDelete control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void btnDelete_Click( object sender, EventArgs e )
         {
             var rockContext = new RockContext();
@@ -183,10 +206,20 @@ namespace RockWeb.Blocks.Event
             NavigateToPage( RockPage.Guid, qryParams );
         }
 
+        /// <summary>
+        /// Handles the Click event of the btnPreview control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void btnPreview_Click( object sender, EventArgs e )
         {
         }
 
+        /// <summary>
+        /// Handles the Click event of the btnSave control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void btnSave_Click( object sender, EventArgs e )
         {
             using ( var rockContext = new RockContext() )
@@ -233,6 +266,11 @@ namespace RockWeb.Blocks.Event
             }
         }
 
+        /// <summary>
+        /// Handles the Click event of the btnCancel control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void btnCancel_Click( object sender, EventArgs e )
         {
             if ( hfRegistrationInstanceId.Value.Equals( "0" ) )
@@ -257,6 +295,11 @@ namespace RockWeb.Blocks.Event
             }
         }
 
+        /// <summary>
+        /// Handles the Click event of the lbTab control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbTab_Click( object sender, EventArgs e )
         {
             LinkButton lb = sender as LinkButton;
@@ -270,6 +313,11 @@ namespace RockWeb.Blocks.Event
 
         #region Registration Grid Events
 
+        /// <summary>
+        /// Handles the ApplyFilterClick event of the fRegistrations control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void fRegistrations_ApplyFilterClick( object sender, EventArgs e )
         {
             fRegistrations.SaveUserPreference( "Date Range", drpRegistrationDateRange.DelimitedValues );
@@ -282,6 +330,11 @@ namespace RockWeb.Blocks.Event
             BindRegistrationsGrid();
         }
 
+        /// <summary>
+        /// Fs the registrations_ display filter value.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The e.</param>
         protected void fRegistrations_DisplayFilterValue( object sender, GridFilter.DisplayFilterValueArgs e )
         {
             switch ( e.Key )
@@ -307,11 +360,21 @@ namespace RockWeb.Blocks.Event
             }
         }
 
+        /// <summary>
+        /// Handles the GridRebind event of the gRegistrations control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void gRegistrations_GridRebind( object sender, EventArgs e )
         {
             BindRegistrationsGrid();
         }
 
+        /// <summary>
+        /// Handles the RowDataBound event of the gRegistrations control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="GridViewRowEventArgs"/> instance containing the event data.</param>
         void gRegistrations_RowDataBound( object sender, GridViewRowEventArgs e )
         {
             var registration = e.Row.DataItem as Registration;
@@ -391,11 +454,21 @@ namespace RockWeb.Blocks.Event
             }
         }
 
+        /// <summary>
+        /// Handles the Delete event of the gRegistrations control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="RowEventArgs"/> instance containing the event data.</param>
         protected void gRegistrations_Delete( object sender, RowEventArgs e )
         {
 
         }
 
+        /// <summary>
+        /// Handles the RowSelected event of the gRegistrations control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="RowEventArgs"/> instance containing the event data.</param>
         protected void gRegistrations_RowSelected( object sender, RowEventArgs e )
         {
 
@@ -405,6 +478,11 @@ namespace RockWeb.Blocks.Event
 
         #region Registrant Grid Events
 
+        /// <summary>
+        /// Handles the ApplyFilterClick event of the fRegistrants control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void fRegistrants_ApplyFilterClick( object sender, EventArgs e )
         {
             fRegistrants.SaveUserPreference( "Date Range", drpRegistrantDateRange.DelimitedValues );
@@ -415,6 +493,73 @@ namespace RockWeb.Blocks.Event
             {
                 foreach ( var field in RegistrantFields )
                 {
+                    if ( field.FieldSource == RegistrationFieldSource.PersonField && field.PersonFieldType.HasValue )
+                    {
+                        switch ( field.PersonFieldType.Value )
+                        {
+                            case RegistrationPersonFieldType.Birthdate:
+                                {
+                                    var drpBirthdateFilter = phRegistrantFormFieldFilters.FindControl( "drpBirthdateFilter" ) as DateRangePicker;
+                                    if ( drpBirthdateFilter != null )
+                                    {
+                                        fRegistrants.SaveUserPreference( "Birthdate Range", drpBirthdateFilter.DelimitedValues );
+                                    }
+
+                                    break;
+                                }
+                            case RegistrationPersonFieldType.Email:
+                                {
+                                    var tbEmailFilter = phRegistrantFormFieldFilters.FindControl( "tbEmailFilter" ) as RockTextBox;
+                                    if ( tbEmailFilter != null )
+                                    {
+                                        fRegistrants.SaveUserPreference( "Email", tbEmailFilter.Text );
+                                    }
+
+                                    break;
+                                }
+                            case RegistrationPersonFieldType.Gender:
+                                {
+                                    var ddlGenderFilter = phRegistrantFormFieldFilters.FindControl( "ddlGenderFilter" ) as RockDropDownList;
+                                    if ( ddlGenderFilter != null )
+                                    {
+                                        fRegistrants.SaveUserPreference( "Gender", ddlGenderFilter.SelectedValue );
+                                    } 
+                                    
+                                    break;
+                                }
+                            case RegistrationPersonFieldType.HomeCampus:
+                                {
+                                    var ddlCampus = phRegistrantFormFieldFilters.FindControl( "ddlCampus" ) as RockDropDownList;
+                                    if ( ddlCampus != null )
+                                    {
+                                        fRegistrants.SaveUserPreference( "Home Campus", ddlCampus.SelectedValue );
+                                    }
+                                    
+                                    break;
+                                }
+                            case RegistrationPersonFieldType.MaritalStatus:
+                                {
+                                    var ddlMaritalStatusFilter = phRegistrantFormFieldFilters.FindControl( "ddlMaritalStatusFilter" ) as RockDropDownList;
+                                    if ( ddlMaritalStatusFilter != null )
+                                    {
+                                        fRegistrants.SaveUserPreference( "Marital Status", ddlMaritalStatusFilter.SelectedValue );
+                                    } 
+                                    
+                                    break;
+                                }
+                            case RegistrationPersonFieldType.Phone:
+                                {
+                                    var tbPhoneFilter = phRegistrantFormFieldFilters.FindControl( "tbPhoneFilter" ) as RockTextBox;
+                                    if ( tbPhoneFilter != null )
+                                    {
+                                        fRegistrants.SaveUserPreference( "Phone", tbPhoneFilter.Text );
+                                    } 
+                                    
+                                    break;
+                                }
+                        }
+                    }
+
                     if ( field.Attribute != null )
                     {
                         var attribute = field.Attribute;
@@ -435,6 +580,11 @@ namespace RockWeb.Blocks.Event
             BindRegistrantsGrid();
         }
 
+        /// <summary>
+        /// Fs the registrants_ display filter value.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The e.</param>
         protected void fRegistrants_DisplayFilterValue( object sender, GridFilter.DisplayFilterValueArgs e )
         {
             if ( RegistrantFields != null )
@@ -461,13 +611,50 @@ namespace RockWeb.Blocks.Event
             switch ( e.Key )
             {
                 case "Date Range":
+                case "Birthdate Range":
                     {
                         e.Value = DateRangePicker.FormatDelimitedValues( e.Value );
                         break;
                     }
                 case "First Name":
                 case "Last Name":
+                case "Email":
+                case "Phone":
                     {
+                        break;
+                    }
+                case "Gender":
+                    {
+                        var gender = e.Value.ConvertToEnumOrNull<Gender>();
+                        e.Value = gender.HasValue ? gender.ConvertToString() : string.Empty;
+                        break;
+                    }
+                case "Campus":
+                    {
+                        int? campusId = e.Value.AsIntegerOrNull();
+                        if ( campusId.HasValue )
+                        {
+                            var campus = CampusCache.Read( campusId.Value );
+                            e.Value = campus != null ? campus.Name : string.Empty;
+                        }
+                        else
+                        {
+                            e.Value = string.Empty;
+                        }
+                        break;
+                    }
+                case "Marital Status":
+                    {
+                        int? dvId = e.Value.AsIntegerOrNull();
+                        if ( dvId.HasValue )
+                        {
+                            var maritalStatus = DefinedValueCache.Read( dvId.Value );
+                            e.Value = maritalStatus != null ? maritalStatus.Value : string.Empty;
+                        }
+                        else
+                        {
+                            e.Value = string.Empty;
+                        }
                         break;
                     }
                 default:
@@ -478,11 +665,21 @@ namespace RockWeb.Blocks.Event
             }
         }
 
+        /// <summary>
+        /// Handles the GridRebind event of the gRegistrants control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void gRegistrants_GridRebind( object sender, EventArgs e )
         {
             BindRegistrantsGrid();
         }
 
+        /// <summary>
+        /// Handles the RowDataBound event of the gRegistrants control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="GridViewRowEventArgs"/> instance containing the event data.</param>
         void gRegistrants_RowDataBound( object sender, GridViewRowEventArgs e )
         {
             var registrant = e.Row.DataItem as RegistrationRegistrant;
@@ -505,6 +702,54 @@ namespace RockWeb.Blocks.Event
 
                 // TODO Set the Group Name
 
+                // Set the campus
+                var lCampus = e.Row.FindControl( "lCampus" ) as Literal;
+                if ( lCampus != null && PersonCampusIds != null )
+                {
+                    if ( registrant.PersonAlias != null  )
+                    {
+                        if ( PersonCampusIds.ContainsKey( registrant.PersonAlias.PersonId ))
+                        {
+                            var campusIds = PersonCampusIds[registrant.PersonAlias.PersonId];
+                            if ( campusIds.Any() )
+                            {
+                                var campusNames = new List<string>();
+                                foreach( int campusId in campusIds )
+                                {
+                                    var campus = CampusCache.Read( campusId );
+                                    if ( campus != null )
+                                    {
+                                        campusNames.Add( campus.Name );
+                                    }
+                                }
+
+                                lCampus.Text = campusNames.AsDelimited( "<br/>" );
+                            }
+                        }
+                    }
+                }
+
+                // Set the phones
+                var lPhone = e.Row.FindControl( "lPhone" ) as Literal;
+                if ( lPhone != null )
+                {
+                    if ( registrant.PersonAlias != null &&
+                        registrant.PersonAlias.Person != null &&
+                        registrant.PersonAlias.Person.PhoneNumbers != null )
+                    {
+                        var phones = new List<string>();
+                        foreach ( var phoneNumber in registrant.PersonAlias.Person.PhoneNumbers
+                            .Where( n => !n.IsUnlisted) )
+                        {
+                            phones.Add( string.Format( "{0} <small>({1})</small>",
+                                phoneNumber.NumberFormatted,
+                                phoneNumber.NumberTypeValue != null ? phoneNumber.NumberTypeValue.Value : "" ) );
+
+                        }
+                        lPhone.Text = phones.AsDelimited( "<br/>" );
+                    }
+                }
+
                 // Set the Fees
                 var lFees = e.Row.FindControl( "lFees" ) as Literal;
                 if ( lFees != null )
@@ -526,11 +771,21 @@ namespace RockWeb.Blocks.Event
             }
         }
 
+        /// <summary>
+        /// Handles the Delete event of the gRegistrants control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="RowEventArgs"/> instance containing the event data.</param>
         protected void gRegistrants_Delete( object sender, RowEventArgs e )
         {
 
         }
 
+        /// <summary>
+        /// Handles the RowSelected event of the gRegistrants control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="RowEventArgs"/> instance containing the event data.</param>
         protected void gRegistrants_RowSelected( object sender, RowEventArgs e )
         {
 
@@ -542,6 +797,9 @@ namespace RockWeb.Blocks.Event
 
         #region Methods
 
+        /// <summary>
+        /// Shows the detail.
+        /// </summary>
         private void ShowDetail()
         {
             int? RegistrationInstanceId = PageParameter( "RegistrationInstanceId" ).AsIntegerOrNull();
@@ -620,6 +878,11 @@ namespace RockWeb.Blocks.Event
                         ShowEditDetails( registrationInstance, rockContext );
                     }
                 }
+
+                LoadRegistrantFormFields( registrationInstance );
+                BindRegistrationsFilter();
+                BindRegistrantsFilter();
+                AddDynamicRegistrantControls();
             }
         }
 
@@ -677,10 +940,6 @@ namespace RockWeb.Blocks.Event
             lDetails.Visible = !string.IsNullOrWhiteSpace( RegistrationInstance.Details );
             lDetails.Text = RegistrationInstance.Details;
 
-            LoadRegistrantFormFields( RegistrationInstance );
-            BindRegistrationsFilter();
-            BindRegistrantsFilter();
-
             ShowTab();
         }
 
@@ -695,6 +954,9 @@ namespace RockWeb.Blocks.Event
             pnlTabs.Visible = !editable;
         }
 
+        /// <summary>
+        /// Shows the tab.
+        /// </summary>
         private void ShowTab()
         {
             liRegistrations.RemoveCssClass( "active" );
@@ -734,6 +996,9 @@ namespace RockWeb.Blocks.Event
             }
         }
 
+        /// <summary>
+        /// Binds the registrations filter.
+        /// </summary>
         private void BindRegistrationsFilter()
         {
             drpRegistrationDateRange.DelimitedValues = fRegistrations.GetUserPreference( "Date Range" );
@@ -744,6 +1009,9 @@ namespace RockWeb.Blocks.Event
             tbRegistrationRegistrantLastName.Text = fRegistrations.GetUserPreference( "Registrant Last Name" );
         }
 
+        /// <summary>
+        /// Binds the registrations grid.
+        /// </summary>
         private void BindRegistrationsGrid()
         {
             int? instanceId = hfRegistrationInstanceId.Value.AsIntegerOrNull();
@@ -912,53 +1180,29 @@ namespace RockWeb.Blocks.Event
             }
         }
 
+        /// <summary>
+        /// Binds the registrants filter.
+        /// </summary>
         private void BindRegistrantsFilter()
         {
             drpRegistrantDateRange.DelimitedValues = fRegistrants.GetUserPreference( "Date Range" );
             tbRegistrantFirstName.Text = fRegistrants.GetUserPreference( "First Name" );
             tbRegistrantLastName.Text = fRegistrants.GetUserPreference( "Last Name" );
-
-            AddDynamicRegistrantControls();
         }
 
+        /// <summary>
+        /// Binds the registrants grid.
+        /// </summary>
         private void BindRegistrantsGrid()
         {
             int? instanceId = hfRegistrationInstanceId.Value.AsIntegerOrNull();
             if ( instanceId.HasValue )
             {
-
-                // Get all the registrant attributes selected to be on grid
-                var registrantAttributes = RegistrantFields
-                    .Where( f =>
-                        f.Attribute != null &&
-                        f.FieldSource == RegistrationFieldSource.RegistrationAttribute )
-                    .Select( f => f.Attribute )
-                    .ToList();
-                var registrantAttributeIds = registrantAttributes.Select( a => a.Id ).Distinct().ToList();
-
-                // Get all the person attributes selected to be on grid
-                var personAttributes = RegistrantFields
-                    .Where( f =>
-                        f.Attribute != null &&
-                        f.FieldSource == RegistrationFieldSource.PersonAttribute )
-                    .Select( f => f.Attribute )
-                    .ToList();
-                var personAttributesIds = personAttributes.Select( a => a.Id ).Distinct().ToList();
-
-                // Get all the group member attributes selected to be on grid
-                var groupMemberAttributes = RegistrantFields
-                    .Where( f =>
-                        f.Attribute != null &&
-                        f.FieldSource == RegistrationFieldSource.GroupMemberAttribute )
-                    .Select( f => f.Attribute )
-                    .ToList();
-                var groupMemberAttributesIds = groupMemberAttributes.Select( a => a.Id ).Distinct().ToList();
-
                 using ( var rockContext = new RockContext() )
                 {
                     // Start query for registrants
                     var qry = new RegistrationRegistrantService( rockContext )
-                        .Queryable( "PersonAlias.Person,Fees.RegistrationTemplateFee" ).AsNoTracking()
+                        .Queryable( "PersonAlias.Person.PhoneNumbers.NumberTypeValue,Fees.RegistrationTemplateFee" ).AsNoTracking()
                         .Where( r => 
                             r.Registration.RegistrationInstanceId == instanceId.Value &&
                             r.PersonAlias != null &&
@@ -995,78 +1239,227 @@ namespace RockWeb.Blocks.Event
                             r.PersonAlias.Person.LastName.StartsWith( rlname ) );
                     }
 
-                    // Filter query by any configured registrant attribute filters
-                    if ( registrantAttributes != null && registrantAttributes.Any() )
+                    bool preloadCampusValues = false;
+                    var registrantAttributes = new List<AttributeCache>();
+                    var personAttributes = new List<AttributeCache>();
+                    var groupMemberAttributes = new List<AttributeCache>();
+                    var registrantAttributeIds = new List<int>();
+                    var personAttributesIds = new List<int>();
+                    var groupMemberAttributesIds = new List<int>();
+
+                    if ( RegistrantFields != null )
                     {
-                        var attributeValueService = new AttributeValueService( rockContext );
-                        var parameterExpression = attributeValueService.ParameterExpression;
-                        foreach ( var attribute in registrantAttributes )
+                        // Filter by any selected 
+                        foreach ( var personFieldType in RegistrantFields
+                            .Where( f =>
+                                f.FieldSource == RegistrationFieldSource.PersonField &&
+                                f.PersonFieldType.HasValue )
+                            .Select( f => f.PersonFieldType.Value ) )
                         {
-                            var filterControl = phRegistrantFormFieldFilters.FindControl( "filter_" + attribute.Id.ToString() );
-                            if ( filterControl != null )
+                            switch ( personFieldType )
                             {
-                                var filterValues = attribute.FieldType.Field.GetFilterValues( filterControl, attribute.QualifierValues );
-                                var expression = attribute.FieldType.Field.AttributeFilterExpression( attribute.QualifierValues, filterValues, parameterExpression );
-                                if ( expression != null )
+                                case RegistrationPersonFieldType.Birthdate:
+                                    {
+                                        var drpBirthdateFilter = phRegistrantFormFieldFilters.FindControl( "drpBirthdateFilter" ) as DateRangePicker;
+                                        if ( drpBirthdateFilter != null )
+                                        {
+                                            if ( drpBirthdateFilter.LowerValue.HasValue )
+                                            {
+                                                qry = qry.Where( r =>
+                                                    r.PersonAlias.Person.BirthDate.HasValue &&
+                                                    r.PersonAlias.Person.BirthDate.Value >= drpBirthdateFilter.LowerValue.Value );
+                                            }
+                                            if ( drpBirthdateFilter.UpperValue.HasValue )
+                                            {
+                                                qry = qry.Where( r =>
+                                                    r.PersonAlias.Person.BirthDate.HasValue &&
+                                                    r.PersonAlias.Person.BirthDate.Value <= drpBirthdateFilter.UpperValue.Value );
+                                            }
+                                        }
+                                        break;
+                                    }
+                                case RegistrationPersonFieldType.Email:
+                                    {
+                                        var tbEmailFilter = phRegistrantFormFieldFilters.FindControl( "tbEmailFilter" ) as RockTextBox;
+                                        if ( tbEmailFilter != null && !string.IsNullOrWhiteSpace( tbEmailFilter.Text ) )
+                                        {
+                                            qry = qry.Where( r =>
+                                                r.PersonAlias.Person.Email != null &&
+                                                r.PersonAlias.Person.Email.Contains( tbEmailFilter.Text ) );
+                                        }
+
+                                        break;
+                                    }
+                                case RegistrationPersonFieldType.Gender:
+                                    {
+                                        var ddlGenderFilter = phRegistrantFormFieldFilters.FindControl( "ddlGenderFilter" ) as RockDropDownList;
+                                        if ( ddlGenderFilter != null )
+                                        {
+                                            var gender = ddlGenderFilter.SelectedValue.ConvertToEnumOrNull<Gender>();
+                                            if ( gender.HasValue )
+                                            {
+                                                qry = qry.Where( r => 
+                                                    r.PersonAlias.Person.Gender == gender );
+                                            }
+                                        }
+
+                                        break;
+                                    }
+                                case RegistrationPersonFieldType.HomeCampus:
+                                    {
+                                        preloadCampusValues = true;
+
+                                        var ddlCampus = phRegistrantFormFieldFilters.FindControl( "ddlCampus" ) as RockDropDownList;
+                                        if ( ddlCampus != null )
+                                        {
+                                            var campusId = ddlCampus.SelectedValue.AsIntegerOrNull();
+                                            if ( campusId.HasValue )
+                                            {
+                                                var familyGroupTypeGuid = Rock.SystemGuid.GroupType.GROUPTYPE_FAMILY.AsGuid();
+                                                qry = qry.Where( r =>
+                                                    r.PersonAlias.Person.Members.Any( m =>
+                                                        m.Group.GroupType.Guid == familyGroupTypeGuid &&
+                                                        m.Group.CampusId.HasValue &&
+                                                        m.Group.CampusId.Value == campusId ) );
+                                            }
+                                        }
+                                        
+
+                                        break;
+                                    }
+                                case RegistrationPersonFieldType.MaritalStatus:
+                                    {
+                                        var ddlMaritalStatusFilter = phRegistrantFormFieldFilters.FindControl( "ddlMaritalStatusFilter" ) as RockDropDownList;
+                                        if ( ddlMaritalStatusFilter != null )
+                                        {
+                                            var maritalStatusId = ddlMaritalStatusFilter.SelectedValue.AsIntegerOrNull();
+                                            if ( maritalStatusId.HasValue )
+                                            {
+                                                qry = qry.Where( r =>
+                                                    r.PersonAlias.Person.MaritalStatusValueId.HasValue &&
+                                                    r.PersonAlias.Person.MaritalStatusValueId.Value == maritalStatusId.Value );
+                                            }
+                                        }
+                                        
+                                        break;
+                                    }
+                                case RegistrationPersonFieldType.Phone:
+                                    {
+                                        var tbPhoneFilter = phRegistrantFormFieldFilters.FindControl( "tbPhoneFilter" ) as RockTextBox;
+                                        if ( tbPhoneFilter != null && !string.IsNullOrWhiteSpace( tbPhoneFilter.Text ) )
+                                        {
+                                            string numericPhone = tbPhoneFilter.Text.AsNumeric();
+
+                                            qry = qry.Where( r =>
+                                                r.PersonAlias.Person.PhoneNumbers != null &&
+                                                r.PersonAlias.Person.PhoneNumbers.Any( n => n.Number.Contains( numericPhone ) ) );
+                                        }
+
+                                        break;
+                                    }
+                            }
+                        }
+
+                        // Get all the registrant attributes selected to be on grid
+                        registrantAttributes = RegistrantFields
+                            .Where( f =>
+                                f.Attribute != null &&
+                                f.FieldSource == RegistrationFieldSource.RegistrationAttribute )
+                            .Select( f => f.Attribute )
+                            .ToList();
+                        registrantAttributeIds = registrantAttributes.Select( a => a.Id ).Distinct().ToList();
+
+                        // Filter query by any configured registrant attribute filters
+                        if ( registrantAttributes != null && registrantAttributes.Any() )
+                        {
+                            var attributeValueService = new AttributeValueService( rockContext );
+                            var parameterExpression = attributeValueService.ParameterExpression;
+                            foreach ( var attribute in registrantAttributes )
+                            {
+                                var filterControl = phRegistrantFormFieldFilters.FindControl( "filter_" + attribute.Id.ToString() );
+                                if ( filterControl != null )
                                 {
-                                    var attributeValues = attributeValueService
-                                        .Queryable()
-                                        .Where( v => v.Attribute.Id == attribute.Id );
-                                    attributeValues = attributeValues.Where( parameterExpression, expression, null );
-                                    qry = qry
-                                        .Where( r => attributeValues.Select( v => v.EntityId ).Contains( r.Id ) );
+                                    var filterValues = attribute.FieldType.Field.GetFilterValues( filterControl, attribute.QualifierValues );
+                                    var expression = attribute.FieldType.Field.AttributeFilterExpression( attribute.QualifierValues, filterValues, parameterExpression );
+                                    if ( expression != null )
+                                    {
+                                        var attributeValues = attributeValueService
+                                            .Queryable()
+                                            .Where( v => v.Attribute.Id == attribute.Id );
+                                        attributeValues = attributeValues.Where( parameterExpression, expression, null );
+                                        qry = qry
+                                            .Where( r => attributeValues.Select( v => v.EntityId ).Contains( r.Id ) );
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    // Filter query by any configured person attribute filters
-                    if ( personAttributes != null && personAttributes.Any() )
-                    {
-                        var attributeValueService = new AttributeValueService( rockContext );
-                        var parameterExpression = attributeValueService.ParameterExpression;
-                        foreach ( var attribute in personAttributes )
+                        // Get all the person attributes selected to be on grid
+                        personAttributes = RegistrantFields
+                            .Where( f =>
+                                f.Attribute != null &&
+                                f.FieldSource == RegistrationFieldSource.PersonAttribute )
+                            .Select( f => f.Attribute )
+                            .ToList();
+                        personAttributesIds = personAttributes.Select( a => a.Id ).Distinct().ToList();
+
+                        // Filter query by any configured person attribute filters
+                        if ( personAttributes != null && personAttributes.Any() )
                         {
-                            var filterControl = phRegistrantFormFieldFilters.FindControl( "filter_" + attribute.Id.ToString() );
-                            if ( filterControl != null )
+                            var attributeValueService = new AttributeValueService( rockContext );
+                            var parameterExpression = attributeValueService.ParameterExpression;
+                            foreach ( var attribute in personAttributes )
                             {
-                                var filterValues = attribute.FieldType.Field.GetFilterValues( filterControl, attribute.QualifierValues );
-                                var expression = attribute.FieldType.Field.AttributeFilterExpression( attribute.QualifierValues, filterValues, parameterExpression );
-                                if ( expression != null )
+                                var filterControl = phRegistrantFormFieldFilters.FindControl( "filter_" + attribute.Id.ToString() );
+                                if ( filterControl != null )
                                 {
-                                    var attributeValues = attributeValueService
-                                        .Queryable()
-                                        .Where( v => v.Attribute.Id == attribute.Id );
-                                    attributeValues = attributeValues.Where( parameterExpression, expression, null );
-                                    qry = qry
-                                        .Where( r => attributeValues.Select( v => v.EntityId ).Contains( r.PersonAlias.PersonId ) );
+                                    var filterValues = attribute.FieldType.Field.GetFilterValues( filterControl, attribute.QualifierValues );
+                                    var expression = attribute.FieldType.Field.AttributeFilterExpression( attribute.QualifierValues, filterValues, parameterExpression );
+                                    if ( expression != null )
+                                    {
+                                        var attributeValues = attributeValueService
+                                            .Queryable()
+                                            .Where( v => v.Attribute.Id == attribute.Id );
+                                        attributeValues = attributeValues.Where( parameterExpression, expression, null );
+                                        qry = qry
+                                            .Where( r => attributeValues.Select( v => v.EntityId ).Contains( r.PersonAlias.PersonId ) );
+                                    }
                                 }
                             }
                         }
-                    }
+
+                        // Get all the group member attributes selected to be on grid
+                        groupMemberAttributes = RegistrantFields
+                            .Where( f =>
+                                f.Attribute != null &&
+                                f.FieldSource == RegistrationFieldSource.GroupMemberAttribute )
+                            .Select( f => f.Attribute )
+                            .ToList();
+                        groupMemberAttributesIds = groupMemberAttributes.Select( a => a.Id ).Distinct().ToList();
 
 
-                    // Filter query by any configured person attribute filters
-                    if ( groupMemberAttributes != null && groupMemberAttributes.Any() )
-                    {
-                        var attributeValueService = new AttributeValueService( rockContext );
-                        var parameterExpression = attributeValueService.ParameterExpression;
-                        foreach ( var attribute in groupMemberAttributes )
+                        // Filter query by any configured person attribute filters
+                        if ( groupMemberAttributes != null && groupMemberAttributes.Any() )
                         {
-                            var filterControl = phRegistrantFormFieldFilters.FindControl( "filter_" + attribute.Id.ToString() );
-                            if ( filterControl != null )
+                            var attributeValueService = new AttributeValueService( rockContext );
+                            var parameterExpression = attributeValueService.ParameterExpression;
+                            foreach ( var attribute in groupMemberAttributes )
                             {
-                                var filterValues = attribute.FieldType.Field.GetFilterValues( filterControl, attribute.QualifierValues );
-                                var expression = attribute.FieldType.Field.AttributeFilterExpression( attribute.QualifierValues, filterValues, parameterExpression );
-                                if ( expression != null )
+                                var filterControl = phRegistrantFormFieldFilters.FindControl( "filter_" + attribute.Id.ToString() );
+                                if ( filterControl != null )
                                 {
-                                    var attributeValues = attributeValueService
-                                        .Queryable()
-                                        .Where( v => v.Attribute.Id == attribute.Id );
-                                    attributeValues = attributeValues.Where( parameterExpression, expression, null );
-                                    qry = qry
-                                        .Where( r => r.GroupMemberId.HasValue && 
-                                        attributeValues.Select( v => v.EntityId ).Contains( r.GroupMemberId.Value ) );
+                                    var filterValues = attribute.FieldType.Field.GetFilterValues( filterControl, attribute.QualifierValues );
+                                    var expression = attribute.FieldType.Field.AttributeFilterExpression( attribute.QualifierValues, filterValues, parameterExpression );
+                                    if ( expression != null )
+                                    {
+                                        var attributeValues = attributeValueService
+                                            .Queryable()
+                                            .Where( v => v.Attribute.Id == attribute.Id );
+                                        attributeValues = attributeValues.Where( parameterExpression, expression, null );
+                                        qry = qry
+                                            .Where( r => r.GroupMemberId.HasValue &&
+                                            attributeValues.Select( v => v.EntityId ).Contains( r.GroupMemberId.Value ) );
+                                    }
                                 }
                             }
                         }
@@ -1089,11 +1482,7 @@ namespace RockWeb.Blocks.Event
                     // Set the grids LinqDataSource which will run query and set results for current page
                     gRegistrants.SetLinqDataSource<RegistrationRegistrant>( orderedQry );
 
-                    // If there are any attributes that were selected to be displayed, we're going 
-                    // to try and read all attribute values in one query and then put them into a 
-                    // custom grid ObjectList property so that the AttributeField columns don't need 
-                    // to do the LoadAttributes and querying of values for each row/column
-                    if ( personAttributesIds.Any() || groupMemberAttributesIds.Any() || registrantAttributeIds.Any() )
+                    if ( RegistrantFields != null )
                     {
                         // Get the query results for the current page
                         var currentPageRegistrants = gRegistrants.DataSource as List<RegistrationRegistrant>;
@@ -1118,82 +1507,116 @@ namespace RockWeb.Blocks.Event
                                 .Distinct()
                                 .ToList();
 
-                            // Query the attribute values for all rows and attributes
-                            var attributeValues = new AttributeValueService( rockContext )
-                                .Queryable( "Attribute" ).AsNoTracking()
-                                .Where( v =>
-                                    v.EntityId.HasValue &&
-                                    (
+                            // If the campus column was selected to be displayed on grid, preload all the people's
+                            // campuses so that the databind does not need to query each row
+                            if ( preloadCampusValues )
+                            {
+                                PersonCampusIds = new Dictionary<int, List<int>>();
+
+                                Guid familyGroupTypeGuid = Rock.SystemGuid.GroupType.GROUPTYPE_FAMILY.AsGuid();
+                                foreach( var personCampusList in new GroupMemberService( rockContext )
+                                    .Queryable().AsNoTracking()
+                                    .Where( m =>
+                                        m.Group.GroupType.Guid == familyGroupTypeGuid &&
+                                        personIds.Contains( m.PersonId ) )
+                                    .GroupBy( m => m.PersonId )
+                                    .Select( m => new
+                                    {
+                                        PersonId = m.Key,
+                                        CampusIds = m
+                                            .Where( g => g.Group.CampusId.HasValue )
+                                            .Select( g => g.Group.CampusId.Value )
+                                            .ToList()
+                                    } ) )
+                                {
+                                    PersonCampusIds.Add( personCampusList.PersonId, personCampusList.CampusIds );
+                                }
+                            }
+
+                            // If there are any attributes that were selected to be displayed, we're going 
+                            // to try and read all attribute values in one query and then put them into a 
+                            // custom grid ObjectList property so that the AttributeField columns don't need 
+                            // to do the LoadAttributes and querying of values for each row/column
+                            if ( personAttributesIds.Any() || groupMemberAttributesIds.Any() || registrantAttributeIds.Any() )
+                            {
+
+                                // Query the attribute values for all rows and attributes
+                                var attributeValues = new AttributeValueService( rockContext )
+                                    .Queryable( "Attribute" ).AsNoTracking()
+                                    .Where( v =>
+                                        v.EntityId.HasValue &&
                                         (
-                                            personAttributesIds.Contains( v.AttributeId ) &&
-                                            personIds.Contains( v.EntityId.Value )
-                                        ) ||
-                                        (
-                                            groupMemberAttributesIds.Contains( v.AttributeId ) &&
-                                            groupMemberIds.Contains( v.EntityId.Value )
-                                        ) ||
-                                        (
-                                            registrantAttributeIds.Contains( v.AttributeId ) &&
-                                            registrantIds.Contains( v.EntityId.Value )
+                                            (
+                                                personAttributesIds.Contains( v.AttributeId ) &&
+                                                personIds.Contains( v.EntityId.Value )
+                                            ) ||
+                                            (
+                                                groupMemberAttributesIds.Contains( v.AttributeId ) &&
+                                                groupMemberIds.Contains( v.EntityId.Value )
+                                            ) ||
+                                            (
+                                                registrantAttributeIds.Contains( v.AttributeId ) &&
+                                                registrantIds.Contains( v.EntityId.Value )
+                                            )
                                         )
                                     )
-                                )
-                                .ToList();
+                                    .ToList();
 
-                            // Get the attributes to add to each row's object
-                            var attributes = new Dictionary<string, AttributeCache>();
-                            RegistrantFields
-                                    .Where( f => f.Attribute != null )
-                                    .Select( f => f.Attribute )
-                                    .ToList()
-                                .ForEach( a => attributes
-                                    .Add( a.Id.ToString() + a.Key, a ));
+                                // Get the attributes to add to each row's object
+                                var attributes = new Dictionary<string, AttributeCache>();
+                                RegistrantFields
+                                        .Where( f => f.Attribute != null )
+                                        .Select( f => f.Attribute )
+                                        .ToList()
+                                    .ForEach( a => attributes
+                                        .Add( a.Id.ToString() + a.Key, a ) );
 
-                            // Initialize the grid's object list 
-                            gRegistrants.ObjectList = new Dictionary<string,object>();
+                                // Initialize the grid's object list 
+                                gRegistrants.ObjectList = new Dictionary<string, object>();
 
-                            // Loop through each of the current page's registrants and build an attribute object for
-                            // storing attributes and the values for the registrant
-                            foreach( var registrant in currentPageRegistrants )
-                            {
-                                // Create a row attribute object 
-                                var gridObject = new GridRowAttributesObject();
-
-                                // Add the attributes to the attribute object
-                                gridObject.Attributes = attributes;
-
-                                // Add any person attribute values to object
-                                attributeValues
-                                    .Where( v => 
-                                        personAttributesIds.Contains( v.AttributeId ) &&
-                                        v.EntityId.Value == registrant.PersonAlias.PersonId )
-                                    .ToList()
-                                    .ForEach( v => gridObject.AttributeValues
-                                        .Add( v.AttributeId.ToString() + v.Attribute.Key, v ));
-
-                                // Add any group member attribute values to object
-                                if ( registrant.GroupMemberId.HasValue )
+                                // Loop through each of the current page's registrants and build an attribute
+                                // field object for storing attributes and the values for each of the registrants
+                                foreach ( var registrant in currentPageRegistrants )
                                 {
+                                    // Create a row attribute object 
+                                    var attributeFieldObject = new AttributeFieldObject();
+
+                                    // Add the attributes to the attribute object
+                                    attributeFieldObject.Attributes = attributes;
+
+                                    // Add any person attribute values to object
                                     attributeValues
                                         .Where( v =>
-                                            groupMemberAttributesIds.Contains( v.AttributeId ) &&
-                                            v.EntityId.Value == registrant.GroupMemberId.Value )
+                                            personAttributesIds.Contains( v.AttributeId ) &&
+                                            v.EntityId.Value == registrant.PersonAlias.PersonId )
                                         .ToList()
-                                        .ForEach( v => gridObject.AttributeValues
+                                        .ForEach( v => attributeFieldObject.AttributeValues
                                             .Add( v.AttributeId.ToString() + v.Attribute.Key, v ) );
+
+                                    // Add any group member attribute values to object
+                                    if ( registrant.GroupMemberId.HasValue )
+                                    {
+                                        attributeValues
+                                            .Where( v =>
+                                                groupMemberAttributesIds.Contains( v.AttributeId ) &&
+                                                v.EntityId.Value == registrant.GroupMemberId.Value )
+                                            .ToList()
+                                            .ForEach( v => attributeFieldObject.AttributeValues
+                                                .Add( v.AttributeId.ToString() + v.Attribute.Key, v ) );
+                                    }
+
+                                    // Add any registrant attribute values to object
+                                    attributeValues
+                                        .Where( v =>
+                                            registrantAttributeIds.Contains( v.AttributeId ) &&
+                                            v.EntityId.Value == registrant.PersonAlias.PersonId )
+                                        .ToList()
+                                        .ForEach( v => attributeFieldObject.AttributeValues
+                                            .Add( v.AttributeId.ToString() + v.Attribute.Key, v ) );
+
+                                    // Add row attribute object to grid's object list
+                                    gRegistrants.ObjectList.Add( registrant.Id.ToString(), attributeFieldObject );
                                 }
-
-                                // Add any registrant attribute values to object
-                                attributeValues
-                                    .Where( v =>
-                                        registrantAttributeIds.Contains( v.AttributeId ) &&
-                                        v.EntityId.Value == registrant.PersonAlias.PersonId )
-                                    .ToList()
-                                    .ForEach( v => gridObject.AttributeValues
-                                        .Add( v.AttributeId.ToString() + v.Attribute.Key, v ) );
-
-                                // Add row attribute object to grid's object list
-                                gRegistrants.ObjectList.Add( registrant.Id.ToString(), gridObject);
                             }
                         }
                     }
@@ -1203,7 +1626,10 @@ namespace RockWeb.Blocks.Event
             }
         }
 
-
+        /// <summary>
+        /// Gets all of the form fields that were configured as 'Show on Grid' for the registration template
+        /// </summary>
+        /// <param name="registrationInstance">The registration instance.</param>
         private void LoadRegistrantFormFields( RegistrationInstance registrationInstance )
         {
             RegistrantFields = new List<RegistrantFormField>();
@@ -1212,7 +1638,9 @@ namespace RockWeb.Blocks.Event
             {
                 foreach( var form in registrationInstance.RegistrationTemplate.Forms )
                 {
-                    foreach ( var formField in form.Fields )
+                    foreach ( var formField in form.Fields
+                        .Where( f => f.IsGridField )
+                        .OrderBy( f => f.Order ) )
                     {
                         if ( formField.FieldSource == RegistrationFieldSource.PersonField )
                         {
@@ -1241,20 +1669,170 @@ namespace RockWeb.Blocks.Event
             }
         }
 
+        /// <summary>
+        /// Adds the filter controls and grid columns for all of the registration template's form fields
+        /// that were configured to 'Show on Grid'
+        /// </summary>
         private void AddDynamicRegistrantControls()
         {
             phRegistrantFormFieldFilters.Controls.Clear();
 
-            foreach( var column in gRegistrants.Columns.OfType<AttributeField>().ToList() )
+            // Remove any of the dynamic person fields
+            var dynamicColumns = new List<string> {
+                "PersonAlias.Person.BirthDate",
+            };
+            foreach ( var column in gRegistrants.Columns
+                .OfType<BoundField>()
+                .Where( c => dynamicColumns.Contains( c.DataField ) )
+                .ToList() )
             {
                 gRegistrants.Columns.Remove( column );
             }
 
-            if ( RegistrantFields != null && RegistrantFields.Any() )
+            // Remove any of the dynamic attribute fields
+            foreach( var column in gRegistrants.Columns
+                .OfType<AttributeField>()
+                .ToList() )
+            {
+                gRegistrants.Columns.Remove( column );
+            }
+
+            // Remove the fees field
+            foreach ( var column in gRegistrants.Columns
+                .OfType<TemplateField>()
+                .Where( c => c.HeaderText == "Fees" )
+                .ToList() )
+            {
+                gRegistrants.Columns.Remove( column );
+            }
+
+            // Remove the delete field
+            foreach ( var column in gRegistrants.Columns
+                .OfType<DeleteField>()
+                .ToList() )
+            {
+                gRegistrants.Columns.Remove( column );
+            }
+
+            if ( RegistrantFields != null )
             {
                 foreach( var field in RegistrantFields )
                 {
-                    if ( field.Attribute != null )
+                    if ( field.FieldSource == RegistrationFieldSource.PersonField && field.PersonFieldType.HasValue )
+                    {
+                        switch( field.PersonFieldType.Value )
+                        {
+                            case RegistrationPersonFieldType.Birthdate:
+                                {
+                                    var drpBirthdateFilter = new DateRangePicker();
+                                    drpBirthdateFilter.ID = "drpBirthdateFilter";
+                                    drpBirthdateFilter.Label = "Birthdate Range";
+                                    drpBirthdateFilter.DelimitedValues = fRegistrants.GetUserPreference( "Birthdate Range" );
+                                    phRegistrantFormFieldFilters.Controls.Add( drpBirthdateFilter );
+
+                                    string dataFieldExpression = "PersonAlias.Person.BirthDate";
+                                    var birthdateField = new DateField();
+                                    birthdateField.DataField = dataFieldExpression;
+                                    birthdateField.HeaderText = "Birthdate";
+                                    birthdateField.SortExpression = dataFieldExpression;
+                                    gRegistrants.Columns.Add( birthdateField );
+
+                                    break;
+                                }
+                            case RegistrationPersonFieldType.Email:
+                                {
+                                    var tbEmailFilter = new RockTextBox();
+                                    tbEmailFilter.ID = "tbEmailFilter";
+                                    tbEmailFilter.Label = "Email";
+                                    tbEmailFilter.Text = fRegistrants.GetUserPreference( "Email" );
+                                    phRegistrantFormFieldFilters.Controls.Add( tbEmailFilter );
+
+                                    string dataFieldExpression = "PersonAlias.Person.Email";
+                                    var emailField = new BoundField();
+                                    emailField.DataField = dataFieldExpression;
+                                    emailField.HeaderText = "Email";
+                                    emailField.SortExpression = dataFieldExpression;
+                                    gRegistrants.Columns.Add( emailField ); 
+                                    
+                                    break;
+                                }
+                            case RegistrationPersonFieldType.Gender:
+                                {
+                                    var ddlGenderFilter = new RockDropDownList();
+                                    ddlGenderFilter.BindToEnum<Gender>( true );
+                                    ddlGenderFilter.ID = "ddlGenderFilter";
+                                    ddlGenderFilter.Label = "Gender";
+                                    ddlGenderFilter.SetValue( fRegistrants.GetUserPreference( "Gender" ) );
+                                    phRegistrantFormFieldFilters.Controls.Add( ddlGenderFilter );
+
+                                    string dataFieldExpression = "PersonAlias.Person.Gender";
+                                    var genderField = new EnumField();
+                                    genderField.DataField = dataFieldExpression;
+                                    genderField.HeaderText = "Gender";
+                                    genderField.SortExpression = dataFieldExpression;
+                                    gRegistrants.Columns.Add( genderField ); 
+                                    
+                                    break;
+                                }
+                            case RegistrationPersonFieldType.HomeCampus:
+                                {
+                                    var ddlCampus = new RockDropDownList();
+                                    ddlCampus.ID = "ddlCampus";
+                                    ddlCampus.Label = "Home Campus";
+                                    ddlCampus.DataValueField = "Id";
+                                    ddlCampus.DataTextField = "Name";
+                                    ddlCampus.DataSource = CampusCache.All();
+                                    ddlCampus.DataBind();
+                                    ddlCampus.Items.Insert( 0, new ListItem( "", "" ) );
+                                    ddlCampus.SetValue( fRegistrants.GetUserPreference( "Home Campus" ) );
+                                    phRegistrantFormFieldFilters.Controls.Add( ddlCampus );
+
+                                    var templateField = new TemplateField();
+                                    templateField.ItemTemplate = new LiteralFieldTemplate( "lCampus" );
+                                    templateField.HeaderText = "Campus";
+                                    gRegistrants.Columns.Add( templateField ); 
+                                    
+                                    break;
+                                }
+                            
+                            case RegistrationPersonFieldType.MaritalStatus:
+                                {
+                                    var ddlMaritalStatusFilter = new RockDropDownList();
+                                    ddlMaritalStatusFilter.BindToDefinedType( DefinedTypeCache.Read( Rock.SystemGuid.DefinedType.PERSON_MARITAL_STATUS.AsGuid() ), true );
+                                    ddlMaritalStatusFilter.ID = "ddlMaritalStatusFilter";
+                                    ddlMaritalStatusFilter.Label = "Marital Status";
+                                    ddlMaritalStatusFilter.SetValue( fRegistrants.GetUserPreference( "Marital Status" ) );
+                                    phRegistrantFormFieldFilters.Controls.Add( ddlMaritalStatusFilter );
+
+                                    string dataFieldExpression = "PersonAlias.Person.MaritalStatusValue.Value";
+                                    var maritalStatusField = new BoundField();
+                                    maritalStatusField.DataField = dataFieldExpression;
+                                    maritalStatusField.HeaderText = "MaritalStatus";
+                                    maritalStatusField.SortExpression = dataFieldExpression;
+                                    gRegistrants.Columns.Add( maritalStatusField ); 
+
+                                    break;
+                                }
+
+                            case RegistrationPersonFieldType.Phone:
+                                {
+                                    var tbPhoneFilter = new RockTextBox();
+                                    tbPhoneFilter.ID = "tbPhoneFilter";
+                                    tbPhoneFilter.Label = "Phone";
+                                    tbPhoneFilter.Text = fRegistrants.GetUserPreference( "Phone" );
+                                    phRegistrantFormFieldFilters.Controls.Add( tbPhoneFilter );
+
+                                    var templateField = new TemplateField();
+                                    templateField.ItemTemplate = new LiteralFieldTemplate( "lPhone" );
+                                    templateField.HeaderText = "Phone(s)";
+                                    gRegistrants.Columns.Add( templateField ); 
+                                    
+                                    break;
+                                }
+                        }
+                    }
+
+                    else if ( field.Attribute != null )
                     {
                         var attribute = field.Attribute;
                         var control = attribute.FieldType.Field.FilterControl( attribute.QualifierValues, "filter_" + attribute.Id.ToString(), false );
@@ -1296,7 +1874,6 @@ namespace RockWeb.Blocks.Event
                             boundField.DataField = dataFieldExpression;
                             boundField.HeaderText = attribute.Name;
                             boundField.SortExpression = string.Empty;
-                            boundField.UseObjectListFirst = true;
 
                             var attributeCache = Rock.Web.Cache.AttributeCache.Read( attribute.Id );
                             if ( attributeCache != null )
@@ -1311,12 +1888,20 @@ namespace RockWeb.Blocks.Event
                 }
             }
 
-            // Add delete column
+            // Add fee column
+            var feeField = new TemplateField();
+            feeField.HeaderText = "Fees";
+            feeField.ItemTemplate = new LiteralFieldTemplate( "lFees" );
+            gRegistrants.Columns.Add( feeField );
+
             var deleteField = new DeleteField();
             gRegistrants.Columns.Add( deleteField );
             deleteField.Click += gRegistrants_Delete;
         }
 
+        /// <summary>
+        /// Binds the linkages.
+        /// </summary>
         private void BindLinkages()
         {
 
@@ -1364,109 +1949,26 @@ namespace RockWeb.Blocks.Event
         }
 
         /// <summary>
-        /// Helper class used by registrant grid to pre-load all the attributes/values so that
-        /// the attribute field columns don't need to load or query for any values on each row bind
+        /// TemplateField template with one literal control
         /// </summary>
-        public class GridRowAttributesObject : IHasAttributes
+        public class LiteralFieldTemplate : ITemplate
         {
-            int Id { get; set; }
+            private string LiteralId { get; set; }
 
-            int IHasAttributes.Id
+            /// <summary>
+            /// Instantiates the in.
+            /// </summary>
+            /// <param name="container">The container.</param>
+            public void InstantiateIn( Control container )
             {
-                get { throw new NotImplementedException(); }
+                var literal = new Literal();
+                literal.ID = LiteralId;
+                container.Controls.Add( literal );
             }
 
-            /// <summary>
-            /// List of attributes associated with the object.  This property will not include the attribute values.
-            /// The <see cref="AttributeValues" /> property should be used to get attribute values.  Dictionary key
-            /// is the attribute key, and value is the cached attribute
-            /// </summary>
-            /// <value>
-            /// The attributes.
-            /// </value>
-            public Dictionary<string, AttributeCache> Attributes { get; set; }
-
-            /// <summary>
-            /// Dictionary of all attributes and their value.  Key is the attribute key, and value is the associated attribute value
-            /// </summary>
-            /// <value>
-            /// The attribute values.
-            /// </value>
-            public Dictionary<string, AttributeValue> AttributeValues { get; set; }
-
-            /// <summary>
-            /// Gets the attribute value defaults.  This property can be used by a subclass to override the parent class's default
-            /// value for an attribute
-            /// </summary>
-            /// <value>
-            /// The attribute value defaults.
-            /// </value>
-            public Dictionary<string, string> AttributeValueDefaults
+            public LiteralFieldTemplate( string literalId )
             {
-                get { return null; }
-            }
-
-            /// <summary>
-            /// Gets the value of an attribute key.
-            /// </summary>
-            /// <param name="key">The key.</param>
-            /// <returns></returns>
-            public string GetAttributeValue( string key )
-            {
-                if ( this.AttributeValues != null &&
-                    this.AttributeValues.ContainsKey( key ) )
-                {
-                    return this.AttributeValues[key].Value;
-                }
-
-                if ( this.Attributes != null &&
-                    this.Attributes.ContainsKey( key ) )
-                {
-                    return this.Attributes[key].DefaultValue;
-                }
-
-                return null;
-            }
-
-            /// <summary>
-            /// Gets the value of an attribute key - splitting that delimited value into a list of strings.
-            /// </summary>
-            /// <param name="key">The key.</param>
-            /// <returns>
-            /// A list of string values or an empty list if none exist.
-            /// </returns>
-            public List<string> GetAttributeValues( string key )
-            {
-                string value = GetAttributeValue( key );
-                if ( !string.IsNullOrWhiteSpace( value ) )
-                {
-                    return value.SplitDelimitedValues().ToList();
-                }
-
-                return new List<string>();
-            }
-
-            /// <summary>
-            /// Sets the value of an attribute key in memory.  Note, this will not persist value to database
-            /// </summary>
-            /// <param name="key">The key.</param>
-            /// <param name="value">The value.</param>
-            public void SetAttributeValue( string key, string value )
-            {
-                if ( this.AttributeValues != null &&
-                    this.AttributeValues.ContainsKey( key ) )
-                {
-                    this.AttributeValues[key].Value = value;
-                }
-            }
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="GridRowAttributesObject"/> class.
-            /// </summary>
-            public GridRowAttributesObject()
-            {
-                Attributes = new Dictionary<string, AttributeCache>();
-                AttributeValues = new Dictionary<string, AttributeValue>();
+                LiteralId = literalId;
             }
         }
     }

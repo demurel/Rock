@@ -959,6 +959,13 @@ namespace RockWeb.Blocks.Event
 
                 switch ( attributeForm.FieldSource )
                 {
+                    case RegistrationFieldSource.PersonField:
+                        {
+                            attributeForm.ShowCurrentValue = cbUseCurrentPersonAttributeValue.Checked;
+                            attributeForm.IsGridField = cbShowOnGrid.Checked;
+                            attributeForm.IsRequired = cbRequireInInitialEntry.Checked;
+                            break;
+                        }
                     case RegistrationFieldSource.PersonAttribute:
                         {
                             attributeId = ddlPersonAttributes.SelectedValueAsInt();
