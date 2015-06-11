@@ -20,6 +20,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity.ModelConfiguration;
+using System.Linq;
 using System.Runtime.Serialization;
 
 using Newtonsoft.Json;
@@ -117,9 +118,45 @@ namespace Rock.Model
         }
         private ICollection<RegistrationRegistrantFee> _fees;
 
+        /// <summary>
+        /// Gets the cost with fees.
+        /// </summary>
+        /// <value>
+        /// The cost with fees.
+        /// </value>
+        [NotMapped]
+        public virtual decimal CostWithFees
+        {
+            get
+            {
+                var cost = Cost;
+                if ( Fees != null )
+                {
+                    cost += Fees.Sum( f => f.TotalCost );
+                }
+                return cost;
+            }
+        }
+
         #endregion
 
         #region Methods
+
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
+        public override string ToString()
+        {
+            if ( PersonAlias != null && PersonAlias.Person != null )
+            {
+                return PersonAlias.Person.ToString();
+            }
+
+            return base.ToString();
+        }
 
         #endregion
 

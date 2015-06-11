@@ -94,6 +94,18 @@ namespace Rock.Model
         /// </value>
         public virtual RegistrationTemplateFee RegistrationTemplateFee { get; set; }
 
+        /// <summary>
+        /// Gets the total cost.
+        /// </summary>
+        /// <value>
+        /// The total cost.
+        /// </value>
+        [NotMapped]
+        public virtual decimal TotalCost
+        {
+            get { return Quantity * Cost; }
+        }
+
         #endregion
 
         #region Methods

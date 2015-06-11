@@ -21,15 +21,14 @@ using System.Data.Entity;
 using System.Linq;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-
 using Newtonsoft.Json;
-
 using Rock;
 using Rock.Attribute;
 using Rock.Constants;
 using Rock.Data;
 using Rock.Model;
 using Rock.Security;
+using Rock.Web;
 using Rock.Web.Cache;
 using Rock.Web.UI;
 using Rock.Web.UI.Controls;
@@ -189,6 +188,30 @@ namespace RockWeb.Blocks.Event
             }
         }
 
+        /// <summary>
+        /// Gets the bread crumbs.
+        /// </summary>
+        /// <param name="pageReference">The page reference.</param>
+        /// <returns></returns>
+        public override List<BreadCrumb> GetBreadCrumbs( PageReference pageReference )
+        {
+            var breadCrumbs = new List<BreadCrumb>();
+
+            int? registrationTemplateId = PageParameter( pageReference, "RegistrationTemplateId" ).AsIntegerOrNull();
+            if ( registrationTemplateId.HasValue )
+            {
+                RegistrationTemplate registrationTemplate = GetRegistrationTemplate( registrationTemplateId.Value );
+                if ( registrationTemplate != null )
+                {
+                    breadCrumbs.Add( new BreadCrumb( registrationTemplate.ToString(), pageReference ) );
+                    return breadCrumbs;
+                }
+            }
+
+            breadCrumbs.Add( new BreadCrumb( this.PageCache.PageTitle, pageReference ) );
+            return breadCrumbs;
+        }
+        
         /// <summary>
         /// Saves any user control view-state changes that have occurred since the last page postback.
         /// </summary>
@@ -1356,14 +1379,37 @@ namespace RockWeb.Blocks.Event
         #region Show Details
 
         /// <summary>
+        /// Gets the registration template.
+        /// </summary>
+        /// <param name="registrationTemplateId">The registration template identifier.</param>
+        /// <param name="rockContext">The rock context.</param>
+        /// <returns></returns>
+        private RegistrationTemplate GetRegistrationTemplate( int registrationTemplateId, RockContext rockContext = null )
+        {
+            string key = string.Format( "RegistrationTemplate:{0}", registrationTemplateId );
+            RegistrationTemplate registrationTemplate = RockPage.GetSharedItem( key ) as RegistrationTemplate;
+            if ( registrationTemplate == null )
+            {
+                rockContext = rockContext ?? new RockContext();
+                registrationTemplate = new RegistrationTemplateService( rockContext )
+                    .Queryable( "GroupType.Roles" )
+                    .AsNoTracking()
+                    .FirstOrDefault( i => i.Id == registrationTemplateId );
+                RockPage.SaveSharedItem( key, registrationTemplate );
+            }
+
+            return registrationTemplate;
+        }
+
+        /// <summary>
         /// Shows the detail.
         /// </summary>
         private void ShowDetail()
         {
-            int? RegistrationTemplateId = PageParameter( "RegistrationTemplateId" ).AsIntegerOrNull();
+            int? registrationTemplateId = PageParameter( "RegistrationTemplateId" ).AsIntegerOrNull();
             int? parentCategoryId = PageParameter( "ParentCategoryId" ).AsIntegerOrNull();
 
-            if ( !RegistrationTemplateId.HasValue )
+            if ( !registrationTemplateId.HasValue )
             {
                 pnlDetails.Visible = false;
                 return;
@@ -1371,23 +1417,23 @@ namespace RockWeb.Blocks.Event
 
             var rockContext = new RockContext();
 
-            RegistrationTemplate RegistrationTemplate = null;
-            if ( RegistrationTemplateId.HasValue )
+            RegistrationTemplate registrationTemplate = null;
+            if ( registrationTemplateId.HasValue )
             {
-                RegistrationTemplate = new RegistrationTemplateService( rockContext ).Get( RegistrationTemplateId.Value );
+                registrationTemplate = GetRegistrationTemplate( registrationTemplateId.Value, rockContext );
             }
 
-            if ( RegistrationTemplate == null )
+            if ( registrationTemplate == null )
             {
-                RegistrationTemplate = new RegistrationTemplate();
-                RegistrationTemplate.Id = 0;
-                RegistrationTemplate.IsActive = true;
-                RegistrationTemplate.CategoryId = parentCategoryId;
-                RegistrationTemplate.UseDefaultConfirmationEmail = true;
+                registrationTemplate = new RegistrationTemplate();
+                registrationTemplate.Id = 0;
+                registrationTemplate.IsActive = true;
+                registrationTemplate.CategoryId = parentCategoryId;
+                registrationTemplate.UseDefaultConfirmationEmail = true;
             }
 
             pnlDetails.Visible = true;
-            hfRegistrationTemplateId.Value = RegistrationTemplate.Id.ToString();
+            hfRegistrationTemplateId.Value = registrationTemplate.Id.ToString();
 
             // render UI based on Authorized
             bool readOnly = false;
@@ -1395,7 +1441,7 @@ namespace RockWeb.Blocks.Event
             nbEditModeMessage.Text = string.Empty;
 
             // User must have 'Edit' rights to block, or 'Administrate' rights to template
-            if ( !UserCanEdit && !RegistrationTemplate.IsAuthorized( Authorization.ADMINISTRATE, CurrentPerson ) )
+            if ( !UserCanEdit && !registrationTemplate.IsAuthorized( Authorization.ADMINISTRATE, CurrentPerson ) )
             {
                 readOnly = true;
                 nbEditModeMessage.Heading = "Information";
@@ -1406,23 +1452,23 @@ namespace RockWeb.Blocks.Event
             {
                 btnEdit.Visible = false;
                 btnSecurity.Visible = false;
-                ShowReadonlyDetails( RegistrationTemplate );
+                ShowReadonlyDetails( registrationTemplate );
             }
             else
             {
                 btnEdit.Visible = true;
 
-                btnSecurity.Title = "Secure " + RegistrationTemplate.Name;
-                btnSecurity.EntityId = RegistrationTemplate.Id;
+                btnSecurity.Title = "Secure " + registrationTemplate.Name;
+                btnSecurity.EntityId = registrationTemplate.Id;
 
-                if ( RegistrationTemplate.Id > 0 )
+                if ( registrationTemplate.Id > 0 )
                 {
-                    ShowReadonlyDetails( RegistrationTemplate );
+                    ShowReadonlyDetails( registrationTemplate );
                 }
                 else
                 {
-                    LoadStateDetails(RegistrationTemplate, rockContext);
-                    ShowEditDetails( RegistrationTemplate, rockContext );
+                    LoadStateDetails(registrationTemplate, rockContext);
+                    ShowEditDetails( registrationTemplate, rockContext );
                 }
             }
         }

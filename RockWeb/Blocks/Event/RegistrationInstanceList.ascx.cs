@@ -59,9 +59,7 @@ namespace RockWeb.Blocks.Event
             int templateId = PageParameter( "RegistrationTemplateId" ).AsInteger();
             if ( templateId != 0 )
             {
-                _template = new RegistrationTemplateService( new RockContext() ).Queryable( "GroupType.Roles" )
-                    .Where( g => g.Id == templateId )
-                    .FirstOrDefault();
+                _template = GetRegistrationTemplate( templateId );
 
                 if ( _template != null && _template.IsAuthorized( Authorization.VIEW, CurrentPerson ) )
                 {
@@ -287,19 +285,17 @@ namespace RockWeb.Blocks.Event
                     }
                 }
 
-                List<RegistrationInstance> instances = null;
-
                 SortProperty sortProperty = gInstances.SortProperty;
                 if ( sortProperty != null )
                 {
-                    instances = qry.Sort( sortProperty ).ToList();
+                    qry = qry.Sort( sortProperty );
                 }
                 else
                 {
-                    instances = qry.OrderByDescending( a => a.StartDateTime ).ToList();
+                    qry = qry.OrderByDescending( a => a.StartDateTime );
                 }
 
-                gInstances.DataSource = instances.Select( i => new
+                var instanceQry = qry.Select( i => new
                 {
                     i.Id,
                     i.Guid,
@@ -308,15 +304,39 @@ namespace RockWeb.Blocks.Event
                     i.EndDateTime,
                     i.IsActive,
                     Details = string.Empty,
-                    Registrants = i.Registrations.SelectMany( r => r.Registrants).Count()
-                } ).ToList();
+                    Registrants = i.Registrations.SelectMany( r => r.Registrants ).Count()
+                });
 
+                gInstances.SetLinqDataSource( instanceQry );
                 gInstances.DataBind();
             }
             else
             {
                 pnlInstances.Visible = false;
             }
+        }
+
+        /// <summary>
+        /// Gets the registration template.
+        /// </summary>
+        /// <param name="registrationTemplateId">The registration template identifier.</param>
+        /// <param name="rockContext">The rock context.</param>
+        /// <returns></returns>
+        private RegistrationTemplate GetRegistrationTemplate( int registrationTemplateId, RockContext rockContext = null )
+        {
+            string key = string.Format( "RegistrationTemplate:{0}", registrationTemplateId );
+            RegistrationTemplate registrationTemplate = RockPage.GetSharedItem( key ) as RegistrationTemplate;
+            if ( registrationTemplate == null )
+            {
+                rockContext = rockContext ?? new RockContext();
+                registrationTemplate = new RegistrationTemplateService( rockContext )
+                    .Queryable( "GroupType.Roles" )
+                    .AsNoTracking()
+                    .FirstOrDefault( i => i.Id == registrationTemplateId );
+                RockPage.SaveSharedItem( key, registrationTemplate );
+            }
+
+            return registrationTemplate;
         }
 
         #endregion

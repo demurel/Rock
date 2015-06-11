@@ -109,6 +109,7 @@
 
                 <asp:Panel ID="pnlRegistrations" runat="server" Visible="false">
 
+                    <Rock:ModalAlert ID="mdRegistrationsGridWarning" runat="server" />
                     <div class="grid grid-panel">
                         <Rock:GridFilter ID="fRegistrations" runat="server" OnDisplayFilterValue="fRegistrations_DisplayFilterValue">
                             <Rock:DateRangePicker ID="drpRegistrationDateRange" runat="server" Label="Date Range" />
@@ -146,6 +147,7 @@
 
                 <asp:Panel ID="pnlRegistrants" runat="server" Visible="false">
 
+                    <Rock:ModalAlert ID="mdRegistrantsGridWarning" runat="server" />
                     <div class="grid grid-panel">
                         <Rock:GridFilter ID="fRegistrants" runat="server" OnDisplayFilterValue="fRegistrants_DisplayFilterValue">
                             <Rock:DateRangePicker ID="drpRegistrantDateRange" runat="server" Label="Date Range" />

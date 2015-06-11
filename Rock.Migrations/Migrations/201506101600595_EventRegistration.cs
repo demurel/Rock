@@ -328,6 +328,7 @@ namespace Rock.Migrations
     INSERT INTO [dbo].[FinancialAccount] ( [Name], [IsTaxDeductible], [Order], [IsActive], [Guid]) 
     VALUES ( 'Event Registration', 0, COALESCE(@MaxAccountOrder + 1, 0), 1, '2A6F9E5F-6859-44F1-AB0E-CE9CF6B08EE5')
 " );
+
         }
         
         /// <summary>
@@ -336,10 +337,22 @@ namespace Rock.Migrations
         public override void Down()
         {
             Sql( @"
+    DELETE [dbo].[Registration]
+
+    DELETE [dbo].[RegistrationTemplate]
+
+    DELETE [FinancialTransaction]
+    WHERE [Id] IN ( 
+	    SELECT d.[TransactionId]
+	    FROM [FinancialTransactionDetail] d
+	    INNER JOIN [FinancialAccount] a ON a.[Id] = d.[AccountId]
+	    WHERE a.[Guid] = '2A6F9E5F-6859-44F1-AB0E-CE9CF6B08EE5'
+    )
+
     DELETE [dbo].[FinancialAccount] WHERE [Guid] = '2A6F9E5F-6859-44F1-AB0E-CE9CF6B08EE5'
 " );
 
-            DropForeignKey("dbo.RegistrationRegistrant", "RegistrationId", "dbo.Registration");
+            DropForeignKey( "dbo.RegistrationRegistrant", "RegistrationId", "dbo.Registration" );
             DropForeignKey("dbo.RegistrationRegistrant", "PersonAliasId", "dbo.PersonAlias");
             DropForeignKey("dbo.RegistrationRegistrant", "ModifiedByPersonAliasId", "dbo.PersonAlias");
             DropForeignKey("dbo.RegistrationRegistrant", "GroupMemberId", "dbo.GroupMember");

@@ -28,7 +28,9 @@ using Rock.Constants;
 using Rock.Data;
 using Rock.Model;
 using Rock.Security;
+using Rock.Web;
 using Rock.Web.Cache;
+using Rock.Web.UI;
 using Rock.Web.UI.Controls;
 
 namespace RockWeb.Blocks.Event
@@ -41,6 +43,7 @@ namespace RockWeb.Blocks.Event
     [Description( "Template block for editing an event registration instance." )]
 
     [AccountField( "Default Account", "The default account to use for new registration instances", false, "2A6F9E5F-6859-44F1-AB0E-CE9CF6B08EE5", "", 0 )]
+    [LinkedPage("Detail Page", "The page for editing registration and registrant information", true, "", "", 1)]
     public partial class RegistrationInstanceDetail : Rock.Web.UI.RockBlock
     {
         #region Fields
@@ -103,13 +106,15 @@ namespace RockWeb.Blocks.Event
 
             fRegistrations.ApplyFilterClick += fRegistrations_ApplyFilterClick;
             gRegistrations.DataKeyNames = new string[] { "Id" };
-            gRegistrations.Actions.ShowAdd = false;
+            gRegistrations.Actions.ShowAdd = true;
+            gRegistrations.Actions.AddClick += gRegistrations_AddClick;
             gRegistrations.RowDataBound += gRegistrations_RowDataBound;
             gRegistrations.GridRebind += gRegistrations_GridRebind;
 
             fRegistrants.ApplyFilterClick += fRegistrants_ApplyFilterClick;
             gRegistrants.DataKeyNames = new string[] { "Id" };
-            gRegistrants.Actions.ShowAdd = false;
+            gRegistrants.Actions.ShowAdd = true;
+            gRegistrants.Actions.AddClick += gRegistrants_AddClick;
             gRegistrants.RowDataBound += gRegistrants_RowDataBound;
             gRegistrants.GridRebind += gRegistrants_GridRebind;
 
@@ -133,6 +138,30 @@ namespace RockWeb.Blocks.Event
             {
                 ShowDetail();
             }
+        }
+
+        /// <summary>
+        /// Gets the bread crumbs.
+        /// </summary>
+        /// <param name="pageReference">The page reference.</param>
+        /// <returns></returns>
+        public override List<BreadCrumb> GetBreadCrumbs( PageReference pageReference )
+        {
+            var breadCrumbs = new List<BreadCrumb>();
+
+            int? registrationInstanceId = PageParameter( pageReference, "RegistrationInstanceId" ).AsIntegerOrNull();
+            if ( registrationInstanceId.HasValue )
+            {
+                RegistrationInstance registrationInstance = GetRegistrationInstance( registrationInstanceId.Value );
+                if ( registrationInstance != null )
+                {
+                    breadCrumbs.Add( new BreadCrumb( registrationInstance.ToString(), pageReference ) );
+                    return breadCrumbs;
+                }
+            }
+
+            breadCrumbs.Add( new BreadCrumb( "New Registration Instance", pageReference ) );
+            return breadCrumbs;
         }
 
         /// <summary>
@@ -455,13 +484,40 @@ namespace RockWeb.Blocks.Event
         }
 
         /// <summary>
+        /// Handles the AddClick event of the gRegistrations control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        /// <exception cref="System.NotImplementedException"></exception>
+        void gRegistrations_AddClick( object sender, EventArgs e )
+        {
+            NavigateToLinkedPage( "DetailPage", "RegistrationId", 0, "RegistrationInstanceId", hfRegistrationInstanceId.ValueAsInt() );
+        }
+
+        /// <summary>
         /// Handles the Delete event of the gRegistrations control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="RowEventArgs"/> instance containing the event data.</param>
         protected void gRegistrations_Delete( object sender, RowEventArgs e )
         {
+            var rockContext = new RockContext();
+            var registrationService = new RegistrationService( rockContext );
+            var registration = registrationService.Get( e.RowKeyId );
+            if ( registration != null )
+            {
+                string errorMessage;
+                if ( !registrationService.CanDelete( registration, out errorMessage ) )
+                {
+                    mdRegistrationsGridWarning.Show( errorMessage, ModalAlertType.Information );
+                    return;
+                }
 
+                registrationService.Delete( registration );
+                rockContext.SaveChanges();
+            }
+
+            BindRegistrationsGrid();
         }
 
         /// <summary>
@@ -471,7 +527,7 @@ namespace RockWeb.Blocks.Event
         /// <param name="e">The <see cref="RowEventArgs"/> instance containing the event data.</param>
         protected void gRegistrations_RowSelected( object sender, RowEventArgs e )
         {
-
+            NavigateToLinkedPage( "DetailPage", "RegistrationId", e.RowKeyId );
         }
 
         #endregion
@@ -772,13 +828,40 @@ namespace RockWeb.Blocks.Event
         }
 
         /// <summary>
+        /// Handles the AddClick event of the gRegistrants control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        /// <exception cref="System.NotImplementedException"></exception>
+        void gRegistrants_AddClick( object sender, EventArgs e )
+        {
+            NavigateToLinkedPage( "DetailPage", "RegistrationId", 0, "RegistrationInstanceId", hfRegistrationInstanceId.ValueAsInt() );
+        }
+        
+        /// <summary>
         /// Handles the Delete event of the gRegistrants control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="RowEventArgs"/> instance containing the event data.</param>
         protected void gRegistrants_Delete( object sender, RowEventArgs e )
         {
+            var rockContext = new RockContext();
+            var registrantService = new RegistrationRegistrantService( rockContext );
+            var registrant = registrantService.Get( e.RowKeyId );
+            if ( registrant != null )
+            {
+                string errorMessage;
+                if ( !registrantService.CanDelete( registrant, out errorMessage ) )
+                {
+                    mdRegistrantsGridWarning.Show( errorMessage, ModalAlertType.Information );
+                    return;
+                }
 
+                registrantService.Delete( registrant );
+                rockContext.SaveChanges();
+            }
+
+            BindRegistrantsGrid();
         }
 
         /// <summary>
@@ -788,7 +871,7 @@ namespace RockWeb.Blocks.Event
         /// <param name="e">The <see cref="RowEventArgs"/> instance containing the event data.</param>
         protected void gRegistrants_RowSelected( object sender, RowEventArgs e )
         {
-
+            NavigateToLinkedPage( "DetailPage", "RegistrantId", e.RowKeyId );
         }
 
         #endregion
@@ -796,6 +879,29 @@ namespace RockWeb.Blocks.Event
         #endregion
 
         #region Methods
+
+        /// <summary>
+        /// Gets the registration instance.
+        /// </summary>
+        /// <param name="registrationInstanceId">The registration instance identifier.</param>
+        /// <param name="rockContext">The rock context.</param>
+        /// <returns></returns>
+        private RegistrationInstance GetRegistrationInstance( int registrationInstanceId, RockContext rockContext = null )
+        {
+            string key = string.Format( "RegistrationInstance:{0}", registrationInstanceId );
+            RegistrationInstance registrationInstance = RockPage.GetSharedItem( key ) as RegistrationInstance;
+            if ( registrationInstance == null )
+            {
+                rockContext = rockContext ?? new RockContext();
+                registrationInstance = new RegistrationInstanceService( rockContext )
+                    .Queryable( "RegistrationTemplate,Account,RegistrationTemplate.Forms.Fields" )
+                    .AsNoTracking()
+                    .FirstOrDefault( i => i.Id == registrationInstanceId );
+                RockPage.SaveSharedItem( key, registrationInstance );
+            }
+
+            return registrationInstance;
+        }
 
         /// <summary>
         /// Shows the detail.
@@ -816,10 +922,7 @@ namespace RockWeb.Blocks.Event
                 RegistrationInstance registrationInstance = null;
                 if ( RegistrationInstanceId.HasValue )
                 {
-                    registrationInstance = new RegistrationInstanceService( rockContext )
-                        .Queryable( "RegistrationTemplate,Account,RegistrationTemplate.Forms.Fields" )
-                        .AsNoTracking()
-                        .FirstOrDefault( i => i.Id == RegistrationInstanceId.Value );
+                    registrationInstance = GetRegistrationInstance( RegistrationInstanceId.Value, rockContext );
                 }
 
                 if ( registrationInstance == null )
@@ -830,15 +933,14 @@ namespace RockWeb.Blocks.Event
                     registrationInstance.RegistrationTemplateId = parentTemplateId ?? 0;
                 }
 
-                var template = registrationInstance.RegistrationTemplate;
-                if ( template == null && registrationInstance.RegistrationTemplateId > 0 )
+                if ( registrationInstance.RegistrationTemplate == null && registrationInstance.RegistrationTemplateId > 0 )
                 {
-                    template = new RegistrationTemplateService( rockContext )
+                    registrationInstance.RegistrationTemplate = new RegistrationTemplateService( rockContext )
                         .Get( registrationInstance.RegistrationTemplateId );
                 }
 
-                hlType.Visible = template != null;
-                hlType.Text = template != null ? template.Name : string.Empty;
+                hlType.Visible = registrationInstance.RegistrationTemplate != null;
+                hlType.Text = registrationInstance.RegistrationTemplate != null ? registrationInstance.RegistrationTemplate.Name : string.Empty;
 
                 pnlDetails.Visible = true;
                 hfRegistrationInstanceId.Value = registrationInstance.Id.ToString();

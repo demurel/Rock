@@ -20,6 +20,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity.ModelConfiguration;
+using System.Linq;
 using System.Runtime.Serialization;
 
 using Newtonsoft.Json;
@@ -137,9 +138,47 @@ namespace Rock.Model
         }
         private ICollection<RegistrationRegistrant> _registrants;
 
+        /// <summary>
+        /// Gets the total cost.
+        /// </summary>
+        /// <value>
+        /// The total cost.
+        /// </value>
+        [NotMapped]
+        public virtual decimal TotalCost
+        {
+            get
+            {
+                if ( Registrants != null )
+                {
+                    return Registrants.Sum( r => r.CostWithFees );
+                }
+
+                return 0.0M;
+            }
+        }
+
         #endregion
 
         #region Methods
+
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
+        public override string ToString()
+        {
+            if ( PersonAlias != null && PersonAlias.Person != null )
+            {
+                return PersonAlias.Person.FullName;
+            }
+
+            string personName = string.Format( "{0} {1}", FirstName, LastName );
+            return string.IsNullOrWhiteSpace( personName ) ? "Registration" : personName.Trim();
+
+        }
 
         #endregion
 
