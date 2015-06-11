@@ -78,17 +78,18 @@ namespace Rock.Security
         /// The _key bytes created new for each thread/session
         /// </summary>
         [ThreadStatic]
-        private static byte[] _keyBytes = null;
+        private static byte[] _keyBytesAES = null;
+        private static byte[] _keyBytesTripleDes = null;
 
         /// <summary>
         /// Encrypt the given string using AES.  The string can be decrypted using 
         /// DecryptString().  The sharedSecret parameters must match.
         /// </summary>
         /// <param name="plainText">The text to encrypt.</param>
-        public static string EncryptString( string plainText )
+        public static string EncryptString( string plainText, bool useTripleDes = false )
         {
             string dataEncryptionKey = Encryption.GetDataEncryptionKey();
-            return EncryptString( plainText, dataEncryptionKey );
+            return EncryptString( plainText, dataEncryptionKey, useTripleDes );
         }
 
         /// <summary>
@@ -98,7 +99,7 @@ namespace Rock.Security
         /// <param name="dataEncryptionKey">The data encryption key.</param>
         /// <returns></returns>
         /// <exception cref="System.ArgumentNullException">DataEncryptionKey must be specified in configuration file</exception>
-        public static string EncryptString( string plainText, string dataEncryptionKey )
+        public static string EncryptString( string plainText, string dataEncryptionKey, bool useTripleDes = false )
         {
             if (string.IsNullOrEmpty(plainText))
             {
@@ -111,22 +112,11 @@ namespace Rock.Security
             }
 
             string outStr = null;
-            RijndaelManaged aesAlg = null;
+            SymmetricAlgorithm aesAlg = null;
 
             try
             {
-                // Create a RijndaelManaged object
-                aesAlg = new RijndaelManaged();
-                
-                // generate the key from the shared secret and the salt
-                if ( _keyBytes == null )
-                {
-                    // generate a new key for every thread (vs. every call which is slow) 
-                    Rfc2898DeriveBytes key = new Rfc2898DeriveBytes( dataEncryptionKey, _salt );
-                    _keyBytes = key.GetBytes( aesAlg.KeySize / 8 );
-                }
-
-                aesAlg.Key = _keyBytes;
+                aesAlg = GetEncryptionAlgorithm( dataEncryptionKey, useTripleDes );
 
                 // Create a decryptor to perform the stream transform.
                 ICryptoTransform encryptor = aesAlg.CreateEncryptor( aesAlg.Key, aesAlg.IV );
@@ -150,7 +140,7 @@ namespace Rock.Security
             }
             finally
             {
-                // Clear the RijndaelManaged object.
+                // Clear the SymmetricAlgorithm object.
                 if ( aesAlg != null )
                     aesAlg.Clear();
             }
@@ -160,11 +150,42 @@ namespace Rock.Security
         }
 
         /// <summary>
+        /// Gets the encryption algorithm
+        /// </summary>
+        /// <param name="dataEncryptionKey">The data encryption key.</param>
+        /// <param name="useTripleDes">if set to <c>true</c> [use triple DES].</param>
+        /// <returns></returns>
+        private static SymmetricAlgorithm GetEncryptionAlgorithm( string dataEncryptionKey, bool useTripleDes )
+        {
+            // Create the SymmetricAlgorithm
+            SymmetricAlgorithm aesAlg = useTripleDes ? new TripleDESCryptoServiceProvider() as SymmetricAlgorithm : new RijndaelManaged() as SymmetricAlgorithm;
+
+            // generate the key from the shared secret and the salt
+            if ( ( useTripleDes && _keyBytesTripleDes == null ) || ( _keyBytesAES == null ) )
+            {
+                // generate a new key for every thread (vs. every call which is slow) 
+                Rfc2898DeriveBytes key = new Rfc2898DeriveBytes( dataEncryptionKey, _salt );
+                if ( useTripleDes )
+                {
+                    _keyBytesTripleDes = key.GetBytes( aesAlg.KeySize / 8 );
+                }
+                else
+                {
+                    _keyBytesAES = key.GetBytes( aesAlg.KeySize / 8 );
+                }
+
+            }
+
+            aesAlg.Key = useTripleDes ? _keyBytesTripleDes : _keyBytesAES;
+            return aesAlg;
+        }
+
+        /// <summary>
         /// Decrypt the given string.  Assumes the string was encrypted using 
         /// EncryptString(), using an identical sharedSecret.
         /// </summary>
         /// <param name="cipherText">The text to decrypt.</param>
-        public static string DecryptString( string cipherText )
+        public static string DecryptString( string cipherText, bool useTripleDes = false )
         {
             string dataEncryptionKey = ConfigurationManager.AppSettings["DataEncryptionKey"];
             
@@ -188,7 +209,7 @@ namespace Rock.Security
             {
                 try
                 {
-                    plainText = DecryptString( cipherText, dataEncryptionKey );
+                    plainText = DecryptString( cipherText, dataEncryptionKey, useTripleDes );
                 }
                 catch { }
 
@@ -211,7 +232,7 @@ namespace Rock.Security
         /// <param name="dataEncryptionKey">The data encryption key.</param>
         /// <returns></returns>
         /// <exception cref="System.ArgumentNullException">DataEncryptionKey must be specified in configuration file</exception>
-        public static string DecryptString( string cipherText, string dataEncryptionKey )
+        public static string DecryptString( string cipherText, string dataEncryptionKey, bool useTripleDes = false )
         {
             if ( string.IsNullOrEmpty( cipherText ) )
             {
@@ -227,31 +248,17 @@ namespace Rock.Security
             // the decrypted text.
             string plaintext = null;
 
-            RijndaelManaged aesAlg = null;
+            SymmetricAlgorithm aesAlg = null;
 
             try
             {
-                // Create a RijndaelManaged object
-                aesAlg = new RijndaelManaged();
-                
-                // generate the key from the shared secret and the salt
-                if ( _keyBytes == null )
-                {
-                    // generate a new key for every thread (vs. every call which is slow) 
-                    Rfc2898DeriveBytes key = new Rfc2898DeriveBytes( dataEncryptionKey, _salt );
-                    _keyBytes = key.GetBytes( aesAlg.KeySize / 8 );
-                }
+                // Create the SymmetricAlgorithm
+                aesAlg = GetEncryptionAlgorithm( dataEncryptionKey, useTripleDes );
 
                 // Create the streams used for decryption.                
                 byte[] bytes = Convert.FromBase64String( cipherText );
                 using ( MemoryStream msDecrypt = new MemoryStream( bytes ) )
                 {
-                    // Create a RijndaelManaged object
-                    // with the specified key and IV.
-                    aesAlg = new RijndaelManaged();
-                    aesAlg.Key = _keyBytes;
-                    // Get the initialization vector from the encrypted stream
-                    aesAlg.IV = ReadByteArray( msDecrypt );
                     // Create a decrytor to perform the stream transform.
                     ICryptoTransform decryptor = aesAlg.CreateDecryptor( aesAlg.Key, aesAlg.IV );
                     using ( CryptoStream csDecrypt = new CryptoStream( msDecrypt, decryptor, CryptoStreamMode.Read ) )

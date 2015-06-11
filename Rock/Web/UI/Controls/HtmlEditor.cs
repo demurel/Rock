@@ -581,8 +581,8 @@ CKEDITOR.replace('{0}', {{
                 this.ResizeMaxWidth ?? 0,                                       // {3}
                 customOnChangeScript,                                           // {4}
                 enabledPlugins.AsDelimited( "," ),                              // {5}
-                Rock.Security.Encryption.EncryptString( documentFolderRoot ),   // {6} encrypt the folders so the folder can only be configured on the server
-                Rock.Security.Encryption.EncryptString( imageFolderRoot ),      // {7}
+                Rock.Security.Encryption.EncryptString( documentFolderRoot, true ),   // {6} encrypt the folders so the folder can only be configured on the server
+                Rock.Security.Encryption.EncryptString( imageFolderRoot, true ),      // {7}
                 imageFileTypeWhiteList,                                         // {8}
                 fileTypeBlackList,                                              // {9}
                 this.MergeFields.AsDelimited( "," ),                            // {10}

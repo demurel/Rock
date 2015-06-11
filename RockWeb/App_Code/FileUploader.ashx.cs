@@ -138,7 +138,7 @@ namespace RockWeb
             if ( !string.IsNullOrWhiteSpace( rootFolderParam ) )
             {
                 // if a rootFolder was specified in the URL, decrypt it (it is encrypted to help prevent direct access to filesystem)
-                rootFolder = Rock.Security.Encryption.DecryptString( rootFolderParam );
+                rootFolder = Rock.Security.Encryption.DecryptString( rootFolderParam, true );
             }
 
             if ( string.IsNullOrWhiteSpace( rootFolder ) )
